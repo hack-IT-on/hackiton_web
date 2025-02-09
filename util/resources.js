@@ -1,24 +1,48 @@
 import { connection } from "./db";
 import { getCurrentUser } from "@/lib/getCurrentUser";
+
 export async function getResources() {
-  const [rows] = await connection.execute(
-    "SELECT * FROM resources order by id desc"
-  );
-  return rows;
+  try {
+    const [rows] = await connection.execute(
+      "SELECT * FROM resources ORDER BY id DESC"
+    );
+    return rows || [];
+  } catch (error) {
+    console.error("Error fetching resources:", error);
+    return [];
+  }
 }
+
 export async function getCoins() {
-  const user = await getCurrentUser();
-  const [coins] = await connection.execute(
-    "SELECT code_coins FROM users where id = ?",
-    [user?.id]
-  );
-  return coins;
+  try {
+    const user = await getCurrentUser();
+
+    if (!user?.id) {
+      return [{ code_coins: 0 }]; // Return default value if no user
+    }
+
+    const [coins] = await connection.execute(
+      "SELECT code_coins FROM users WHERE id = ?",
+      [user.id]
+    );
+
+    return coins || [{ code_coins: 0 }];
+  } catch (error) {
+    console.error("Error fetching coins:", error);
+    return [{ code_coins: 0 }];
+  }
 }
 
 export async function getPurchasedResources() {
-  const user = await getCurrentUser();
-  const [rows] = await connection.execute(
-    `SELECT 
+  try {
+    const user = await getCurrentUser();
+
+    if (!user?.id) {
+      return []; // Return empty array if no user
+    }
+
+    const [rows] = await connection.execute(
+      `SELECT 
         r.id,
         r.name,
         r.description,
@@ -31,7 +55,12 @@ export async function getPurchasedResources() {
        JOIN resources r ON p.resource_id = r.id
        WHERE p.user_id = ?
        ORDER BY p.purchased_at DESC`,
-    [user?.id]
-  );
-  return rows;
+      [user.id]
+    );
+
+    return rows || [];
+  } catch (error) {
+    console.error("Error fetching purchased resources:", error);
+    return [];
+  }
 }
