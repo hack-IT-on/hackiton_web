@@ -6,7 +6,7 @@ import checkAndAwardBadges from "@/util/badgeUtils";
 export async function POST(req) {
   const user = await getCurrentUser();
   try {
-    const userId = user.id;
+    const userId = user?.id;
     const {
       activityName,
       qr_code_text,

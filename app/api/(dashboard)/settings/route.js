@@ -9,7 +9,7 @@ export async function GET() {
     const [rows] = await connection.execute(
       "SELECT name, student_id, github_username, leetcode_username, email FROM users WHERE id = ?",
       // Replace with actual user ID from session
-      [user.id]
+      [user?.id]
     );
     return NextResponse.json(rows[0]);
   } catch (error) {
@@ -30,7 +30,7 @@ export async function PUT(request) {
     if (currentPassword && newPassword) {
       const [users] = await connection.execute(
         "SELECT password FROM users WHERE id = ?",
-        [user.id]
+        [user?.id]
       );
       const isValid = await bcrypt.compare(currentPassword, users[0].password);
 
@@ -44,7 +44,7 @@ export async function PUT(request) {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await connection.execute("UPDATE users SET password = ? WHERE id = ?", [
         hashedPassword,
-        user.id,
+        user?.id,
       ]);
     }
 
@@ -57,7 +57,7 @@ export async function PUT(request) {
       const setClause = Object.keys(filteredFields)
         .map((key) => `${key} = ?`)
         .join(", ");
-      const values = [...Object.values(filteredFields), user.id];
+      const values = [...Object.values(filteredFields), user?.id];
 
       const query = `UPDATE users SET ${setClause} WHERE id = ?`;
       await connection.execute(query, values);

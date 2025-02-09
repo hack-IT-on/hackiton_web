@@ -9,7 +9,7 @@ export async function POST(request) {
   try {
     const { certificateId } = await request.json();
 
-    const userName = user.name;
+    const userName = user?.name;
 
     // Get certificate template
     const [templates] = await connection.execute(

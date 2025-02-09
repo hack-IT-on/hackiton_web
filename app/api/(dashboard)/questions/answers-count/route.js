@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const [response] = await connection.execute(
       "SELECT * FROM `answers` WHERE user_id = ?",
-      [user.id]
+      [user?.id]
     );
     return NextResponse.json(response);
   } catch (err) {

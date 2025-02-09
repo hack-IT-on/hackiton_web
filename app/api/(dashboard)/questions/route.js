@@ -18,7 +18,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const user = await getCurrentUser();
-    if (!user || !user.id) {
+    if (!user || !user?.id) {
       throw new Error("User is not authenticated.");
     }
 
@@ -34,7 +34,7 @@ export async function POST(request) {
     // Execute the query
     const response = await connection.execute(
       "INSERT INTO `questions`( `user_id`, `title`, `content`, `tags`) VALUES (?, ?, ?, ?)",
-      [user.id, body.title, body.content, tags]
+      [user?.id, body.title, body.content, tags]
     );
 
     return new Response(
@@ -52,7 +52,7 @@ export async function POST(request) {
 
 export async function PUT(request) {
   const user = getCurrentUser();
-  if (user.role !== "admin") {
+  if (user?.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

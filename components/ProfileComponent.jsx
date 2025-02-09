@@ -50,7 +50,7 @@ const ProfileComponent = ({ user }) => {
     const fetchProfile = async () => {
       try {
         const response = await fetch(
-          `https://api.github.com/users/${user.github_username}`
+          `https://api.github.com/users/${user?.github_username}`
         );
         if (!response.ok) throw new Error("Profile fetch failed");
 
@@ -126,7 +126,7 @@ const ProfileComponent = ({ user }) => {
     fetchUserBadge();
 
     fetchProfile();
-  }, [user.github_username]);
+  }, [user?.github_username]);
 
   if (loading) {
     return (
@@ -247,11 +247,11 @@ const ProfileComponent = ({ user }) => {
                       )}
                       <div className="flex items-center">
                         <Mail className="mr-2 h-4 w-4" />
-                        {user.email}
+                        {user?.email}
                       </div>
                       <div className="flex items-center">
                         <IdCard className="mr-2 h-4 w-4" />
-                        {user.student_id}
+                        {user?.student_id}
                       </div>
                       <div className="flex items-center">
                         <Calendar className="mr-2 h-4 w-4" />

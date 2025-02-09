@@ -72,7 +72,7 @@ export default function LeetcodeProfile({ data }) {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             <Avatar className="w-24 h-24 border-2 border-border">
-              <AvatarImage src={profile.userAvatar} />
+              <AvatarImage src={profile?.userAvatar} />
               <AvatarFallback>
                 <User className="w-12 h-12" />
               </AvatarFallback>
@@ -80,24 +80,26 @@ export default function LeetcodeProfile({ data }) {
             <div className="space-y-4 flex-1">
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
-                  {profile.realName}
-                  {profile.ranking && (
-                    <Badge variant="secondary">Rank #{profile.ranking}</Badge>
+                  {profile?.realName}
+                  {profile?.ranking && (
+                    <Badge variant="secondary">Rank #{profile?.ranking}</Badge>
                   )}
                 </h1>
-                <p className="text-muted-foreground">@{matchedUser.username}</p>
+                <p className="text-muted-foreground">
+                  @{matchedUser?.username}
+                </p>
               </div>
               <div className="flex flex-wrap gap-4">
-                {profile.company && (
+                {profile?.company && (
                   <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
                     <Building2 className="w-4 h-4" />
-                    <span>{profile.company}</span>
+                    <span>{profile?.company}</span>
                   </div>
                 )}
-                {profile.countryName && (
+                {profile?.countryName && (
                   <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
                     <MapPin className="w-4 h-4" />
-                    <span>{profile.countryName}</span>
+                    <span>{profile?.countryName}</span>
                   </div>
                 )}
                 {githubUrl && (
@@ -112,9 +114,9 @@ export default function LeetcodeProfile({ data }) {
                   </a>
                 )}
               </div>
-              {profile.skillTags && profile.skillTags.length > 0 && (
+              {profile?.skillTags && profile?.skillTags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {profile.skillTags.map((skill) => (
+                  {profile?.skillTags.map((skill) => (
                     <Badge key={skill} variant="secondary">
                       {skill}
                     </Badge>
@@ -154,7 +156,7 @@ export default function LeetcodeProfile({ data }) {
                   Contribution Points
                 </p>
                 <h2 className="text-2xl font-bold mt-2">
-                  {contributions.points}
+                  {contributions?.points}
                 </h2>
               </div>
               <Star className="w-8 h-8 text-yellow-500" />
@@ -162,11 +164,11 @@ export default function LeetcodeProfile({ data }) {
             <div className="mt-4 space-y-2">
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <Code2 className="w-4 h-4" />
-                Questions: {contributions.questionCount}
+                Questions: {contributions?.questionCount}
               </p>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4" />
-                Test cases: {contributions.testcaseCount}
+                Test cases: {contributions?.testcaseCount}
               </p>
             </div>
           </CardContent>
@@ -180,19 +182,19 @@ export default function LeetcodeProfile({ data }) {
                   Achievements
                 </p>
                 <h2 className="text-2xl font-bold mt-2">
-                  {matchedUser.badges.length}
+                  {matchedUser?.badges.length}
                 </h2>
               </div>
               <Medal className="w-8 h-8 text-purple-500" />
             </div>
             <div className="mt-4">
-              {matchedUser.badges.length === 0 ? (
+              {matchedUser?.badges.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No badges yet</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {matchedUser.badges.map((badge, index) => (
+                  {matchedUser?.badges.map((badge, index) => (
                     <Badge key={index} variant="outline">
-                      {badge.name}
+                      {badge?.name}
                     </Badge>
                   ))}
                 </div>
@@ -209,18 +211,18 @@ export default function LeetcodeProfile({ data }) {
                   Recent Activity
                 </p>
                 <h2 className="text-2xl font-bold mt-2">
-                  {recentSubmissionList.length}
+                  {recentSubmissionList?.length}
                 </h2>
               </div>
               <Timer className="w-8 h-8 text-blue-500" />
             </div>
-            {recentSubmissionList.length > 0 && (
+            {recentSubmissionList?.length > 0 && (
               <div className="mt-4">
                 <p className="text-sm">
-                  Last solved: {recentSubmissionList[0].title}
+                  Last solved: {recentSubmissionList[0]?.title}
                 </p>
                 <Badge variant="outline" className="mt-2">
-                  {recentSubmissionList[0].lang}
+                  {recentSubmissionList[0]?.lang}
                 </Badge>
               </div>
             )}
@@ -287,7 +289,7 @@ export default function LeetcodeProfile({ data }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {submitStats.acSubmissionNum.slice(1).map((item, index) => {
+              {submitStats?.acSubmissionNum.slice(1).map((item, index) => {
                 const total = allQuestionsCount[index + 1].count;
                 const solved = item.count;
                 const percentage = ((solved / total) * 100).toFixed(1);
@@ -355,7 +357,7 @@ export default function LeetcodeProfile({ data }) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentSubmissionList.slice(0, 5).map((submission, index) => (
+            {recentSubmissionList?.slice(0, 5).map((submission, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"

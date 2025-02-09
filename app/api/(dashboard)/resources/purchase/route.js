@@ -24,7 +24,7 @@ export async function POST(request) {
       // Get user's current coins and resource price
       const [userRows] = await connection.execute(
         "SELECT code_coins FROM users WHERE id = ?",
-        [user.id]
+        [user?.id]
       );
 
       const [resourceRows] = await connection.execute(
@@ -51,7 +51,7 @@ export async function POST(request) {
       // Check if user already owns the resource
       const [purchaseRows] = await connection.execute(
         "SELECT id FROM purchases WHERE user_id = ? AND resource_id = ?",
-        [user.id, resourceId]
+        [user?.id, resourceId]
       );
 
       if (purchaseRows[0]) {
@@ -61,13 +61,13 @@ export async function POST(request) {
       // Deduct coins from user
       await connection.execute(
         "UPDATE users SET code_coins = code_coins - ? WHERE id = ?",
-        [resourcePrice, user.id]
+        [resourcePrice, user?.id]
       );
 
       // Record purchase
       await connection.execute(
         "INSERT INTO purchases (user_id, resource_id, purchased_at) VALUES (?, ?, NOW())",
-        [user.id, resourceId]
+        [user?.id, resourceId]
       );
 
       // await connection.commit();

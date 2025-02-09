@@ -16,7 +16,7 @@ export async function GET(request, { params }) {
       `SELECT p.id 
        FROM purchases p
        WHERE p.user_id = ? AND p.resource_id = ?`,
-      [user.id, resourceId]
+      [user?.id, resourceId]
     );
 
     if (!purchaseRows[0]) {

@@ -9,8 +9,8 @@ export async function POST(request) {
   try {
     const { eventId, eventName } = await request.json();
 
-    const userName = user.name;
-    const email = user.email;
+    const userName = user?.name;
+    const email = user?.email;
 
     // Input validation
     if (!eventId || !userName || !email) {
@@ -30,7 +30,7 @@ export async function POST(request) {
     try {
       const [rows] = await connection.execute(
         "select * from event_registrations where user_id = ? and event_id = ?",
-        [user.id, eventId]
+        [user?.id, eventId]
       );
 
       if (rows.length > 0) {
@@ -41,7 +41,7 @@ export async function POST(request) {
       }
       await connection.execute(
         "INSERT INTO event_registrations (event_id, user_id, user_name, email, qr_code_secret) VALUES (?, ?, ?, ?, ?)",
-        [eventId, user.id, userName, email, registrationId]
+        [eventId, user?.id, userName, email, registrationId]
       );
 
       // Send QR code via email

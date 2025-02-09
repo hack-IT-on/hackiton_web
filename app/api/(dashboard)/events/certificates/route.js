@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const [certificates] = await connection.execute(
       "SELECT ec.*, er.user_name, er.email, er.check_in_time FROM event_registrations er JOIN event_certificates ec ON er.event_id = ec.event_id WHERE er.is_checked_in = 1 AND er.is_checked_out = 1 AND er.user_id = ?",
-      [user.id]
+      [user?.id]
     );
     return NextResponse.json({ certificates });
   } catch (error) {

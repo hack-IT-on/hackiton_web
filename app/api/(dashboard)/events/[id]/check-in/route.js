@@ -10,8 +10,8 @@ export async function POST(request, { params }) {
   const { id } = await params;
   const eventId = id;
 
-  const userName = user.name;
-  const email = user.email;
+  const userName = user?.name;
+  const email = user?.email;
   // return NextResponse.json(eventId);
   const qrCodeSecret = searchParams.get("qr_code_secret");
   // console.log(qrCodeSecret);

@@ -132,11 +132,11 @@ const GamificationDashboard = () => {
               >
                 <div className="flex items-center space-x-2">
                   {getIndex(index + 1)}
-                  <span>{user.name}</span>
+                  <span>{user?.name}</span>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <span>{user.total_points} pts</span>
-                  <span>{user.badge_count} 🏆</span>
+                  <span>{user?.total_points} pts</span>
+                  <span>{user?.badge_count} 🏆</span>
                 </div>
               </div>
             ))}

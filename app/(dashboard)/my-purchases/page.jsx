@@ -42,7 +42,7 @@ export default async function PurchasesPage() {
     redirect("/login");
   }
 
-  const purchases = await getPurchasedResources(user.id);
+  const purchases = await getPurchasedResources(user?.id);
 
   return (
     <div className="min-h-screen bg-gray-50">

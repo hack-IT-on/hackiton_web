@@ -27,7 +27,7 @@ export async function POST(req, { params }) {
     if (!questionId) {
       throw new Error("Question ID is required.");
     }
-    if (!user || !user.id) {
+    if (!user || !user?.id) {
       throw new Error("User is not authenticated.");
     }
     if (!body.content) {
@@ -37,7 +37,7 @@ export async function POST(req, { params }) {
     // Execute SQL query
     const [result] = await connection.execute(
       "INSERT INTO answers(`question_id`, `user_id`, `content`) VALUES (?, ?, ?)",
-      [questionId, user.id, body.content]
+      [questionId, user?.id, body.content]
     );
 
     return NextResponse.json({
