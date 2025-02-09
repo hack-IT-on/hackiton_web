@@ -21,7 +21,7 @@ export async function POST(request) {
   }
 
   const eventData = await request.json();
-  eventData?.user_id = user?.id;
+  eventData.user_id = user?.id;
 
   try {
     const eventId = await createEvent(eventData);
