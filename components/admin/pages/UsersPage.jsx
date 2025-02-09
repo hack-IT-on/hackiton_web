@@ -232,8 +232,8 @@ const UsersPage = () => {
                         {user.role}
                       </span>
                     </TableCell>
-                    <TableCell>{user.github_username}</TableCell>
-                    <TableCell>{user.leetcode_username}</TableCell>
+                    <TableCell>{user?.github_username}</TableCell>
+                    <TableCell>{user?.leetcode_username}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
