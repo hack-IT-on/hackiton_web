@@ -1,0 +1,48 @@
+import { NextResponse } from "next/server";
+import { verifyToken } from "@/lib/auth";
+
+// Protected routes
+const protectedRoutes = [
+  "/dashboard",
+  "/profile",
+  "/settings",
+  "/code-editor",
+  "/questions",
+  "/problems",
+  "/algorithm-visualizer",
+  "/projects",
+  "/events",
+  "/leaderboard",
+  "/more-tools",
+  "/my-purchases",
+  "/resource-hub",
+  "/admin",
+];
+
+export async function middleware(request) {
+  const token = request.cookies.get("auth_token")?.value;
+  const path = request.nextUrl.pathname;
+
+  // Check if route is protected
+  if (protectedRoutes.some((route) => path.startsWith(route))) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    try {
+      // Verify token
+      const decoded = await verifyToken(token);
+
+      // Optional: Additional checks like user role or verification status
+      if (!decoded) {
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
+
+      return NextResponse.next();
+    } catch (error) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
