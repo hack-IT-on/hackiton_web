@@ -8,7 +8,7 @@ export default async function QuestionPage() {
     "SELECT * FROM questions ORDER BY created_at DESC"
   );
 
-  if (user.role === "admin")
+  if (user?.role === "admin")
     return (
       <div className="container mx-auto py-10">
         <QuestionsPage initialQuestions={rows} />
