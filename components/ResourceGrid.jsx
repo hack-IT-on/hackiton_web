@@ -55,22 +55,22 @@ const ResourceGrid = ({ initialResources }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
       {initialResources.map((resource) => (
         <Card
-          key={resource.id}
+          key={resource?.id}
           className="flex flex-col transform transition-all duration-300 hover:shadow-xl"
-          onMouseEnter={() => setHoveredCard(resource.id)}
+          onMouseEnter={() => setHoveredCard(resource?.id)}
           onMouseLeave={() => setHoveredCard(null)}
         >
-          {resource.image_link && (
+          {resource?.image_link && (
             <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300"
                 style={{
-                  backgroundImage: `url(${resource.image_link})`,
+                  backgroundImage: `url(${resource?.image_link})`,
                   transform:
-                    hoveredCard === resource.id ? "scale(1.05)" : "scale(1)",
+                    hoveredCard === resource?.id ? "scale(1.05)" : "scale(1)",
                 }}
               />
-              {resource.featured && (
+              {resource?.featured && (
                 <Badge className="absolute top-2 right-2 bg-primary">
                   Featured
                 </Badge>
@@ -80,7 +80,7 @@ const ResourceGrid = ({ initialResources }) => {
           <CardHeader>
             <CardTitle className="flex items-center justify-between space-x-2">
               <span className="text-lg font-semibold line-clamp-1">
-                {resource.name}
+                {resource?.name}
               </span>
               {/* {resource.resource_link && (
                 <TooltipProvider>
@@ -101,13 +101,13 @@ const ResourceGrid = ({ initialResources }) => {
               )} */}
             </CardTitle>
             <CardDescription className="line-clamp-2">
-              {resource.description}
+              {resource?.description}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-grow">
             <div className="flex items-center space-x-2">
               <span className="text-2xl font-bold text-primary">
-                {resource.price}
+                {resource?.price}
               </span>
               <span className="text-sm text-gray-500">coins</span>
             </div>
@@ -115,10 +115,10 @@ const ResourceGrid = ({ initialResources }) => {
           <CardFooter>
             <Button
               className="w-full flex items-center justify-center space-x-2 transition-all"
-              onClick={() => handlePurchase(resource.id)}
-              disabled={loading === resource.id}
+              onClick={() => handlePurchase(resource?.id)}
+              disabled={loading === resource?.id}
             >
-              {loading === resource.id ? (
+              {loading === resource?.id ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Processing...</span>
