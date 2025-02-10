@@ -23,19 +23,6 @@ export async function middleware(request) {
   const token = request.cookies.get("auth_token")?.value;
   const path = request.nextUrl.pathname;
 
-  const response = NextResponse.next();
-
-  // Add CORS headers
-  response.headers.set("Access-Control-Allow-Origin", "*");
-  response.headers.set(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-
   // Check if route is protected
   if (protectedRoutes.some((route) => path.startsWith(route))) {
     if (!token) {
@@ -57,9 +44,22 @@ export async function middleware(request) {
     }
   }
 
+  const response = NextResponse.next();
+
+  // Add CORS headers
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+
   return NextResponse.next();
 }
 
-export const config = {
-  matcher: "/api/:path*",
-};
+// export const config = {
+//   matcher: "/api/:path*",
+// };
