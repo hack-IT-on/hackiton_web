@@ -1,6 +1,16 @@
 "use client";
 import { motion } from "framer-motion";
-import { ArrowRight, Code, BookOpen, Trophy, Users, Star } from "lucide-react";
+import {
+  ArrowRight,
+  Code,
+  BookOpen,
+  Trophy,
+  Users,
+  Star,
+  Instagram,
+  Calendar,
+  MapPin,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -17,6 +27,7 @@ import Link from "next/link";
 export default function Home() {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [events, setEvents] = useState([]);
 
   const testimonials = [
     {
@@ -46,40 +57,17 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
+    const fetchEvents = async () => {
       try {
-        const response = await fetch("/api/leaderboard");
+        const response = await fetch("/api/events/home");
         const data = await response.json();
         console.log(data);
-        setLeaderboardData(data);
+        setEvents(data);
       } catch (error) {
-        console.error("Error fetching leaderboard:", error);
-        setLeaderboardData([
-          {
-            id: "1",
-            username: "void_coder",
-            points: 15420,
-            avatar: "/avatars/1.png",
-            rank: "Legendary",
-          },
-          {
-            id: "2",
-            username: "byte_ninja",
-            points: 12350,
-            avatar: "/avatars/2.png",
-            rank: "Elite",
-          },
-          {
-            id: "3",
-            username: "quantum_dev",
-            points: 11200,
-            avatar: "/avatars/3.png",
-            rank: "Master",
-          },
-        ]);
+        console.error("Error fetching events:", error);
       }
     };
-    fetchLeaderboard();
+    fetchEvents();
   }, []);
 
   const fadeIn = {
@@ -87,6 +75,18 @@ export default function Home() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6 },
   };
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -115,7 +115,7 @@ export default function Home() {
             build projects, and land your dream tech role.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href={"/login"}>
+            <Link href={"/dashboard"}>
               <Button
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-lg px-8"
@@ -123,7 +123,7 @@ export default function Home() {
                 Start Coding <ArrowRight className="ml-2" />
               </Button>
             </Link>
-            <Link href={"/login"}>
+            <Link href={"/problems"}>
               <Button
                 size="lg"
                 variant="outline"
@@ -211,6 +211,77 @@ export default function Home() {
               </CardContent>
             </Card>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Events Section */}
+      <section className="py-24 px-4 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl font-bold mb-4 text-gray-900">
+              Upcoming Events
+            </h2>
+            <p className="text-gray-600">
+              Join our community events and level up your skills
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            {events.map((event) => (
+              <Card
+                key={event.id}
+                className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300 overflow-hidden"
+              >
+                <div className="relative h-48 w-full">
+                  <img
+                    src={event.image_url}
+                    alt={event.title}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <CardHeader>
+                  <div className="flex items-center gap-2 text-blue-600 mb-2">
+                    <Calendar className="w-5 h-5" />
+                    <span className="font-semibold">
+                      {formatDate(event.date)}
+                    </span>
+                  </div>
+                  <CardTitle className="text-xl font-bold">
+                    {event.title}
+                  </CardTitle>
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <MapPin className="w-4 h-4" />
+                    <span>{event.location}</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">{event.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </motion.div>
+
+          <div className="text-center">
+            <Link href="/all-events">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 border-blue-200 text-blue-600 hover:bg-blue-50"
+              >
+                View All Events <ArrowRight className="ml-2" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -324,7 +395,7 @@ export default function Home() {
             Join over 50,000 students who are mastering coding and advancing
             their careers together.
           </p>
-          <Link href={"/register"}>
+          <Link href={"/questions"}>
             <Button
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 text-lg px-12"
@@ -395,37 +466,37 @@ export default function Home() {
               </h3>
               <div className="flex flex-wrap gap-4">
                 <a
-                  href="https://github.com/codecampus"
+                  href="https://www.instagram.com/bit_hackiton/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white rounded-full border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all"
                 >
-                  <Github className="w-6 h-6 text-gray-700 hover:text-blue-600" />
+                  <Instagram className="w-6 h-6 text-gray-700 hover:text-blue-600" />
                 </a>
                 <a
-                  href="https://twitter.com/codecampus"
+                  href="https://x.com/Hack_It_On"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white rounded-full border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all"
                 >
                   <Twitter className="w-6 h-6 text-gray-700 hover:text-blue-600" />
                 </a>
-                <a
+                {/* <a
                   href="https://linkedin.com/company/codecampus"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white rounded-full border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all"
                 >
                   <Linkedin className="w-6 h-6 text-gray-700 hover:text-blue-600" />
-                </a>
-                <a
+                </a> */}
+                {/* <a
                   href="https://youtube.com/codecampus"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white rounded-full border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all"
                 >
                   <Youtube className="w-6 h-6 text-gray-700 hover:text-blue-600" />
-                </a>
+                </a> */}
                 {/* <a
                   href="https://discord.gg/codecampus"
                   target="_blank"
