@@ -65,7 +65,7 @@ export default function NavBar({ user }) {
             href="/"
             className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent hover:opacity-90 transition-opacity"
           >
-            <img src="logo.png" className="h-8 w-auto" alt="Logo" />
+            <img src="/logo.png" className="h-8 w-auto" alt="Logo" />
           </Link>
 
           {/* Rest of the component remains the same */}

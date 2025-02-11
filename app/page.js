@@ -238,36 +238,35 @@ export default function Home() {
             viewport={{ once: true }}
           >
             {events.map((event) => (
-              <Card
-                key={event.id}
-                className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300 overflow-hidden"
-              >
-                <div className="relative h-48 w-full">
-                  <img
-                    src={event.image_url}
-                    alt={event.title}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <CardHeader>
-                  <div className="flex items-center gap-2 text-blue-600 mb-2">
-                    <Calendar className="w-5 h-5" />
-                    <span className="font-semibold">
-                      {formatDate(event.date)}
-                    </span>
+              <Link key={event.id} href={`/all-events/${event.id}`}>
+                <Card className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300 overflow-hidden">
+                  <div className="relative h-48 w-full">
+                    <img
+                      src={event.image_url}
+                      alt={event.title}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
-                  <CardTitle className="text-xl font-bold">
-                    {event.title}
-                  </CardTitle>
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <MapPin className="w-4 h-4" />
-                    <span>{event.location}</span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{event.description}</p>
-                </CardContent>
-              </Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2 text-blue-600 mb-2">
+                      <Calendar className="w-5 h-5" />
+                      <span className="font-semibold">
+                        {formatDate(event.date)}
+                      </span>
+                    </div>
+                    <CardTitle className="text-xl font-bold">
+                      {event.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <MapPin className="w-4 h-4" />
+                      <span>{event.location}</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">{event.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </motion.div>
 
