@@ -28,7 +28,7 @@ export default function NavBarLogOut() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/all-events", label: "Events" },
-    // { href: "/projects", label: "Projects" },
+    { href: "/gallery", label: "Gallery" },
     { href: "/login", label: "Login" },
     { href: "/register", label: "Register" },
   ];
