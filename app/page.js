@@ -29,6 +29,10 @@ export default function Home() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [events, setEvents] = useState([]);
 
+  const bottom_nav = [
+    { href: "/verify-certificate", label: "Verify certificates" },
+  ];
+
   const testimonials = [
     {
       id: 1,
@@ -424,18 +428,16 @@ export default function Home() {
                 Quick Links
               </h3>
               <ul className="space-y-2">
-                {["Challenges", "Leaderboard", "Resources", "Events"].map(
-                  (item) => (
-                    <li key={item}>
-                      <a
-                        href="#"
-                        className="text-gray-600 hover:text-blue-600 transition-colors"
-                      >
-                        {item}
-                      </a>
-                    </li>
-                  )
-                )}
+                {bottom_nav.map((item) => (
+                  <li key={item}>
+                    <Link
+                      href={item.href}
+                      className="text-gray-600 hover:text-blue-600 transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 

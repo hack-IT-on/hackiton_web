@@ -6,7 +6,8 @@ export const generatePDF = async (
   templateUrl,
   userName,
   issueDate,
-  eventName
+  eventName,
+  certificate_id
 ) => {
   try {
     const doc = new jsPDF({
@@ -61,6 +62,13 @@ export const generatePDF = async (
         baseline: "middle",
       }
     );
+
+    doc.setFontSize(30);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Certificate Id: ${certificate_id}`, 297 / 2, 170, {
+      align: "center",
+      baseline: "middle",
+    });
 
     // Return PDF as Buffer
     const arrayBuffer = doc.output("arraybuffer");

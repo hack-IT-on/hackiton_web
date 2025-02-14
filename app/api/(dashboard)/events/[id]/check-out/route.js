@@ -4,6 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { sendQRCodeEmailOut } from "@/util/email";
 
+function generateHexCode() {
+  return uuidv4().replace(/-/g, "").substring(0, 6);
+}
+
 export async function POST(request, { params }) {
   const user = await getCurrentUser();
   const { searchParams } = new URL(request.url);
@@ -51,10 +55,12 @@ export async function POST(request, { params }) {
       );
     }
 
+    let certificate_id = `BIT_HACKITON_${user.id}${generateHexCode()}`;
+
     // Mark as checked in
     await connection.execute(
-      "UPDATE event_registrations SET is_checked_out = TRUE, check_out_time = NOW() WHERE qr_code_secret_out = ? AND event_id = ?",
-      [qrCodeSecret, eventId]
+      "UPDATE event_registrations SET is_checked_out = TRUE, check_out_time = NOW(), certificate_id = ? WHERE qr_code_secret_out = ? AND event_id = ?",
+      [certificate_id, qrCodeSecret, eventId]
     );
 
     return NextResponse.json(

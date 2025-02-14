@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
+import { getCurrentUser } from "./lib/getCurrentUser";
 
 // Protected routes
 const protectedRoutes = [
@@ -22,6 +23,7 @@ const protectedRoutes = [
 export async function middleware(request) {
   const token = request.cookies.get("auth_token")?.value;
   const path = request.nextUrl.pathname;
+  const user = await getCurrentUser();
 
   // Check if route is protected
   if (protectedRoutes.some((route) => path.startsWith(route))) {
@@ -56,6 +58,8 @@ export async function middleware(request) {
     "Access-Control-Allow-Headers",
     "Content-Type, Authorization"
   );
+
+  // console.log(user.leetcode_username);
 
   return NextResponse.next();
 }

@@ -18,6 +18,13 @@ export async function POST(request) {
     );
     const template = templates[0];
 
+    const [certificate_regs] = await connection.execute(
+      "SELECT  `certificate_id` FROM `event_registrations` WHERE event_id = ? and user_id = ?",
+      [template.event_id, user?.id]
+    );
+
+    const certificate_reg = certificate_regs[0];
+
     if (!template) {
       return NextResponse.json(
         { error: "Certificate template not found" },
@@ -33,7 +40,8 @@ export async function POST(request) {
       template.template_url,
       userName,
       template.certificate_issue_date,
-      template.name
+      template.name,
+      certificate_reg.certificate_id
     );
 
     console.log("ok");
