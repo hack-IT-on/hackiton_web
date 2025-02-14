@@ -24,10 +24,78 @@ export async function sendVerificationEmail(
     to: email,
     subject: subject,
     html: `
-      <h1>${subject}</h1>
-      <p>Click the link below to ${subject}:</p>
-      <a href="${verificationLink}">${subject}</a>
-      <p>This link will expire in 1 hour.</p>
+      <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hack-IT-on - Action Required</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #fff;
+            background: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ${subject} - Hack-IT-on</h1>
+        <p>Hi,</p>
+        
+        <p>${subject}</p>
+
+        <a href="${verificationLink}" class="btn">${subject}</a>
+
+        <p>If the button doesn’t work, copy and paste this link into your browser:</p>
+        <p><a href="${verificationLink}">${verificationLink}</a></p>
+
+        <p>This link will expire in <strong>24 hours</strong>, so act now!</p>
+
+        <p>If you didn’t request this, you can safely ignore this email.</p>
+
+        <div class="footer">
+            <p>Happy coding! 🚀<br>Hack-IT-on Team</p>
+        </div>
+    </div>
+</body>
+</html>
+
     `,
   };
 
