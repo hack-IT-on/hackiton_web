@@ -151,7 +151,7 @@ export default function Register() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="studentID">Student ID</Label>
+                <Label htmlFor="studentID">MAKAUT Roll Number</Label>
                 <div className="relative">
                   <IdCard className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input

@@ -204,7 +204,7 @@ const UsersPage = () => {
                     Email <SortIcon columnKey="email" />
                   </TableHead>
                   <TableHead className="cursor-pointer hover:bg-gray-50">
-                    Student Id
+                    MAKAUT Roll Number
                   </TableHead>
                   <TableHead
                     onClick={() => sortData("role")}

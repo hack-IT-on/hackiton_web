@@ -187,7 +187,7 @@ export default function SettingsPage() {
                 >
                   {[
                     { name: "name", label: "Name" },
-                    { name: "student_id", label: "Student ID" },
+                    { name: "student_id", label: "MAKAUT Roll Number" },
                     { name: "github_username", label: "GitHub Username" },
                     { name: "leetcode_username", label: "LeetCode Username" },
                     { name: "email", label: "Email", type: "email" },
