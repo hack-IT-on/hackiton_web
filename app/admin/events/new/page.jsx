@@ -64,7 +64,7 @@ export default function NewEventPage() {
     }
 
     try {
-      const response = await fetch("/api/events/new", {
+      const response = await fetch("/api/admin/events/new", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

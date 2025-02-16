@@ -31,6 +31,7 @@ import { format } from "date-fns";
 import toast from "react-hot-toast";
 import { Card } from "@/components/ui/card";
 import EventModal from "@/components/admin/EventModal";
+import Link from "next/link";
 
 export default function EventsTable() {
   const [events, setEvents] = useState([]);
@@ -117,9 +118,11 @@ export default function EventsTable() {
               Manage your events and their details
             </p>
           </div>
-          <Button onClick={handleCreate} className="flex items-center">
-            <Plus className="mr-2 h-4 w-4" /> Add New Event
-          </Button>
+          <Link href={"/admin/events/new"}>
+            <Button className="flex items-center">
+              <Plus className="mr-2 h-4 w-4" /> Add New Event
+            </Button>
+          </Link>
         </div>
 
         {events.length === 0 ? (

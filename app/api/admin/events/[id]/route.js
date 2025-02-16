@@ -5,15 +5,32 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
     console.log(body);
-    const { title, description, image_url, date, location, interest } = body;
+    const {
+      title,
+      description,
+      long_description,
+      image_url,
+      date,
+      location,
+      interest,
+    } = body;
     // console.log(title);
 
     await connection.execute(
       `UPDATE events 
-          SET title = ?, description = ?, image_url = ?, 
+          SET title = ?, description = ?, long_description = ?, image_url = ?,
               date = ?, location = ?, interest = ?
           WHERE id = ?`,
-      [title, description, image_url, date, location, interest, id]
+      [
+        title,
+        description,
+        long_description,
+        image_url,
+        date,
+        location,
+        interest,
+        id,
+      ]
     );
 
     return NextResponse.json({ message: "Event updated successfully" });

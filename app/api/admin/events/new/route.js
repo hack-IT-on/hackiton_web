@@ -36,7 +36,7 @@ export async function POST(request) {
         body.date,
         body.location,
         body.interest,
-        user.user_id,
+        user.id,
       ]
     );
 

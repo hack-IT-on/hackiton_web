@@ -1,23 +1,41 @@
-// components/admin/EventModal.jsx
-"use client";
-
+import React from "react";
 import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
+import MDEditor from "@uiw/react-md-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calendar, MapPin, Image, Type, FileText } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+
+const interests = [
+  "Programming",
+  "Design",
+  "Marketing",
+  "Data Science",
+  "Entrepreneurship",
+];
 
 export default function EventModal({ isOpen, onClose, event, onSuccess }) {
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -25,16 +43,16 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
     defaultValues: {
       title: "",
       description: "",
+      long_description: "",
+      image_url: "",
       date: "",
       location: "",
-      interest: 0,
+      interest: "",
     },
   });
 
-  // Reset form when event changes
   useEffect(() => {
     if (event) {
-      // Format date to local datetime string for input
       const formattedDate = event.date
         ? new Date(event.date).toISOString().slice(0, 16)
         : "";
@@ -42,17 +60,11 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
       reset({
         title: event.title || "",
         description: event.description || "",
+        long_description: event.long_description || "",
+        image_url: event.image_url || "",
         date: formattedDate,
         location: event.location || "",
-        interest: event.interest || 0,
-      });
-    } else {
-      reset({
-        title: "",
-        description: "",
-        date: "",
-        location: "",
-        interest: 0,
+        interest: event.interest || "",
       });
     }
   }, [event, reset]);
@@ -60,18 +72,13 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
   const onSubmit = async (data) => {
     try {
       const url = event ? `/api/admin/events/${event.id}` : "/api/admin/events";
-
       const response = await fetch(url, {
         method: event ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to save event");
-      }
+      if (!response.ok) throw new Error("Failed to save event");
 
       toast.success(
         event ? "Event updated successfully" : "Event created successfully"
@@ -84,73 +91,161 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{event ? "Edit Event" : "Create New Event"}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {event ? "Edit Event" : "Create New Event"}
+          </DialogTitle>
+          <DialogDescription>
+            Fill in the details below to {event ? "update" : "create"} your
+            event
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Title</label>
-            <Input
-              {...register("title", {
-                required: "Title is required",
-              })}
-              placeholder="Enter event title"
-            />
-            {errors.title && (
-              <p className="text-sm text-red-500">{errors.title.message}</p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="p-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Type className="w-4 h-4" />
+                  <span>Title</span>
+                </Label>
+                <Input
+                  {...register("title", { required: "Title is required" })}
+                  placeholder="Enter event title"
+                  className="w-full"
+                />
+                {errors.title && (
+                  <p className="text-sm text-red-500">{errors.title.message}</p>
+                )}
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
-            <Textarea
-              {...register("description")}
-              placeholder="Enter event description"
-              rows={4}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  <span>Short Description</span>
+                </Label>
+                <Textarea
+                  {...register("description")}
+                  placeholder="Enter a brief description"
+                  className="resize-none"
+                  rows={3}
+                />
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Date</label>
-            <Input
-              type="datetime-local"
-              {...register("date", {
-                required: "Date is required",
-              })}
-            />
-            {errors.date && (
-              <p className="text-sm text-red-500">{errors.date.message}</p>
-            )}
-          </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  <span>Detailed Description</span>
+                </Label>
+                <div data-color-mode="light" className="border rounded-md">
+                  <Controller
+                    name="long_description"
+                    control={control}
+                    render={({ field }) => (
+                      <MDEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        height={400}
+                        className="border-none"
+                        preview="edit"
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Location</label>
-            <Input
-              {...register("location", {
-                required: "Location is required",
-              })}
-              placeholder="Enter event location"
-            />
-            {errors.location && (
-              <p className="text-sm text-red-500">{errors.location.message}</p>
-            )}
-          </div>
+          <Card className="p-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  <span>Image URL</span>
+                </Label>
+                <Input
+                  {...register("image_url", {
+                    required: "Image URL is required",
+                  })}
+                  placeholder="Enter image URL"
+                />
+                {errors.image_url && (
+                  <p className="text-sm text-red-500">
+                    {errors.image_url.message}
+                  </p>
+                )}
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Interest</label>
-            <Input
-              type="text"
-              {...register("interest", {
-                required: "Interest is required",
-              })}
-              placeholder="Enter interest"
-            />
-            {errors.interest && (
-              <p className="text-sm text-red-500">{errors.interest.message}</p>
-            )}
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>Date & Time</span>
+                  </Label>
+                  <Input
+                    type="datetime-local"
+                    {...register("date", { required: "Date is required" })}
+                    className="w-full"
+                  />
+                  {errors.date && (
+                    <p className="text-sm text-red-500">
+                      {errors.date.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    <span>Location</span>
+                  </Label>
+                  <Input
+                    {...register("location", {
+                      required: "Location is required",
+                    })}
+                    placeholder="Enter event location"
+                  />
+                  {errors.location && (
+                    <p className="text-sm text-red-500">
+                      {errors.location.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="interest">Interest Category</Label>
+                <Controller
+                  name="interest"
+                  control={control}
+                  rules={{ required: "Interest is required" }}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an interest" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {interests.map((interest) => (
+                          <SelectItem
+                            key={interest}
+                            value={interest.toLowerCase()}
+                          >
+                            {interest}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.interest && (
+                  <p className="text-sm text-red-500">
+                    {errors.interest.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </Card>
 
           <div className="flex justify-end gap-3 pt-4">
             <Button
@@ -158,14 +253,18 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="w-24"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Button type="submit" disabled={isSubmitting} className="w-24">
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : event ? (
+                "Update"
+              ) : (
+                "Create"
               )}
-              {event ? "Update" : "Create"}
             </Button>
           </div>
         </form>

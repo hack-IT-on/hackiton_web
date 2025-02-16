@@ -20,6 +20,9 @@ const protectedRoutes = [
   "/admin",
 ];
 
+// Admin-only routes
+const adminRoutes = ["/admin"];
+
 export async function middleware(request) {
   const token = request.cookies.get("auth_token")?.value;
   const path = request.nextUrl.pathname;
@@ -38,6 +41,14 @@ export async function middleware(request) {
       // Optional: Additional checks like user role or verification status
       if (!decoded) {
         return NextResponse.redirect(new URL("/login", request.url));
+      }
+
+      if (adminRoutes.some((route) => path.startsWith(route))) {
+        // Assuming the decoded token or user object has a role field
+        if (!user || user.role !== "admin") {
+          // Redirect non-admin users to dashboard or show unauthorized page
+          return NextResponse.redirect(new URL("/unauthorized", request.url));
+        }
       }
 
       return NextResponse.next();
@@ -63,7 +74,3 @@ export async function middleware(request) {
 
   return NextResponse.next();
 }
-
-// export const config = {
-//   matcher: "/api/:path*",
-// };
