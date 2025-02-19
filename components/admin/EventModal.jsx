@@ -13,7 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Loader2, Calendar, MapPin, Image, Type, FileText } from "lucide-react";
+import {
+  Loader2,
+  Calendar,
+  MapPin,
+  Image,
+  Type,
+  FileText,
+  ToggleLeft,
+} from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -32,6 +40,11 @@ const interests = [
   "Entrepreneurship",
 ];
 
+const statusOptions = [
+  { label: "Active", value: "1" },
+  { label: "Deactive", value: "0" },
+];
+
 export default function EventModal({ isOpen, onClose, event, onSuccess }) {
   const {
     register,
@@ -48,6 +61,7 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
       date: "",
       location: "",
       interest: "",
+      is_active: "0",
     },
   });
 
@@ -65,17 +79,24 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
         date: formattedDate,
         location: event.location || "",
         interest: event.interest || "",
+        is_active: event.is_active?.toString() || "0",
       });
     }
   }, [event, reset]);
 
   const onSubmit = async (data) => {
     try {
+      // Convert is_active to number before sending
+      const formData = {
+        ...data,
+        is_active: parseInt(data.is_active, 10),
+      };
+
       const url = event ? `/api/admin/events/${event.id}` : "/api/admin/events";
       const response = await fetch(url, {
         method: event ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) throw new Error("Failed to save event");
@@ -173,6 +194,37 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
                 {errors.image_url && (
                   <p className="text-sm text-red-500">
                     {errors.image_url.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <ToggleLeft className="w-4 h-4" />
+                  <span>Status</span>
+                </Label>
+                <Controller
+                  name="is_active"
+                  control={control}
+                  rules={{ required: "Status is required" }}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map((status) => (
+                          <SelectItem key={status.value} value={status.value}>
+                            {status.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.is_active && (
+                  <p className="text-sm text-red-500">
+                    {errors.is_active.message}
                   </p>
                 )}
               </div>

@@ -13,13 +13,14 @@ export async function PUT(request, { params }) {
       date,
       location,
       interest,
+      is_active,
     } = body;
     // console.log(title);
 
     await connection.execute(
       `UPDATE events 
           SET title = ?, description = ?, long_description = ?, image_url = ?,
-              date = ?, location = ?, interest = ?
+              date = ?, location = ?, interest = ?, is_active = ?
           WHERE id = ?`,
       [
         title,
@@ -29,6 +30,7 @@ export async function PUT(request, { params }) {
         date,
         location,
         interest,
+        is_active,
         id,
       ]
     );
@@ -44,10 +46,7 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
 
-    await connection.execute(
-      "UPDATE events SET is_active = false WHERE id = ?",
-      [id]
-    );
+    await connection.execute("DELETE FROM `events` WHERE id = ?", [id]);
 
     return NextResponse.json({ message: "Event deleted successfully" });
   } catch (error) {
