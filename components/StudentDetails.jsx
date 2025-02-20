@@ -164,13 +164,15 @@ const StudentDetails = () => {
                   and drop
                 </p>
                 <p className="text-xs text-gray-500">
-                  Supported formats: CSV, XLS, XLSX
+                  Supported formats: CSV, XLS, XLSX. With column name:
                 </p>
                 {!file && (
                   <div className="flex gap-2 mt-3">
                     <Badge variant="outline">ROLL NO</Badge>
                     <Badge variant="outline">STUDENTS NAME</Badge>
                     <Badge variant="outline">SEMESTER</Badge>
+                    <Badge variant="outline">MOBILE NO.</Badge>
+                    <Badge variant="outline">COURSE NAME</Badge>
                   </div>
                 )}
               </div>
