@@ -44,9 +44,21 @@ export async function POST(request) {
       [email, studentID]
     );
 
+    const [existingStudent] = await connection.execute(
+      "SELECT * FROM students WHERE roll_no = ?",
+      [studentID]
+    );
+
+    if (existingStudent.length == 0) {
+      return NextResponse.json(
+        { message: `There is no student with roll no: ${studentID} in BIT` },
+        { status: 409 }
+      );
+    }
+
     if (existingUsers.length > 0) {
       return NextResponse.json(
-        { message: "Email or student ID already exists" },
+        { message: "Email or roll no. already exists" },
         { status: 409 }
       );
     }

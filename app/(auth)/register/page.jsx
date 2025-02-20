@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +11,13 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -39,6 +45,9 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verificationOpen, setVerificationOpen] = useState(true);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [tempRollNo, setTempRollNo] = useState("");
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -52,6 +61,39 @@ export default function Register() {
     setError("");
   };
 
+  const handleVerification = async () => {
+    if (!tempRollNo) {
+      setError("Please enter your roll number");
+      return;
+    }
+
+    try {
+      setVerificationLoading(true);
+      const response = await fetch("/api/verify-student", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rollNo: tempRollNo }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setFormData((prev) => ({
+          ...prev,
+          studentID: tempRollNo,
+          name: data.name, // Assuming the API returns the student's name
+        }));
+        setVerificationOpen(false);
+      } else {
+        setError(data.message || "Student verification failed");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
   const validateForm = () => {
     if (formData.password !== formData.cpassword) {
       setError("Passwords do not match");
@@ -61,10 +103,6 @@ export default function Register() {
       setError("Password must be at least 6 characters");
       return false;
     }
-    // if (!/^\d{8}$/.test(formData.studentID)) {
-    //   setError("Student ID must be 8 digits");
-    //   return false;
-    // }
     return true;
   };
 
@@ -77,25 +115,18 @@ export default function Register() {
 
     try {
       setLoading(true);
-      console.log(1);
       const response = await fetch("/api/register", {
         method: "POST",
         body: JSON.stringify(formData),
         headers: { "Content-Type": "application/json" },
       });
-      console.log(1);
 
       const data = await response.json();
-      console.log(1);
       if (response.ok) {
         setSuccess("Registration successful! Verify your email address...");
-        console.log(1);
-        // setTimeout(() => router.push("/login"), 2000);
       } else {
         setError(data.message || "Registration failed");
-        console.log(1);
       }
-      console.log(1);
     } catch (err) {
       console.log(err);
       setError("Network error. Please try again.");
@@ -110,6 +141,49 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+      <Dialog open={verificationOpen} onOpenChange={setVerificationOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Verify Student Details</DialogTitle>
+            <DialogDescription>
+              Please enter your MAKAUT Roll Number to verify your student status
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="rollNo">Roll Number</Label>
+              <Input
+                id="rollNo"
+                value={tempRollNo}
+                onChange={(e) => setTempRollNo(e.target.value)}
+                placeholder="Enter your roll number"
+                type="number"
+              />
+            </div>
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            <Button
+              className="w-full"
+              onClick={handleVerification}
+              disabled={verificationLoading}
+            >
+              {verificationLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Card className="w-full max-w-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
@@ -147,6 +221,7 @@ export default function Register() {
                     onChange={handleChange}
                     required
                     className="pl-10"
+                    readOnly
                   />
                 </div>
               </div>
@@ -163,11 +238,13 @@ export default function Register() {
                     onChange={handleChange}
                     required
                     className="pl-10"
+                    readOnly
                   />
                 </div>
               </div>
             </div>
 
+            {/* Rest of the form remains the same */}
             <div className="space-y-2">
               <Label htmlFor="githubUsername">GitHub Username</Label>
               <div className="relative">

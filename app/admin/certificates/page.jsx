@@ -31,26 +31,53 @@ import toast from "react-hot-toast";
 import { Card } from "@/components/ui/card";
 import EventModal from "@/components/admin/EventModal";
 import Link from "next/link";
+import CertificateModal from "@/components/admin/CertificateModal";
 
-export default function EventsTable() {
-  const [events, setEvents] = useState([]);
+export default function EventCertificatesTable() {
+  const [certificates, setCertificates] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [eventNames, setEventNames] = useState({});
+
+  const fetchEventName = async (eventId) => {
+    try {
+      const response = await fetch(`/api/admin/events/${eventId}`);
+      if (!response.ok) throw new Error("Failed to fetch event");
+      const data = await response.json();
+      return data.name || "Unknown Event";
+    } catch (error) {
+      console.error(`Failed to fetch event name for ID ${eventId}:`, error);
+      return "Unknown Event";
+    }
+  };
 
   const fetchEvents = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/admin/events?page=${page}&limit=10`);
-      if (!response.ok) throw new Error("Failed to fetch events");
+      const response = await fetch(
+        `/api/admin/certificates?page=${page}&limit=10`
+      );
+      if (!response.ok) throw new Error("Failed to fetch certificates");
       const data = await response.json();
-      setEvents(data.events || []);
+      setCertificates(data.certificates || []);
       setTotalPages(data.totalPages || 1);
+
+      // Fetch event names for all certificates
+      const eventNamesMap = {};
+      await Promise.all(
+        data.certificates.map(async (cert) => {
+          if (cert.event_id && !eventNames[cert.event_id]) {
+            eventNamesMap[cert.event_id] = await fetchEventName(cert.event_id);
+          }
+        })
+      );
+      setEventNames((prev) => ({ ...prev, ...eventNamesMap }));
     } catch (error) {
-      toast.error("Failed to fetch events");
-      setEvents([]);
+      toast.error("Failed to fetch certificates");
+      setCertificates([]);
       setTotalPages(1);
     } finally {
       setIsLoading(false);
@@ -62,40 +89,40 @@ export default function EventsTable() {
   }, [page]);
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this event?")) return;
+    if (!confirm("Are you sure you want to delete this certificate?")) return;
 
     try {
-      const response = await fetch(`/api/admin/events/${id}`, {
+      const response = await fetch(`/api/admin/certificates/${id}`, {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Failed to delete event");
+      if (!response.ok) throw new Error("Failed to delete certificate");
 
-      toast.success("Event deleted successfully");
+      toast.success("Certificate deleted successfully");
       fetchEvents();
     } catch (error) {
-      toast.error("Failed to delete event");
+      toast.error("Failed to delete certificate");
     }
   };
 
   const handleEdit = (event) => {
-    setSelectedEvent(event);
+    setSelectedCertificate(event);
     setIsModalOpen(true);
   };
 
   const handleCreate = () => {
-    setSelectedEvent(null);
+    setSelectedCertificate(null);
     setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    setSelectedEvent(null);
+    setSelectedCertificate(null);
   };
 
   const handleSuccess = () => {
     setIsModalOpen(false);
-    setSelectedEvent(null);
+    setSelectedCertificate(null);
     fetchEvents();
   };
 
@@ -112,66 +139,58 @@ export default function EventsTable() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold">Events Management</h2>
+            <h2 className="text-2xl font-bold">Certificate Management</h2>
             <p className="text-muted-foreground mt-1">
-              Manage your events and their details
+              Manage your event certificates and their details
             </p>
           </div>
-          <Link href={"/admin/events/new"}>
-            <Button className="flex items-center">
-              <Plus className="mr-2 h-4 w-4" /> Add New Event
-            </Button>
-          </Link>
+          {/* <Link href={"/admin/certificates/new"}> */}
+          <Button className="flex items-center" onClick={handleCreate}>
+            <Plus className="mr-2 h-4 w-4" /> Add New Certificate
+          </Button>
+          {/* </Link> */}
         </div>
 
-        {events.length === 0 ? (
+        {certificates.length === 0 ? (
           <div className="text-center py-12 border rounded-lg bg-muted/50">
             <h3 className="text-lg font-semibold">No events found</h3>
             <p className="text-muted-foreground mt-1">
               Start by creating your first event
             </p>
-            <Link href={"/admin/events/new"}>
-              <Button className="mt-4">
-                <Plus className="mr-2 h-4 w-4" /> Create Event
-              </Button>
-            </Link>
+            <Button onClick={handleCreate} className="mt-4">
+              <Plus className="mr-2 h-4 w-4" /> Create Event
+            </Button>
           </div>
         ) : (
           <div className="border rounded-lg">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[250px]">Title</TableHead>
-                  <TableHead className="w-[300px]">Description</TableHead>
-                  <TableHead className="w-[150px]">Date</TableHead>
-                  <TableHead className="w-[200px]">Location</TableHead>
-                  <TableHead className="w-[100px]">Interest</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  <TableHead className="w-[250px]">Name</TableHead>
+                  <TableHead className="w-[300px]">Event Name</TableHead>
+                  <TableHead className="w-[150px]">
+                    Certificate Issue Date
+                  </TableHead>
+                  <TableHead className="w-[200px]">Template</TableHead>
+                  <TableHead className="w-[80px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {events.map((event) => (
-                  <TableRow key={event.id}>
-                    <TableCell className="font-medium">{event.title}</TableCell>
+                {certificates.map((cert) => (
+                  <TableRow key={cert.id}>
+                    <TableCell className="font-medium">{cert.name}</TableCell>
                     <TableCell className="truncate max-w-[300px]">
-                      {event.description}
+                      {eventNames[cert.event_id] || "Loading..."}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                        {format(new Date(event.date), "PPP")}
+                        {format(new Date(cert.certificate_issue_date), "PPP")}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <MapPinIcon className="h-4 w-4 text-muted-foreground" />
-                        {event.location}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <UsersIcon className="h-4 w-4 text-muted-foreground" />
-                        {event.interest}
+                        {cert.template_url}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -183,14 +202,14 @@ export default function EventsTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-[160px]">
                           <DropdownMenuItem
-                            onClick={() => handleEdit(event)}
+                            onClick={() => handleEdit(cert)}
                             className="flex items-center gap-2"
                           >
                             <PencilIcon className="h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleDelete(event.id)}
+                            onClick={() => handleDelete(cert.id)}
                             className="flex items-center gap-2 text-red-600 focus:text-red-600"
                           >
                             <TrashIcon className="h-4 w-4" />
@@ -230,10 +249,10 @@ export default function EventsTable() {
           </div>
         )}
 
-        <EventModal
+        <CertificateModal
           isOpen={isModalOpen}
           onClose={handleModalClose}
-          event={selectedEvent}
+          cert={selectedCertificate}
           onSuccess={handleSuccess}
         />
       </div>
