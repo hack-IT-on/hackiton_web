@@ -44,10 +44,7 @@ const CodeEditorPage = () => {
       <Card className="max-w-[1400px] mx-auto">
         <div className="border-b p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold">Code Editor</h1>
-            <div className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs px-2 py-1 rounded-full">
-              Live
-            </div>
+            <h1 className="text-xl font-semibold">Compiler</h1>
           </div>
 
           <div className="flex items-center gap-2">
