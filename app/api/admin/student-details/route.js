@@ -150,9 +150,7 @@ export async function POST(request) {
 
 export async function GET() {
   try {
-    const [rows] = await connection.execute(
-      "SELECT * FROM students ORDER BY roll_no LIMIT 1000"
-    );
+    const [rows] = await connection.execute("SELECT * FROM students");
     return NextResponse.json(rows);
   } catch (error) {
     return NextResponse.json(
