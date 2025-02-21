@@ -18,6 +18,7 @@ import {
   CreditCard,
   MessageCircleQuestion,
   Activity,
+  Info,
 } from "lucide-react";
 import {
   Tooltip,
@@ -33,6 +34,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { set } from "date-fns";
 import GitHubCalendar from "react-github-calendar";
+
+const pointsGuide = [
+  { activity: "Forum Post", points: 5, coins: 1 },
+  { activity: "Answer Question", points: 10, coins: 2 },
+  // { activity: "Complete Challenge", points: 20, coins: 4 },
+  // { activity: "Open Source Contribution", points: 30, coins: 6 },
+  { activity: "Attend Event", points: 50, coins: 12 },
+  // { activity: "Quiz Completion", points: 20, coins: 10 },
+];
 
 const ProfileComponent = ({ user }) => {
   const [profile, setProfile] = useState(null);
@@ -179,6 +189,42 @@ const ProfileComponent = ({ user }) => {
               >
                 <Trophy className="w-4 h-4" />
                 Achievements
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <Info className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="w-80 p-4">
+                      <div>
+                        <h3 className="font-semibold mb-2">
+                          How to Earn Points & Coins
+                        </h3>
+                        <div className="space-y-2">
+                          {pointsGuide.map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex justify-between items-center text-sm"
+                            >
+                              <span>{item.activity}</span>
+                              <div className="flex gap-4">
+                                <span className="flex items-center gap-1">
+                                  <Star className="h-3 w-3 text-yellow-500" />
+                                  {item.points}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Coins className="h-3 w-3 text-amber-500" />
+                                  {item.coins}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TabsTrigger>
             </TabsList>
           </div>
