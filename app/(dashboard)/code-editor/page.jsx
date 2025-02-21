@@ -7,7 +7,7 @@ export default function CodeEditorPage() {
       <iframe
         frameBorder="0"
         height="700px"
-        src="https://onecompiler.com/embed/"
+        src="https://onecompiler.com/embed?theme=dark"
         width="100%"
       ></iframe>
     </div>
