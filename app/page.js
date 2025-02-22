@@ -482,14 +482,14 @@ export default function Home() {
                 >
                   <Twitter className="w-6 h-6 text-gray-700 hover:text-blue-600" />
                 </a>
-                {/* <a
-                  href="https://linkedin.com/company/codecampus"
+                <a
+                  href="https://www.linkedin.com/company/hack-it-on2"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white rounded-full border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all"
                 >
                   <Linkedin className="w-6 h-6 text-gray-700 hover:text-blue-600" />
-                </a> */}
+                </a>
                 {/* <a
                   href="https://youtube.com/codecampus"
                   target="_blank"

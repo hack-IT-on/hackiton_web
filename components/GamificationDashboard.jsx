@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Loader2 } from "lucide-react";
 
 const GamificationDashboard = () => {
@@ -35,12 +34,6 @@ const GamificationDashboard = () => {
     setLoading(false);
   };
 
-  //   const fetchDailyChallenge = async () => {
-  //     const response = await fetch("/api/challenges/daily");
-  //     const data = await response.json();
-  //     setDailyChallenge(data);
-  //   };
-
   function getIndex(index) {
     if (index === 1) return <span className="font-semibold">🥇 {index}.</span>;
     else if (index === 2)
@@ -60,53 +53,6 @@ const GamificationDashboard = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6 p-6">
-      {/* User Stats Card */}
-      {/* <Card className="col-span-1">
-        <CardHeader>
-          <CardTitle>Your Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-2">
-                <span>Total Points</span>
-                <span>🎯 {points}</span>
-              </div>
-              {/* <Progress value={points % 100} /> 
-            </div>
-
-            <div>
-              <div className="flex justify-between mb-2">
-                <span>CodeCoins</span>
-                <div className="flex items-center space-x-2">
-                  <svg className="w-6 h-6 text-yellow-500" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" fill="currentColor" />
-                    <text
-                      x="12"
-                      y="16"
-                      textAnchor="middle"
-                      fill="white"
-                      fontSize="12"
-                    >
-                      C
-                    </text>
-                  </svg>
-                  <span>{coins}</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Current Streak</h3>
-              <div className="flex items-center space-x-2">
-                <Badge className="w-6 h-6" />
-                <span>{userData.streak} days</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card> */}
-
       {/* Leaderboard Card */}
       <Card className="col-span-1">
         <CardHeader>
@@ -143,26 +89,6 @@ const GamificationDashboard = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Daily Challenge Card */}
-      {/* {dailyChallenge && (
-        <Card className="col-span-1 md:col-span-2">
-          <CardHeader>
-            <CardTitle>Daily Challenge</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">{dailyChallenge.title}</h3>
-              <p>{dailyChallenge.description}</p>
-              <div className="flex items-center space-x-4">
-                <span>Rewards:</span>
-                <span>+{dailyChallenge.points} points</span>
-                <span>+{dailyChallenge.coins_reward} CodeCoins</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )} */}
     </div>
   );
 };

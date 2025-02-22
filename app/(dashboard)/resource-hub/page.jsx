@@ -2,15 +2,6 @@ import React, { Suspense } from "react";
 import ResourceGrid from "@/components/ResourceGrid";
 import { getResources } from "@/util/resources";
 import { CircleDollarSign, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { getCoins } from "@/util/resources";
 
 function ResourceGridSkeleton() {
@@ -58,41 +49,6 @@ export default async function ResourceHubPage() {
             </div>
           </div>
         </div>
-
-        {/* <div className="bg-card rounded-lg p-4 mb-8 shadow-sm">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input placeholder="Search resources..." className="pl-10" />
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="courses">Courses</SelectItem>
-                  <SelectItem value="books">Books</SelectItem>
-                  <SelectItem value="tools">Tools</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select defaultValue="newest">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="popular">Most Popular</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div> */}
 
         <Suspense fallback={<ResourceGridSkeleton />}>
           <ResourceGrid initialResources={resources} />
