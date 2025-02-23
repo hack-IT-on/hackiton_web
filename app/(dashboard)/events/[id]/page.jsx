@@ -121,10 +121,7 @@ export default function EventPage({ params }) {
               <div data-color-mode="light">
                 <MDEditor.Markdown
                   source={data.long_description}
-                  style={{
-                    whiteSpace: "pre-wrap",
-                    // backgroundColor: "transparent",
-                  }}
+                  style={{ whiteSpace: "pre-wrap" }}
                 />
               </div>
             )}
