@@ -35,6 +35,7 @@ export default function NewEventPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -47,27 +48,56 @@ export default function NewEventPage() {
     is_active: true,
   });
 
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size should be less than 5MB");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        setError("Please upload an image file");
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Validate all required fields
     if (
       !formData.title ||
       !formData.description ||
+      !formData.long_description ||
       !formData.date ||
-      !formData.location
+      !formData.location ||
+      !formData.interest ||
+      !selectedFile
     ) {
-      setError("Please fill in all required fields");
+      setError("Please fill in all required fields and upload an image");
       setLoading(false);
       return;
     }
 
     try {
+      const submitFormData = new FormData();
+
+      // Add all form fields to FormData
+      Object.keys(formData).forEach((key) => {
+        submitFormData.append(key, formData[key]);
+      });
+
+      if (selectedFile) {
+        submitFormData.append("file", selectedFile);
+      }
+
       const response = await fetch("/api/admin/events/new", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: submitFormData,
       });
 
       if (!response.ok) {
@@ -102,8 +132,7 @@ export default function NewEventPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Create New Event</CardTitle>
           <CardDescription>
-            Fill in the details below to create a new event. Required fields are
-            marked with an asterisk (*).
+            All fields are required to create a new event.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -163,7 +192,7 @@ export default function NewEventPage() {
 
             <div className="space-y-2" data-color-mode="light">
               <Label htmlFor="long_description" className="text-sm font-medium">
-                Detailed Description
+                Detailed Description <span className="text-red-500">*</span>
               </Label>
               <div className="min-h-[300px]">
                 <MDEditor
@@ -171,6 +200,7 @@ export default function NewEventPage() {
                   onChange={handleMarkdownChange}
                   preview="edit"
                   height={300}
+                  required
                 />
               </div>
             </div>
@@ -192,13 +222,14 @@ export default function NewEventPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="interest" className="text-sm font-medium">
-                  Interest Category
+                  Interest Category <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={formData.interest}
                   onValueChange={(value) =>
                     setFormData((prev) => ({ ...prev, interest: value }))
                   }
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select an interest" />
@@ -217,15 +248,14 @@ export default function NewEventPage() {
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="image_url" className="text-sm font-medium">
-                  Image URL
+                  Image <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="image_url"
-                  name="image_url"
-                  value={formData.image_url}
-                  onChange={handleChange}
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full"
+                  required
                 />
               </div>
             </div>
