@@ -43,7 +43,7 @@ const AdminDashboard = () => {
     {
       title: "Event Certificates",
       icon: <FileText className="w-6 h-6" />,
-      description: "Manage site content and pages",
+      description: "Manage event certificates",
       color: "bg-orange-100 text-orange-600",
       link: "/admin/certificates",
     },
@@ -57,9 +57,16 @@ const AdminDashboard = () => {
     {
       title: "Students",
       icon: <Contact className="w-6 h-6" />,
-      description: "Configure system settings",
+      description: "Manage students",
       color: "bg-gray-100 text-gray-600",
       link: "/admin/students",
+    },
+    {
+      title: "Gallery",
+      icon: <Contact className="w-6 h-6" />,
+      description: "Manage gallery",
+      color: "bg-gray-100 text-gray-600",
+      link: "/admin/gallery",
     },
   ];
 
