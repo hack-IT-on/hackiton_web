@@ -10,6 +10,7 @@ import {
   ChevronRight,
   FileQuestion,
   Contact,
+  Images,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Gallery",
-      icon: <Contact className="w-6 h-6" />,
+      icon: <Images className="w-6 h-6" />,
       description: "Manage gallery",
       color: "bg-gray-100 text-gray-600",
       link: "/admin/gallery",
