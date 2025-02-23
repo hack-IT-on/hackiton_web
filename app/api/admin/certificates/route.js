@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -13,10 +12,8 @@ export async function GET(request) {
     const [certificates] = await connection.execute(
       `
         SELECT * FROM event_certificates 
-        ORDER BY id DESC 
-        LIMIT ? OFFSET ?
-      `,
-      [limit, offset]
+        ORDER BY id DESC
+      `
     );
 
     const totalCount = await connection.execute(
