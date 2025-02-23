@@ -2,17 +2,37 @@ import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { connection } from "@/util/db";
 
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+// Initialize S3 client with error handling
+let s3Client;
+try {
+  s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+} catch (error) {
+  console.error("S3 Client initialization error:", {
+    error: error.message,
+    stack: error.stack,
+    region: process.env.AWS_REGION ? "Set" : "Not Set",
+    accessKey: process.env.AWS_ACCESS_KEY_ID ? "Set" : "Not Set",
+    secretKey: process.env.AWS_SECRET_ACCESS_KEY ? "Set" : "Not Set",
+  });
+}
 
 export async function POST(request) {
   try {
+    // Log request details
+    console.log("Starting upload process");
+    console.log("Environment check:", {
+      region: process.env.AWS_REGION ? "Set" : "Not Set",
+      bucketName: process.env.AWS_S3_BUCKET_NAME ? "Set" : "Not Set",
+      accessKey: process.env.AWS_ACCESS_KEY_ID ? "Set" : "Not Set",
+      secretKey: process.env.AWS_SECRET_ACCESS_KEY ? "Set" : "Not Set",
+    });
+
     // Validate environment variables
     const requiredEnvVars = [
       "AWS_REGION",
@@ -25,17 +45,55 @@ export async function POST(request) {
       if (!process.env[envVar]) {
         console.error(`Missing environment variable: ${envVar}`);
         return NextResponse.json(
-          { error: "Server configuration error" },
+          { error: `Server configuration error: Missing ${envVar}` },
           { status: 500 }
         );
       }
     }
 
-    // Parse form data
-    const formData = await request.formData();
+    // Check S3 client initialization
+    if (!s3Client) {
+      console.error("S3 client not initialized");
+      return NextResponse.json(
+        { error: "S3 client initialization failed" },
+        { status: 500 }
+      );
+    }
+
+    // Check database connection
+    if (!connection) {
+      console.error("Database connection not available");
+      return NextResponse.json(
+        { error: "Database connection failed" },
+        { status: 500 }
+      );
+    }
+
+    // Parse form data with error handling
+    let formData;
+    try {
+      formData = await request.formData();
+      console.log("Form data parsed successfully");
+    } catch (formError) {
+      console.error("Form data parsing error:", formError);
+      return NextResponse.json(
+        { error: "Failed to parse form data" },
+        { status: 400 }
+      );
+    }
+
     const title = formData.get("title");
     const tags = formData.get("tags");
     const file = formData.get("file");
+
+    // Log received data
+    console.log("Received data:", {
+      hasTitle: !!title,
+      hasTags: !!tags,
+      hasFile: !!file,
+      fileType: file?.type,
+      fileSize: file?.size,
+    });
 
     // Validate inputs
     if (!file) {
@@ -68,11 +126,22 @@ export async function POST(request) {
     const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const filename = `gallery/${timestamp}-${sanitizedFileName}`;
 
-    // Convert file to buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // Convert file to buffer with error handling
+    let buffer;
+    try {
+      buffer = Buffer.from(await file.arrayBuffer());
+      console.log("File converted to buffer successfully");
+    } catch (bufferError) {
+      console.error("Buffer conversion error:", bufferError);
+      return NextResponse.json(
+        { error: "Failed to process file" },
+        { status: 500 }
+      );
+    }
 
     // Upload to S3
     try {
+      console.log("Attempting S3 upload...");
       const uploadCommand = new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME,
         Key: filename,
@@ -81,10 +150,16 @@ export async function POST(request) {
       });
 
       await s3Client.send(uploadCommand);
+      console.log("S3 upload successful");
     } catch (s3Error) {
-      console.error("S3 upload error:", s3Error);
+      console.error("S3 upload error:", {
+        error: s3Error.message,
+        stack: s3Error.stack,
+        code: s3Error.code,
+        requestId: s3Error.$metadata?.requestId,
+      });
       return NextResponse.json(
-        { error: "Failed to upload file to storage" },
+        { error: `Failed to upload file to storage: ${s3Error.message}` },
         { status: 500 }
       );
     }
@@ -94,21 +169,34 @@ export async function POST(request) {
 
     // Save to database
     try {
+      console.log("Attempting database insert...");
       const [result] = await connection.execute(
         "INSERT INTO gallery (title, tags, url) VALUES (?, ?, ?)",
         [title, tags || null, imageUrl]
       );
+      console.log("Database insert successful");
     } catch (dbError) {
-      console.error("Database error:", dbError);
+      console.error("Database error:", {
+        error: dbError.message,
+        stack: dbError.stack,
+        code: dbError.code,
+        sqlMessage: dbError.sqlMessage,
+      });
       return NextResponse.json(
-        { error: "Failed to save to database" },
+        { error: `Failed to save to database: ${dbError.message}` },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true, imageUrl });
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("Upload error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+      cause: error.cause,
+    });
     return NextResponse.json(
       { error: "Upload failed: " + error.message },
       { status: 500 }
