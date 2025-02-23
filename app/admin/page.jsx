@@ -66,7 +66,7 @@ const AdminDashboard = () => {
       title: "Gallery",
       icon: <Images className="w-6 h-6" />,
       description: "Manage gallery",
-      color: "bg-gray-100 text-gray-600",
+      color: "bg-red-100 text-red-600",
       link: "/admin/gallery",
     },
   ];
