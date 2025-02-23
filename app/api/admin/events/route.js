@@ -10,10 +10,7 @@ export async function GET(request) {
   try {
     // Use consistent filtering across both queries
     const [events] = await connection.execute(
-      `SELECT * FROM events 
-       ORDER BY id DESC 
-       LIMIT ? OFFSET ?`,
-      [limit, offset]
+      "SELECT * FROM events ORDER BY id DESC"
     );
 
     const [[{ count }]] = await connection.execute(
