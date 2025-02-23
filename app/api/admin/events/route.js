@@ -9,9 +9,8 @@ export async function GET(request) {
 
   try {
     const [events] = await connection.execute(
-      `
-        SELECT * FROM events 
-        ORDER BY date DESC 
+      `SELECT * FROM events 
+        ORDER BY id DESC 
         LIMIT ? OFFSET ?
       `,
       [limit, offset]
