@@ -45,7 +45,7 @@ export default function EventCertificatesTable() {
   const fetchEventName = async (eventId) => {
     try {
       const response = await fetch(`/api/admin/events/${eventId}`);
-      if (!response.ok) throw new Error("Failed to fetch event");
+      if (!response.ok) throw new Error("Failed to fetch certificates");
       const data = await response.json();
       return data.name || "Unknown Event";
     } catch (error) {
@@ -153,12 +153,14 @@ export default function EventCertificatesTable() {
 
         {certificates.length === 0 ? (
           <div className="text-center py-12 border rounded-lg bg-muted/50">
-            <h3 className="text-lg font-semibold">No events found</h3>
+            <h3 className="text-lg font-semibold">
+              No event certificates found
+            </h3>
             <p className="text-muted-foreground mt-1">
-              Start by creating your first event
+              Start by creating your first event certificate
             </p>
             <Button onClick={handleCreate} className="mt-4">
-              <Plus className="mr-2 h-4 w-4" /> Create Event
+              <Plus className="mr-2 h-4 w-4" /> Create Certificate
             </Button>
           </div>
         ) : (

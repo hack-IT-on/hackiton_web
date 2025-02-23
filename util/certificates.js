@@ -1,6 +1,9 @@
 import { jsPDF } from "jspdf";
-import { readFile } from "fs/promises";
-import path from "path";
+async function fetchFont(url) {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  return arrayBuffer;
+}
 
 export const generatePDF = async (
   templateUrl,
@@ -10,69 +13,174 @@ export const generatePDF = async (
   certificate_id
 ) => {
   try {
+    // Create PDF document
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "mm",
       format: "a4",
     });
 
-    // Read the image file from the public directory
-    const imagePath = path.join(process.cwd(), "public", templateUrl);
-    const imageBuffer = await readFile(imagePath);
+    // Load default font
+    doc.setFont("helvetica", "normal");
 
-    // Convert buffer to base64
-    const imageData = `data:image/jpeg;base64,${imageBuffer.toString(
-      "base64"
-    )}`;
+    // Helper function to fetch and convert image to base64
+    const getImageAsBase64 = async (url) => {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      return `data:image/png;base64,${Buffer.from(arrayBuffer).toString(
+        "base64"
+      )}`;
+    };
+
+    // Fetch all images in parallel
+    const [
+      templateBase64,
+      logo1Base64,
+      logo2Base64,
+      logo3Base64,
+      signature1Base64,
+      signature2Base64,
+      signature3Base64,
+    ] = await Promise.all([
+      getImageAsBase64(templateUrl),
+      getImageAsBase64(
+        "https://hack-it-on.s3.eu-north-1.amazonaws.com/logos/BIT-logo+(2).png"
+      ),
+      getImageAsBase64("https://hackiton.vercel.app/logo.png"),
+      getImageAsBase64(
+        "https://hack-it-on.s3.eu-north-1.amazonaws.com/logos/Logo-1392644265.png"
+      ),
+      getImageAsBase64(
+        "https://camo.githubusercontent.com/9ad27ae3c86b026112ff04e6a7c2f2004f556e93ee430b3f67228d1785e3b5fe/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f393837332f3236383034362f39636564333435342d386566632d313165322d383136652d6139623137306135313030342e706e67"
+      ),
+      getImageAsBase64(
+        "https://camo.githubusercontent.com/9ad27ae3c86b026112ff04e6a7c2f2004f556e93ee430b3f67228d1785e3b5fe/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f393837332f3236383034362f39636564333435342d386566632d313165322d383136652d6139623137306135313030342e706e67"
+      ),
+      getImageAsBase64(
+        "https://hack-it-on.s3.eu-north-1.amazonaws.com/signatures/sph_sign.png"
+      ),
+    ]);
 
     // Add template as background
-    doc.addImage(imageData, "JPEG", 0, 0, 297, 210);
+    doc.addImage(templateBase64, "PNG", 0, 0, 297, 210);
 
-    // Configure text
-    doc.setFont("helvetica");
+    // Add logos at top with adjusted sizes
+    const logoWidth = 25;
+    const logoHeight = 25;
+    const logoY = 20;
 
-    // Add event name
-    doc.setFontSize(40);
-    doc.setTextColor(0, 0, 0);
-    doc.text(eventName, 297 / 2, 80, {
+    // Adjusted logo positions
+    doc.addImage(logo1Base64, "PNG", 55, logoY, 20, 20);
+    doc.addImage(logo2Base64, "PNG", 133.5, logoY, 35, 15);
+    doc.addImage(logo3Base64, "PNG", 212, logoY, logoWidth, logoHeight);
+
+    // Certificate Title (moved up by additional 10mm)
+    doc.setFontSize(35);
+    doc.setTextColor(31, 41, 55);
+    doc.setFont("helvetica", "bold");
+    doc.text("CERTIFICATE", 148.5, 55, {
       align: "center",
-      baseline: "middle",
     });
 
-    // Add user name
-    doc.setFontSize(30);
-    doc.setTextColor(0, 0, 0);
-    doc.text(userName, 297 / 2, 110, {
+    doc.setFontSize(35);
+    doc.text("OF PARTICIPATION", 148.5, 75, {
       align: "center",
-      baseline: "middle",
     });
 
-    // Add issue date
-    doc.setFontSize(16);
-    doc.text(
-      `Issued on: ${issueDate.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })}`,
-      297 / 2,
-      140,
-      {
-        align: "center",
-        baseline: "middle",
-      }
+    // Reset font to normal for remaining text
+    doc.setFont("helvetica", "normal");
+
+    // Presented to text (moved up by additional 10mm)
+    doc.setFontSize(18);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Presented to", 148.5, 100, {
+      align: "center",
+    });
+
+    // User name (moved up by additional 10mm)
+    doc.setFontSize(28);
+    doc.setTextColor(0, 0, 0);
+    doc.text(userName, 148.5, 115, {
+      align: "center",
+    });
+
+    // Participation text (moved up by additional 10mm)
+    doc.setFontSize(18);
+    doc.setTextColor(100, 100, 100);
+    doc.text("for successfully participating in", 148.5, 130, {
+      align: "center",
+    });
+
+    // Event name (moved up by additional 10mm)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.setTextColor(31, 41, 55);
+    doc.text(eventName, 148.5, 145, {
+      align: "center",
+    });
+
+    // Reset font to normal for remaining text
+    doc.setFont("helvetica", "normal");
+
+    // Issue date (moved up by additional 10mm)
+    doc.setFontSize(12);
+    doc.setTextColor(80, 80, 80);
+    const dateText = `Issued on: ${issueDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}`;
+    doc.text(dateText, 148.5, 155, {
+      align: "center",
+    });
+
+    // Certificate ID (moved up by additional 10mm)
+    doc.setFontSize(11);
+    doc.setTextColor(90, 90, 90);
+    doc.text(`Certificate ID: ${certificate_id}`, 148.5, 162, {
+      align: "center",
+    });
+
+    // Digital signatures (keeping original position)
+    const signatureWidth = 25;
+    const signatureHeight = 15;
+    const signatureY = 170;
+
+    // Add signatures
+    doc.addImage(
+      signature1Base64,
+      "PNG",
+      55,
+      signatureY,
+      signatureWidth,
+      signatureHeight
+    );
+    doc.addImage(
+      signature2Base64,
+      "PNG",
+      133.5,
+      signatureY,
+      signatureWidth,
+      signatureHeight
+    );
+    doc.addImage(
+      signature3Base64,
+      "PNG",
+      212,
+      signatureY,
+      signatureWidth,
+      signatureHeight
     );
 
-    doc.setFontSize(30);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Certificate Id: ${certificate_id}`, 297 / 2, 170, {
-      align: "center",
-      baseline: "middle",
-    });
+    // Signature titles (keeping original position)
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    doc.text("Event Coordinator", 72.5, 190, { align: "center" });
+    doc.text("Event Director", 151, 190, { align: "center" });
+    doc.text("HOD of CSE Department", 229.5, 190, { align: "center" });
 
-    // Return PDF as Buffer
-    const arrayBuffer = doc.output("arraybuffer");
-    return Buffer.from(arrayBuffer);
+    const pdfBuffer = doc.output("arraybuffer");
+    return Buffer.from(pdfBuffer);
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw new Error("Failed to generate certificate PDF");

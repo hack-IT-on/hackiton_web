@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Loader2, Calendar, Type, FileText, Users } from "lucide-react";
+import { Loader2, Calendar, Type, Upload, Users } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -30,6 +30,8 @@ export default function CertificateModal({
 }) {
   const [events, setEvents] = useState([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const {
     register,
@@ -42,7 +44,7 @@ export default function CertificateModal({
       name: "",
       event_id: "",
       certificate_issue_date: null,
-      template_url: "",
+      template_file: null,
     },
   });
 
@@ -71,28 +73,50 @@ export default function CertificateModal({
         name: certificate.name || "",
         event_id: certificate.event_id?.toString() || "",
         certificate_issue_date: certificate.certificate_issue_date || null,
-        template_url: certificate.template_url || "",
       });
     }
   }, [certificate, reset]);
 
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload an image file");
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
-      const formData = {
-        ...data,
-        event_id: parseInt(data.event_id, 10),
-      };
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("event_id", data.event_id);
+      formData.append("certificate_issue_date", data.certificate_issue_date);
+
+      if (selectedFile) {
+        formData.append("template_file", selectedFile);
+      } else if (certificate?.template_url) {
+        formData.append("template_url", certificate.template_url);
+      }
 
       const url = certificate
         ? `/api/admin/certificates/${certificate.id}`
         : "/api/admin/certificates";
+
       const response = await fetch(url, {
         method: certificate ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Failed to save certificate");
+      const result = await response.json();
 
       toast.success(
         certificate
@@ -100,6 +124,7 @@ export default function CertificateModal({
           : "Certificate created successfully"
       );
       onSuccess();
+      onClose();
     } catch (error) {
       toast.error(error.message);
     }
@@ -194,20 +219,34 @@ export default function CertificateModal({
 
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  <span>Template URL</span>
+                  <Upload className="w-4 h-4" />
+                  <span>Template Image</span>
                 </Label>
-                <Input
-                  {...register("template_url", {
-                    required: "Template URL is required",
-                  })}
-                  placeholder="Enter template URL"
-                />
-                {errors.template_url && (
-                  <p className="text-sm text-red-500">
-                    {errors.template_url.message}
-                  </p>
-                )}
+                <div className="space-y-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full"
+                  />
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  )}
+                  {certificate?.template_url && (
+                    <div className="mt-2">
+                      <img
+                        src={certificate.template_url}
+                        alt="Current template"
+                        className="max-h-32 rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
