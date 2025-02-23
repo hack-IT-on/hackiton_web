@@ -8,26 +8,30 @@ export async function GET(request) {
   const offset = (page - 1) * limit;
 
   try {
+    // Use consistent filtering across both queries
     const [events] = await connection.execute(
       `SELECT * FROM events 
-        ORDER BY id DESC 
-        LIMIT ? OFFSET ?
-      `,
+       ORDER BY id DESC 
+       LIMIT ? OFFSET ?`,
       [limit, offset]
     );
 
-    const totalCount = await connection.execute(
+    const [[{ count }]] = await connection.execute(
       "SELECT COUNT(*) as count FROM events WHERE is_active = 1"
     );
 
     return NextResponse.json({
       events,
-      total: totalCount[0].count,
+      total: count,
       page,
-      totalPages: Math.ceil(totalCount[0].count / limit),
+      totalPages: Math.ceil(count / limit),
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Database query error:", error);
+    return NextResponse.json(
+      { error: "An error occurred while fetching events" },
+      { status: 500 }
+    );
   }
 }
 

@@ -117,14 +117,14 @@ export default function EventPage({ params }) {
           <Separator className="my-6" />
 
           <div className="prose max-w-none">
-            {data.long_description && (
-              <div data-color-mode="light">
-                <MDEditor.Markdown
-                  source={data.long_description}
-                  style={{ whiteSpace: "pre-wrap" }}
-                />
-              </div>
-            )}
+            {/* {data.long_description && ( */}
+            <div data-color-mode="light">
+              <MDEditor.Markdown
+                source={data.long_description}
+                style={{ whiteSpace: "pre-wrap" }}
+              />
+            </div>
+            {/* )} */}
           </div>
         </CardContent>
 
