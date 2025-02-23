@@ -39,6 +39,11 @@ export default function GalleryPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(-1);
   const [hoveredId, setHoveredId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Debounced search query
   const debouncedFetch = useCallback(
@@ -174,6 +179,10 @@ export default function GalleryPage() {
     };
     debounced.cancel = () => clearTimeout(timeout);
     return debounced;
+  }
+
+  if (!mounted) {
+    return null;
   }
 
   return (
