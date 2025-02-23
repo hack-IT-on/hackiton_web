@@ -6,7 +6,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Tag, ExternalLink, XCircle } from "lucide-react";
+import { Calendar, MapPin, Tag, ExternalLink, CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -92,7 +92,7 @@ export default function EventList({ events }) {
               {!event.is_active && (
                 <div className="absolute inset-0 bg-amber-50/40 backdrop-blur-[1px] z-20 flex items-center justify-center">
                   <Badge className="absolute top-4 left-4 flex items-center gap-1 bg-amber-500 hover:bg-amber-600">
-                    <XCircle className="w-4 h-4" />
+                    <CircleCheck className="w-4 h-4" />
                     Completed Event
                   </Badge>
                 </div>
