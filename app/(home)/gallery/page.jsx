@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -7,6 +7,7 @@ import {
   ChevronRight,
   X,
   Search,
+  AlertCircle,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -23,11 +24,13 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function GalleryPage() {
-  // Initialize states with proper default values
+  // States with proper typing and defaults
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [date, setDate] = useState({ from: undefined, to: undefined });
   const [availableTags, setAvailableTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -37,36 +40,35 @@ export default function GalleryPage() {
   const [hoveredId, setHoveredId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch unique tags from images
+  // Debounced search query
+  const debouncedFetch = useCallback(
+    debounce(() => {
+      fetchImages();
+    }, 300),
+    [date, selectedTags]
+  );
+
+  // Fetch tags with error handling
   const fetchTags = async () => {
     try {
       const response = await fetch("/api/gallery/tags");
-      if (!response.ok) throw new Error("Failed to fetch tags");
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      const tagsArray = Array.isArray(data) ? data : [];
-      console.log("Processed tags array:", tagsArray); // Debug log
-
-      setAvailableTags(tagsArray);
+      setAvailableTags(Array.isArray(data) ? data : []);
+      setError(null);
     } catch (error) {
       console.error("Error fetching tags:", error);
-      console.error("Failed to load tags. Please try again later.");
+      setError("Failed to load tags. Please try again later.");
       setAvailableTags([]);
     }
   };
 
-  // availableTags.map((tag) => {
-  // console.log(tag);
-  // });
-
-  // console.log(availableTags);
-
-  useEffect(() => {
-    fetchTags();
-  }, []);
-
+  // Fetch images with error handling
   const fetchImages = async () => {
     try {
       setLoading(true);
+      setError(null);
       const params = new URLSearchParams();
 
       if (date?.from) {
@@ -75,82 +77,104 @@ export default function GalleryPage() {
       if (date?.to) {
         params.append("to", format(date.to, "yyyy-MM-dd"));
       }
-      if (selectedTags && selectedTags.length > 0) {
+      if (selectedTags?.length > 0) {
         params.append("tags", selectedTags.join(","));
       }
 
       const response = await fetch(`/api/gallery?${params.toString()}`);
-      if (!response.ok) throw new Error("Failed to fetch images");
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
-      setImages(data || []); // Ensure we set an empty array if data is null/undefined
+      setImages(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching images:", error);
-      console.error("Failed to load images. Please try again later.");
-      setImages([]); // Set empty array on error
+      setError("Failed to load images. Please try again later.");
+      setImages([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchImages();
-  }, [date, selectedTags]);
+    fetchTags();
+  }, []);
+
+  useEffect(() => {
+    debouncedFetch();
+    return () => debouncedFetch.cancel();
+  }, [date, selectedTags, debouncedFetch]);
 
   const handleSelectTag = (tag) => {
-    if (selectedTags && !selectedTags.includes(tag)) {
-      setSelectedTags([...selectedTags, tag]);
-    }
+    setSelectedTags((prev) => (prev.includes(tag) ? prev : [...prev, tag]));
     setTagPopoverOpen(false);
   };
 
   const handleRemoveTag = (tagToRemove) => {
-    if (selectedTags) {
-      setSelectedTags(selectedTags.filter((tag) => tag !== tagToRemove));
-    }
+    setSelectedTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
   const handleImageSelect = (image) => {
-    if (!images) return;
     const index = images.findIndex((img) => img.id === image.id);
     setSelectedImageIndex(index);
     setSelectedImage(image);
   };
 
   const handlePrevImage = () => {
-    if (!images || selectedImageIndex <= 0) return;
+    if (selectedImageIndex <= 0) return;
     const newIndex = selectedImageIndex - 1;
     setSelectedImageIndex(newIndex);
     setSelectedImage(images[newIndex]);
   };
 
   const handleNextImage = () => {
-    if (!images || selectedImageIndex >= images.length - 1) return;
+    if (selectedImageIndex >= images.length - 1) return;
     const newIndex = selectedImageIndex + 1;
     setSelectedImageIndex(newIndex);
     setSelectedImage(images[newIndex]);
   };
-  const filteredTags = Array.isArray(availableTags)
-    ? availableTags.filter((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
 
-  // Handle keyboard navigation
+  const filteredTags = availableTags.filter((tag) =>
+    tag.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (selectedImage) {
-        if (e.key === "ArrowLeft") {
+      if (!selectedImage) return;
+
+      switch (e.key) {
+        case "ArrowLeft":
           handlePrevImage();
-        } else if (e.key === "ArrowRight") {
+          break;
+        case "ArrowRight":
           handleNextImage();
-        }
+          break;
+        case "Escape":
+          setSelectedImage(null);
+          setSelectedImageIndex(-1);
+          break;
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImage, selectedImageIndex, images]);
+  }, [selectedImage, selectedImageIndex]);
+
+  // Debounce utility function
+  function debounce(func, wait) {
+    let timeout;
+    const debounced = function (...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func.apply(this, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+    debounced.cancel = () => clearTimeout(timeout);
+    return debounced;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -170,6 +194,7 @@ export default function GalleryPage() {
                       "rounded-full justify-start text-left font-normal",
                       !date && "text-muted-foreground"
                     )}
+                    aria-label="Select date range"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date?.from ? (
@@ -201,7 +226,11 @@ export default function GalleryPage() {
 
               <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="rounded-full">
+                  <Button
+                    variant="outline"
+                    className="rounded-full"
+                    aria-label="Select tags"
+                  >
                     Select Tags
                   </Button>
                 </PopoverTrigger>
@@ -213,6 +242,7 @@ export default function GalleryPage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-8"
+                      aria-label="Search tags"
                     />
                   </div>
                   <ScrollArea className="h-48">
@@ -223,13 +253,14 @@ export default function GalleryPage() {
                     ) : (
                       <div className="space-y-1">
                         {filteredTags.map((tag) => (
-                          <div
+                          <button
                             key={tag}
                             onClick={() => handleSelectTag(tag)}
-                            className="px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            className="w-full px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer text-left"
+                            aria-label={`Select tag: ${tag}`}
                           >
                             {tag}
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
@@ -239,9 +270,17 @@ export default function GalleryPage() {
             </div>
           </div>
 
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           {/* Filter Bar */}
           <div className="flex flex-wrap gap-4 items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-            {selectedTags && selectedTags.length > 0 && (
+            {selectedTags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {selectedTags.map((tag) => (
                   <Badge
@@ -250,10 +289,13 @@ export default function GalleryPage() {
                     className="rounded-full flex items-center gap-1 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   >
                     {tag}
-                    <X
-                      className="h-3 w-3 cursor-pointer"
+                    <button
                       onClick={() => handleRemoveTag(tag)}
-                    />
+                      className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-500 rounded-full"
+                      aria-label={`Remove tag: ${tag}`}
+                    >
+                      <X className="h-3 w-3 cursor-pointer" />
+                    </button>
                   </Badge>
                 ))}
               </div>
@@ -262,26 +304,40 @@ export default function GalleryPage() {
         </div>
 
         {/* Gallery Grid */}
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4">
-          {loading
-            ? Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className="break-inside-avoid mb-4">
-                  <Skeleton className="h-[300px] w-full rounded-xl" />
-                </div>
-              ))
-            : images.map((image) => (
-                <div
-                  key={image.id}
-                  className="break-inside-avoid mb-4 group relative"
-                  onMouseEnter={() => setHoveredId(image.id)}
-                  onMouseLeave={() => setHoveredId(null)}
+        <div
+          className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4"
+          role="grid"
+          aria-label="Image gallery"
+        >
+          {loading ? (
+            Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="break-inside-avoid mb-4">
+                <Skeleton className="h-[300px] w-full rounded-xl" />
+              </div>
+            ))
+          ) : images.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              No images found matching your criteria.
+            </div>
+          ) : (
+            images.map((image) => (
+              <div
+                key={image.id}
+                className="break-inside-avoid mb-4 group relative"
+                onMouseEnter={() => setHoveredId(image.id)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
+                <button
                   onClick={() => handleImageSelect(image)}
+                  className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-xl"
+                  aria-label={`View ${image.title}`}
                 >
                   <div className="relative rounded-xl overflow-hidden">
                     <img
                       src={image.url}
                       alt={image.title}
                       className="w-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
                     />
 
                     {/* Overlay */}
@@ -291,13 +347,12 @@ export default function GalleryPage() {
                         hoveredId === image.id ? "opacity-100" : "opacity-0"
                       )}
                     >
-                      {/* Image Info */}
                       <div className="absolute bottom-4 left-4 right-4 text-white">
                         <h3 className="font-medium text-lg mb-2">
                           {image.title}
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          {(image.tags?.split(",") || []).map((tag, index) => (
+                          {image.tags?.split(",").map((tag, index) => (
                             <Badge
                               key={index}
                               variant="secondary"
@@ -310,11 +365,13 @@ export default function GalleryPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                </button>
+              </div>
+            ))
+          )}
         </div>
 
-        {/* Enhanced Modal */}
+        {/* Modal */}
         <Dialog
           open={!!selectedImage}
           onOpenChange={(open) => {
@@ -330,54 +387,77 @@ export default function GalleryPage() {
                 {/* Close button */}
                 <button
                   onClick={() => setSelectedImage(null)}
-                  className="absolute top-6 right-6 z-50 rounded-full bg-white/10 p-2.5 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-200 hover:scale-110"
+                  className="absolute top-6 right-6 z-50 rounded-full bg-white/10 p-2.5 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  aria-label="Close modal"
                 >
                   <X className="h-5 w-5" />
                 </button>
-                <DialogTitle>{selectedImage.title}</DialogTitle>
-                {/* Navigation area - larger click targets */}
-                <div className="absolute inset-0 flex items-center justify-between px-4 z-40">
-                  {/* Left navigation area */}
-                  <div className="h-full flex items-center">
-                    <button
-                      onClick={handlePrevImage}
-                      disabled={selectedImageIndex === 0}
-                      className="group relative flex items-center justify-center p-3 disabled:opacity-0 transition-opacity duration-200"
-                    >
-                      <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                      <ChevronLeft className="h-8 w-8 text-white relative z-10" />
-                    </button>
-                  </div>
 
-                  {/* Right navigation area */}
-                  <div className="h-full flex items-center">
-                    <button
-                      onClick={handleNextImage}
-                      disabled={selectedImageIndex === images.length - 1}
-                      className="group relative flex items-center justify-center p-3 disabled:opacity-0 transition-opacity duration-200"
-                    >
-                      <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                      <ChevronRight className="h-8 w-8 text-white relative z-10" />
-                    </button>
-                  </div>
+                <DialogTitle className="sr-only">
+                  {selectedImage.title}
+                </DialogTitle>
+
+                {/* Navigation buttons */}
+                <div className="absolute inset-0 flex items-center justify-between px-4 z-40">
+                  <button
+                    onClick={handlePrevImage}
+                    disabled={selectedImageIndex === 0}
+                    className="group relative flex items-center justify-center p-3 disabled:opacity-0 disabled:cursor-not-allowed transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-full"
+                    aria-label="Previous image"
+                  >
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    <ChevronLeft className="h-8 w-8 text-white relative z-10" />
+                  </button>
+
+                  <button
+                    onClick={handleNextImage}
+                    disabled={selectedImageIndex === images.length - 1}
+                    className="group relative flex items-center justify-center p-3 disabled:opacity-0 disabled:cursor-not-allowed transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-full"
+                    aria-label="Next image"
+                  >
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    <ChevronRight className="h-8 w-8 text-white relative z-10" />
+                  </button>
                 </div>
 
-                {/* Image container with improved animation */}
-                <div className="relative w-full h-full flex items-center justify-center">
+                {/* Image container */}
+                <div
+                  className="relative w-full h-full flex items-center justify-center"
+                  role="dialog"
+                  aria-label={`Image: ${selectedImage.title}`}
+                >
                   <img
                     src={selectedImage.url}
                     alt={selectedImage.title}
-                    className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl transition-transform duration-300 ease-out"
+                    className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl"
                     style={{
-                      transform: "scale(0.98)",
                       animation: "imageEnter 0.3s ease-out forwards",
                     }}
+                    loading="eager"
                   />
-                </div>
 
-                {/* Current image indicator */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm">
-                  {selectedImageIndex + 1} / {images.length}
+                  {/* Image details overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 backdrop-blur-sm">
+                    <h2 className="text-xl font-semibold mb-2">
+                      {selectedImage.title}
+                    </h2>
+                    {selectedImage.tags && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {selectedImage.tags.split(",").map((tag, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="bg-white/20 text-white"
+                          >
+                            {tag.trim()}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <div className="text-sm text-white/70">
+                      {selectedImageIndex + 1} of {images.length}
+                    </div>
+                  </div>
                 </div>
 
                 <style jsx>{`
