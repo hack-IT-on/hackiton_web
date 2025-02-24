@@ -45,13 +45,13 @@ export async function POST(request) {
     );
 
     const [existingStudent] = await connection.execute(
-      "SELECT * FROM students WHERE roll_no = ?",
-      [studentID]
+      "SELECT mobile_number FROM students WHERE roll_no = ? AND name = ?",
+      [studentID, name]
     );
 
     if (existingStudent.length == 0) {
       return NextResponse.json(
-        { message: `There is no student with roll no: ${studentID} in BIT` },
+        { message: `Name and roll number do not match.` },
         { status: 409 }
       );
     }

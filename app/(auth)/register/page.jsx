@@ -61,38 +61,38 @@ export default function Register() {
     setError("");
   };
 
-  const handleVerification = async () => {
-    if (!tempRollNo) {
-      setError("Please enter your roll number");
-      return;
-    }
+  // const handleVerification = async () => {
+  //   if (!tempRollNo) {
+  //     setError("Please enter your roll number");
+  //     return;
+  //   }
 
-    try {
-      setVerificationLoading(true);
-      const response = await fetch("/api/verify-student", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rollNo: tempRollNo }),
-      });
+  //   try {
+  //     setVerificationLoading(true);
+  //     const response = await fetch("/api/verify-student", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ rollNo: tempRollNo }),
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (response.ok) {
-        setFormData((prev) => ({
-          ...prev,
-          studentID: tempRollNo,
-          name: data.name, // Assuming the API returns the student's name
-        }));
-        setVerificationOpen(false);
-      } else {
-        setError(data.message || "Student verification failed");
-      }
-    } catch (err) {
-      setError("Network error. Please try again.");
-    } finally {
-      setVerificationLoading(false);
-    }
-  };
+  //     if (response.ok) {
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         studentID: tempRollNo,
+  //         name: data.name, // Assuming the API returns the student's name
+  //       }));
+  //       setVerificationOpen(false);
+  //     } else {
+  //       setError(data.message || "Student verification failed");
+  //     }
+  //   } catch (err) {
+  //     setError("Network error. Please try again.");
+  //   } finally {
+  //     setVerificationLoading(false);
+  //   }
+  // };
 
   const validateForm = () => {
     if (formData.password !== formData.cpassword) {
@@ -141,7 +141,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <Dialog open={verificationOpen} onOpenChange={setVerificationOpen}>
+      {/* <Dialog open={verificationOpen} onOpenChange={setVerificationOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Verify Student Details</DialogTitle>
@@ -182,7 +182,7 @@ export default function Register() {
             </Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       <Card className="w-full max-w-lg">
         <CardHeader className="space-y-1">
@@ -221,7 +221,6 @@ export default function Register() {
                     onChange={handleChange}
                     required
                     className="pl-10"
-                    readOnly
                   />
                 </div>
               </div>
@@ -238,7 +237,6 @@ export default function Register() {
                     onChange={handleChange}
                     required
                     className="pl-10"
-                    readOnly
                   />
                 </div>
               </div>
