@@ -325,7 +325,7 @@ export default function GalleryPage() {
               </div>
             ))
           ) : images.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
+            <div className="col-span-full flex items-center justify-center min-h-[300px] text-gray-500">
               No images found matching your criteria.
             </div>
           ) : (

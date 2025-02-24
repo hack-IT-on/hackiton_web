@@ -1,4 +1,3 @@
-// app/api/gallery/tags/route.ts
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 
