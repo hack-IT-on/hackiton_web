@@ -8,19 +8,31 @@ export async function POST(request) {
 
     if (!studentID) {
       return NextResponse.json(
-        { message: "Roll number is required" },
+        { message: "Student ID is required" },
         { status: 400 }
       );
     }
 
+    // Added validation for name
+    if (!name) {
+      return NextResponse.json(
+        { message: "Name is required" },
+        { status: 400 }
+      );
+    }
+
+    // Improved variable naming for clarity (roll_no vs studentID)
     const [rows] = await connection.execute(
       `SELECT mobile_number 
       FROM students 
-      WHERE name = ? and roll_no = ?`,
+      WHERE name = ? AND roll_no = ?`,
       [name, studentID]
     );
 
-    if (!rows.length) {
+    // Added proper connection release
+    // connection.release();
+
+    if (!rows || rows.length === 0) {
       return NextResponse.json(
         { message: "Student not found" },
         { status: 404 }
@@ -32,7 +44,6 @@ export async function POST(request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error verifying student:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

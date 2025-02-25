@@ -66,43 +66,14 @@ export default function Register() {
   }, []);
 
   // New effect to fetch phone number when name and studentID are entered
-  useEffect(() => {
-    const fetchPhoneNumber = async () => {
-      // Check if both name and studentID have values and are not just whitespace
-      if (formData.name.trim() && formData.studentID.trim()) {
-        setFetchingPhone(true);
-        try {
-          const response = await fetch("/api/verify-student", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: formData.name,
-              studentID: formData.studentID,
-            }),
-          });
+  // useEffect(() => {
+  //   // Debounce the fetch to avoid too many requests
+  //   const timer = setTimeout(() => {
+  //     fetchPhoneNumber();
+  //   }, 500);
 
-          const data = await response.json();
-          if (response.ok && data.mobile_number) {
-            setPhoneNumber(data.mobile_number);
-          } else {
-            // Silent fail - we don't want to show errors during auto-fetch
-            console.log("Could not fetch phone number automatically");
-          }
-        } catch (error) {
-          console.error("Error fetching phone number:", error);
-        } finally {
-          setFetchingPhone(false);
-        }
-      }
-    };
-
-    // Debounce the fetch to avoid too many requests
-    const timer = setTimeout(() => {
-      fetchPhoneNumber();
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [formData.name, formData.studentID]);
+  //   return () => clearTimeout(timer);
+  // }, [formData.name, formData.studentID]);
 
   // Timer for OTP resend functionality
   useEffect(() => {
@@ -154,10 +125,41 @@ export default function Register() {
     return true;
   };
 
+  const fetchPhoneNumber = async () => {
+    // Check if both name and studentID have values and are not just whitespace
+    if (formData.name.trim() && formData.studentID.trim()) {
+      setFetchingPhone(true);
+      try {
+        const response = await fetch("/api/verify-student", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name,
+            studentID: formData.studentID,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.mobile_number) {
+          setPhoneNumber(data.mobile_number);
+        } else {
+          // Silent fail - we don't want to show errors during auto-fetch
+          console.log("Could not fetch phone number automatically");
+        }
+      } catch (error) {
+        console.error("Error fetching phone number:", error);
+      } finally {
+        setFetchingPhone(false);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    fetchPhoneNumber();
 
     if (!validateForm()) return;
 
