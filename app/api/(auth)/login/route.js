@@ -17,7 +17,7 @@ export async function POST(request) {
 
     // Find user by email
     const [users] = await connection.execute(
-      "SELECT * FROM users WHERE email = ? AND is_verified = true",
+      "SELECT * FROM users WHERE email = ? AND is_verified = true and is_phone_verified = true",
       [email]
     );
 

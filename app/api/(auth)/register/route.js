@@ -2,29 +2,29 @@ import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail, generateVerificationToken } from "@/util/email";
+import { Twilio } from "twilio";
+
+async function sendOTP(number, otp) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const client = new Twilio(accountSid, authToken);
+
+  const message = await client.messages.create({
+    body: `Your Hack-IT-On One-Time Password is: ${otp}`,
+    from: process.env.TWILIO_MOBILE_NUMBER,
+    to: number,
+  });
+
+  console.log(message.body);
+}
 
 export async function POST(request) {
   try {
-    const {
-      name,
-      studentID,
-      githubUsername,
-      leetcodeUsername,
-      email,
-      password,
-      cpassword,
-    } = await request.json();
+    const { name, studentID, email, password, cpassword } =
+      await request.json();
 
     // Validate input
-    if (
-      !name ||
-      !studentID ||
-      !githubUsername ||
-      !leetcodeUsername ||
-      !email ||
-      !password ||
-      !cpassword
-    ) {
+    if (!name || !studentID || !email || !password || !cpassword) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
@@ -70,19 +70,23 @@ export async function POST(request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    //send otp
+    const mobile_number = existingStudent[0].mobile_number;
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    sendOTP(`+91${mobile_number}`, otp);
+
     // Insert new user with verification details
     const insertQuery = await connection.execute(
-      "INSERT INTO users (email, name, student_id, github_username, leetcode_username, password, verification_token, token_expiry, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO users (email, name, leetcode_username, password, verification_token, token_expiry, is_verified, otp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         email,
         name,
         studentID,
-        githubUsername,
-        leetcodeUsername,
         hashedPassword,
         verificationToken,
         tokenExpiry,
         false,
+        otp,
       ]
     );
 

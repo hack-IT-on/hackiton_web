@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -30,6 +31,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Code,
+  Phone,
 } from "lucide-react";
 
 export default function Register() {
@@ -45,54 +47,54 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [verificationOpen, setVerificationOpen] = useState(true);
+  const [verificationOpen, setVerificationOpen] = useState(false);
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [tempRollNo, setTempRollNo] = useState("");
+  const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [otpSuccess, setOtpSuccess] = useState("");
+  const [emailVerificationMessage, setEmailVerificationMessage] = useState("");
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [resendTimer, setResendTimer] = useState(120); // 2 minutes in seconds
+  const [canResend, setCanResend] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Timer for OTP resend functionality
+  useEffect(() => {
+    let interval;
+    if (otpDialogOpen && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0) {
+      setCanResend(true);
+    }
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [otpDialogOpen, resendTimer]);
+
+  // Format the timer as MM:SS
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
   };
-
-  // const handleVerification = async () => {
-  //   if (!tempRollNo) {
-  //     setError("Please enter your roll number");
-  //     return;
-  //   }
-
-  //   try {
-  //     setVerificationLoading(true);
-  //     const response = await fetch("/api/verify-student", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ rollNo: tempRollNo }),
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (response.ok) {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         studentID: tempRollNo,
-  //         name: data.name, // Assuming the API returns the student's name
-  //       }));
-  //       setVerificationOpen(false);
-  //     } else {
-  //       setError(data.message || "Student verification failed");
-  //     }
-  //   } catch (err) {
-  //     setError("Network error. Please try again.");
-  //   } finally {
-  //     setVerificationLoading(false);
-  //   }
-  // };
 
   const validateForm = () => {
     if (formData.password !== formData.cpassword) {
@@ -123,7 +125,13 @@ export default function Register() {
 
       const data = await response.json();
       if (response.ok) {
-        setSuccess("Registration successful! Verify your email address...");
+        setSuccess("Registration successful! Now verify your email ID!");
+        // Open OTP dialog after successful registration
+        setOtpDialogOpen(true);
+        // Reset the resend timer when the dialog opens
+        setResendTimer(120);
+        setCanResend(false);
+        // The OTP is already sent by the backend during registration
       } else {
         setError(data.message || "Registration failed");
       }
@@ -135,54 +143,172 @@ export default function Register() {
     }
   };
 
+  const verifyOtp = async () => {
+    if (!otpValue) {
+      setOtpError("Please enter the OTP");
+      return;
+    }
+
+    try {
+      setOtpLoading(true);
+      setOtpError("");
+      // API call to verify OTP
+      const response = await fetch("/api/register/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentID: formData.studentID,
+          otp: otpValue,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setOtpSuccess("Phone verification successful!");
+        // Show email verification message after OTP verification
+        setEmailVerificationMessage(
+          "Please check your email to complete verification."
+        );
+
+        // Close OTP dialog after a delay
+        setTimeout(() => {
+          setOtpDialogOpen(false);
+        }, 3000);
+      } else {
+        setOtpError(data.message || "Invalid OTP");
+      }
+    } catch (err) {
+      setOtpError("Network error. Please try again.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const resendOtp = async () => {
+    try {
+      setOtpLoading(true);
+      setOtpError("");
+      // API call to resend OTP
+      const response = await fetch("/api/register/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentID: formData.studentID,
+          name: formData.name,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setOtpValue("");
+        setOtpError("");
+        setOtpSuccess("OTP resent successfully!");
+        // Reset the timer and disable resend button
+        setResendTimer(120);
+        setCanResend(false);
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setOtpSuccess("");
+        }, 3000);
+      } else {
+        setOtpError(data.message || "Failed to resend OTP");
+      }
+    } catch (err) {
+      setOtpError("Network error. Failed to resend OTP.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   if (!mounted) {
     return null;
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      {/* <Dialog open={verificationOpen} onOpenChange={setVerificationOpen}>
+      {/* Phone OTP Verification Dialog */}
+      <Dialog
+        open={otpDialogOpen}
+        onOpenChange={(open) => {
+          // Prevent dialog from closing if verification is not complete
+          if (!otpSuccess) return;
+          setOtpDialogOpen(open);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Verify Student Details</DialogTitle>
+            <DialogTitle>Verify Your Phone Number</DialogTitle>
             <DialogDescription>
-              Please enter your MAKAUT Roll Number to verify your student status
+              We've sent a 6-digit code to your college-registered mobile
+              number. Please enter it below to verify.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="rollNo">Roll Number</Label>
+              <Label htmlFor="otp">Enter OTP</Label>
               <Input
-                id="rollNo"
-                value={tempRollNo}
-                onChange={(e) => setTempRollNo(e.target.value)}
-                placeholder="Enter your roll number"
-                type="number"
+                id="otp"
+                value={otpValue}
+                onChange={(e) => setOtpValue(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+                maxLength={6}
+                className="text-center text-lg tracking-widest"
               />
             </div>
-            {error && (
+
+            {otpError && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{otpError}</AlertDescription>
               </Alert>
             )}
+
+            {otpSuccess && (
+              <Alert className="bg-green-50 text-green-700 border-green-200">
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>{otpSuccess}</AlertDescription>
+              </Alert>
+            )}
+
+            {emailVerificationMessage && (
+              <Alert className="bg-blue-50 text-blue-700 border-blue-200">
+                <Mail className="h-4 w-4" />
+                <AlertDescription>{emailVerificationMessage}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            {canResend ? (
+              <Button
+                variant="outline"
+                onClick={resendOtp}
+                disabled={otpLoading}
+                className="sm:order-1"
+              >
+                Resend OTP
+              </Button>
+            ) : (
+              <div className="text-sm text-gray-500 sm:order-1 flex items-center justify-center sm:justify-start">
+                Resend OTP in {formatTime(resendTimer)}
+              </div>
+            )}
             <Button
-              className="w-full"
-              onClick={handleVerification}
-              disabled={verificationLoading}
+              onClick={verifyOtp}
+              disabled={otpLoading || otpSuccess}
+              className="sm:order-2"
             >
-              {verificationLoading ? (
+              {otpLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Verifying...
                 </>
               ) : (
-                "Verify"
+                "Verify OTP"
               )}
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
-      </Dialog> */}
+      </Dialog>
 
       <Card className="w-full max-w-lg">
         <CardHeader className="space-y-1">
@@ -242,8 +368,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Rest of the form remains the same */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="githubUsername">GitHub Username</Label>
               <div className="relative">
                 <Github className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -258,9 +383,9 @@ export default function Register() {
                   className="pl-10"
                 />
               </div>
-            </div>
+            </div> */}
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="leetcodeUsername">Leetcode Username</Label>
               <div className="relative">
                 <Code className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -275,7 +400,7 @@ export default function Register() {
                   className="pl-10"
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
