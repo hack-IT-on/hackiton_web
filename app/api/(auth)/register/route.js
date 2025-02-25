@@ -92,7 +92,7 @@ export async function POST(request) {
 
     // Send verification email
     const sendMail = await sendVerificationEmail(email, verificationToken);
-    const sendOtp = sendOTP(`+91${mobile_number}`, otp);
+    const sendOtp = await sendOTP(`+91${mobile_number}`, otp);
 
     // await connection.end();
     if (insertQuery && sendMail && sendOtp) {

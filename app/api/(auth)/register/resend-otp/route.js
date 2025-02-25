@@ -3,126 +3,55 @@ import { connection } from "@/util/db";
 import { Twilio } from "twilio";
 
 async function sendOTP(number, otp) {
-  try {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const client = new Twilio(accountSid, authToken);
 
-    if (!accountSid || !authToken) {
-      throw new Error("Twilio credentials are missing");
-    }
+  const message = await client.messages.create({
+    body: `Your Hack-IT-On One-Time Password is: ${otp}`,
+    from: process.env.TWILIO_MOBILE_NUMBER,
+    to: number,
+  });
 
-    const client = new Twilio(accountSid, authToken);
-
-    if (!process.env.TWILIO_MOBILE_NUMBER) {
-      throw new Error("Twilio sender phone number is missing");
-    }
-
-    const message = await client.messages.create({
-      body: `Your Hack-IT-On One-Time Password is: ${otp}`,
-      from: process.env.TWILIO_MOBILE_NUMBER,
-      to: number,
-    });
-
-    console.log("SMS sent successfully:", message.sid);
-    return true;
-  } catch (error) {
-    console.error("Error sending SMS:", error.message);
-    throw error; // Rethrow to handle in the main function
-  }
+  console.log(message.body);
 }
 
 // Handler for POST requests
 export async function POST(request) {
-  console.log("POST request received");
+  const { studentID, name } = await request.json();
 
   try {
-    // Check if request body is valid
-    const body = await request.json();
-    console.log("Request body parsed:", JSON.stringify(body));
+    const [existingStudent] = await connection.execute(
+      "SELECT mobile_number FROM students WHERE roll_no = ? AND name = ?",
+      [studentID, name]
+    );
 
-    const { studentID, name } = body;
-
-    if (!studentID || !name) {
+    if (!existingStudent || existingStudent.length === 0) {
       return NextResponse.json(
-        { message: "Missing required fields: studentID and name" },
-        { status: 400 }
+        { message: "Student not found" },
+        { status: 404 }
       );
     }
 
-    console.log("Checking database for student:", studentID, name);
+    const mobile_number = existingStudent[0].mobile_number;
+    const otp = Math.floor(100000 + Math.random() * 900000);
 
-    // Check database connection
-    if (!connection) {
-      console.error("Database connection not established");
-      return NextResponse.json(
-        { message: "Database connection error" },
-        { status: 500 }
-      );
-    }
+    // Update user as verified
+    await connection.execute(
+      "UPDATE users SET otp = ? WHERE student_id = ? AND name = ?",
+      [otp, studentID, name]
+    );
 
-    // Query for student
-    try {
-      const [existingStudent] = await connection.execute(
-        "SELECT mobile_number FROM students WHERE roll_no = ? AND name = ?",
-        [studentID, name]
-      );
+    // await sendOTP(`+91${mobile_number}`, otp);
 
-      console.log("Database query result:", JSON.stringify(existingStudent));
-
-      if (!existingStudent || existingStudent.length === 0) {
-        return NextResponse.json(
-          { message: "Student not found" },
-          { status: 404 }
-        );
-      }
-
-      const mobile_number = existingStudent[0].mobile_number;
-      if (!mobile_number) {
-        return NextResponse.json(
-          { message: "Student has no associated mobile number" },
-          { status: 400 }
-        );
-      }
-
-      const otp = Math.floor(100000 + Math.random() * 900000);
-      console.log("Generated OTP:", otp, "for mobile:", mobile_number);
-
-      // Update user with OTP
-      console.log("Updating users table with OTP");
-      await connection.execute(
-        "UPDATE users SET otp = ? WHERE student_id = ? AND name = ?",
-        [otp, studentID, name]
-      );
-      console.log("OTP updated in database");
-
-      // Send OTP via SMS
-      console.log("Sending OTP via SMS");
-      await sendOTP(`+91${mobile_number}`, otp);
-      console.log("OTP sent successfully");
-
-      return NextResponse.json(
-        { message: "OTP sent successfully." },
-        { status: 200 }
-      );
-    } catch (dbError) {
-      console.error("Database operation error:", dbError);
-      return NextResponse.json(
-        {
-          message: "Database operation failed",
-          error: dbError.message,
-          stack: dbError.stack,
-        },
-        { status: 500 }
-      );
-    }
-  } catch (error) {
-    console.error("API route error:", error);
     return NextResponse.json(
-      {
-        message: "Internal server error",
-        error: error.message,
-        stack: error.stack,
-      },
+      { message: "OTP sent successfully." },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Verification error:", error);
+    return NextResponse.json(
+      { message: "Internal server error", error: error.message },
       { status: 500 }
     );
   }
