@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
+import { Twilio } from "twilio";
 
 async function sendOTP(number, otp) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;

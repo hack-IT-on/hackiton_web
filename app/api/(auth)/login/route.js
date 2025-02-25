@@ -23,7 +23,7 @@ export async function POST(request) {
 
     if (users.length === 0) {
       return NextResponse.json(
-        { message: "User not found or not verified" },
+        { message: "User not found, or phone/email not verified." },
         { status: 404 }
       );
     }

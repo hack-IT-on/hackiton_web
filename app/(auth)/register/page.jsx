@@ -38,8 +38,6 @@ export default function Register() {
   const [formData, setFormData] = useState({
     name: "",
     studentID: "",
-    githubUsername: "",
-    leetcodeUsername: "",
     email: "",
     password: "",
     cpassword: "",
@@ -60,10 +58,51 @@ export default function Register() {
   const [mounted, setMounted] = useState(false);
   const [resendTimer, setResendTimer] = useState(120); // 2 minutes in seconds
   const [canResend, setCanResend] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [fetchingPhone, setFetchingPhone] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // New effect to fetch phone number when name and studentID are entered
+  useEffect(() => {
+    const fetchPhoneNumber = async () => {
+      // Check if both name and studentID have values and are not just whitespace
+      if (formData.name.trim() && formData.studentID.trim()) {
+        setFetchingPhone(true);
+        try {
+          const response = await fetch("/api/verify-student", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: formData.name,
+              studentID: formData.studentID,
+            }),
+          });
+
+          const data = await response.json();
+          if (response.ok && data.mobile_number) {
+            setPhoneNumber(data.mobile_number);
+          } else {
+            // Silent fail - we don't want to show errors during auto-fetch
+            console.log("Could not fetch phone number automatically");
+          }
+        } catch (error) {
+          console.error("Error fetching phone number:", error);
+        } finally {
+          setFetchingPhone(false);
+        }
+      }
+    };
+
+    // Debounce the fetch to avoid too many requests
+    const timer = setTimeout(() => {
+      fetchPhoneNumber();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.name, formData.studentID]);
 
   // Timer for OTP resend functionality
   useEffect(() => {
@@ -88,6 +127,13 @@ export default function Register() {
     return `${mins.toString().padStart(2, "0")}:${secs
       .toString()
       .padStart(2, "0")}`;
+  };
+
+  // Format phone number for display (e.g., ***-***-1234)
+  const formatPhoneForDisplay = (phone) => {
+    if (!phone) return "";
+    // Show only last 4 digits, mask the rest
+    return `***-***-${phone.slice(-4)}`;
   };
 
   const handleChange = (e) => {
@@ -125,7 +171,9 @@ export default function Register() {
 
       const data = await response.json();
       if (response.ok) {
-        setSuccess("Registration successful! Now verify your email ID!");
+        setSuccess(
+          "Registration successful! Now, verify your email ID. We've already sent you a verification email."
+        );
         // Open OTP dialog after successful registration
         setOtpDialogOpen(true);
         // Reset the resend timer when the dialog opens
@@ -239,8 +287,28 @@ export default function Register() {
           <DialogHeader>
             <DialogTitle>Verify Your Phone Number</DialogTitle>
             <DialogDescription>
-              We've sent a 6-digit code to your college-registered mobile
-              number. Please enter it below to verify.
+              {phoneNumber ? (
+                <>
+                  We've sent a 6-digit code to your registered mobile number{" "}
+                  <span className="font-medium">
+                    {formatPhoneForDisplay(phoneNumber)}
+                  </span>
+                  . Please enter it below to verify.
+                </>
+              ) : (
+                <>
+                  {fetchingPhone ? (
+                    <>
+                      <span className="flex items-center">
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Retrieving your phone number...
+                      </span>
+                    </>
+                  ) : (
+                    "We've sent a 6-digit code to your college-registered mobile number. Please enter it below to verify."
+                  )}
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -367,40 +435,6 @@ export default function Register() {
                 </div>
               </div>
             </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="githubUsername">GitHub Username</Label>
-              <div className="relative">
-                <Github className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="githubUsername"
-                  name="githubUsername"
-                  type="text"
-                  placeholder="github-username (only username no URL)"
-                  value={formData.githubUsername}
-                  onChange={handleChange}
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div> */}
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="leetcodeUsername">Leetcode Username</Label>
-              <div className="relative">
-                <Code className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="leetcodeUsername"
-                  name="leetcodeUsername"
-                  type="text"
-                  placeholder="leetcode-username (only username no URL)"
-                  value={formData.leetcodeUsername}
-                  onChange={handleChange}
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div> */}
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

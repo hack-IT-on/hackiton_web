@@ -77,7 +77,7 @@ export async function POST(request) {
 
     // Insert new user with verification details
     const insertQuery = await connection.execute(
-      "INSERT INTO users (email, name, leetcode_username, password, verification_token, token_expiry, is_verified, otp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO users (email, name, student_id, password, verification_token, token_expiry, is_verified, otp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         email,
         name,

@@ -93,20 +93,20 @@ export const generatePDF = async (
     // Presented to text (moved up by additional 10mm)
     doc.setFontSize(18);
     doc.setTextColor(100, 100, 100);
-    doc.text("Presented to", 148.5, 100, {
+    doc.text("Presented to", 148.5, 95, {
       align: "center",
     });
 
     // User name (moved up by additional 10mm)
     doc.setFontSize(28);
     doc.setTextColor(0, 0, 0);
-    doc.text(userName, 148.5, 115, {
+    doc.text(userName, 148.5, 110, {
       align: "center",
     });
 
     // Participation text (moved up by additional 10mm)
     doc.setFontSize(18);
-    doc.setTextColor(100, 100, 100);
+    doc.setTextColor(100, 100, 95);
     doc.text("for successfully participating in", 148.5, 130, {
       align: "center",
     });
@@ -115,7 +115,7 @@ export const generatePDF = async (
     doc.setFont("helvetica", "bold");
     doc.setFontSize(24);
     doc.setTextColor(31, 41, 55);
-    doc.text(eventName, 148.5, 145, {
+    doc.text(eventName, 148.5, 140, {
       align: "center",
     });
 
@@ -130,21 +130,21 @@ export const generatePDF = async (
       month: "long",
       day: "numeric",
     })}`;
-    doc.text(dateText, 148.5, 155, {
+    doc.text(dateText, 148.5, 150, {
       align: "center",
     });
 
     // Certificate ID (moved up by additional 10mm)
     doc.setFontSize(11);
     doc.setTextColor(90, 90, 90);
-    doc.text(`Certificate ID: ${certificate_id}`, 148.5, 162, {
+    doc.text(`Certificate ID: ${certificate_id}`, 148.5, 157, {
       align: "center",
     });
 
     // Digital signatures (keeping original position)
-    const signatureWidth = 25;
-    const signatureHeight = 15;
-    const signatureY = 170;
+    const signatureWidth = 35;
+    const signatureHeight = 25;
+    const signatureY = 165;
 
     // Add signatures
     doc.addImage(
@@ -173,11 +173,21 @@ export const generatePDF = async (
     );
 
     // Signature titles (keeping original position)
-    doc.setFontSize(10);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(80, 80, 80);
-    doc.text("Event Coordinator", 72.5, 190, { align: "center" });
-    doc.text("Event Director", 151, 190, { align: "center" });
-    doc.text("HOD of CSE Department", 229.5, 190, { align: "center" });
+    doc.text("Prof. Tapan Kumar Pal \n President of IIC 7.0", 72.5, 190, {
+      align: "center",
+    });
+    doc.text("Prof. N.C. Ghosh \n Principal of the Institute", 151, 190, {
+      align: "center",
+    });
+    doc.text(
+      "Prof. Shanta Phani \n HOD & Associate Professor \n Department of CSE",
+      229.5,
+      190,
+      { align: "center" }
+    );
 
     const pdfBuffer = doc.output("arraybuffer");
     return Buffer.from(pdfBuffer);

@@ -4,9 +4,9 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { rollNo } = body;
+    const { name, studentID } = body;
 
-    if (!rollNo) {
+    if (!studentID) {
       return NextResponse.json(
         { message: "Roll number is required" },
         { status: 400 }
@@ -14,10 +14,10 @@ export async function POST(request) {
     }
 
     const [rows] = await connection.execute(
-      `SELECT name 
+      `SELECT mobile_number 
       FROM students 
-      WHERE roll_no = ?`,
-      [rollNo]
+      WHERE name = ? and roll_no = ?`,
+      [name, studentID]
     );
 
     if (!rows.length) {
@@ -27,7 +27,10 @@ export async function POST(request) {
       );
     }
 
-    return NextResponse.json({ name: rows[0].name }, { status: 200 });
+    return NextResponse.json(
+      { mobile_number: rows[0].mobile_number },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error verifying student:", error);
     return NextResponse.json(
