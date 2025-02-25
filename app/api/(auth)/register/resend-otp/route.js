@@ -42,7 +42,7 @@ export async function POST(request) {
       [otp, studentID, name]
     );
 
-    // await sendOTP(`+91${mobile_number}`, otp);
+    await sendOTP(`+91${mobile_number}`, otp);
 
     return NextResponse.json(
       { message: "OTP sent successfully." },
