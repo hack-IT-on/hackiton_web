@@ -16,6 +16,7 @@ async function sendOTP(number, otp) {
   });
 
   console.log(message.body);
+  return true;
 }
 
 export async function POST(request) {
@@ -73,7 +74,6 @@ export async function POST(request) {
     //send otp
     const mobile_number = existingStudent[0].mobile_number;
     const otp = Math.floor(100000 + Math.random() * 900000);
-    sendOTP(`+91${mobile_number}`, otp);
 
     // Insert new user with verification details
     const insertQuery = await connection.execute(
@@ -92,9 +92,10 @@ export async function POST(request) {
 
     // Send verification email
     const sendMail = await sendVerificationEmail(email, verificationToken);
+    const sendOtp = sendOTP(`+91${mobile_number}`, otp);
 
     // await connection.end();
-    if (insertQuery && sendMail) {
+    if (insertQuery && sendMail && sendOtp) {
       return NextResponse.json(
         { message: "User registered successfully" },
         { status: 200 }
