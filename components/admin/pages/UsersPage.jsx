@@ -9,7 +9,7 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import EditProfileModal from "../EditProfileModal";
 import ViewDetailsModal from "../ViewDetailsModal";
-import UpdateUserPopup from "../UpdateUserPopup"; // Import the new component
+import UpdateUserPopup from "../UpdateUserPopup";
 
 import {
   DropdownMenu,
@@ -47,23 +47,26 @@ import toast from "react-hot-toast";
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [approvalFilter, setApprovalFilter] = useState("all");
   const itemsPerPage = 5;
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // New state for update modal
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   const handleDelete = async (userId) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
+      setLoading(true);
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "DELETE",
       });
@@ -74,6 +77,8 @@ const UsersPage = () => {
       toast.success("User deleted successfully");
     } catch (error) {
       toast.error("Failed to delete user");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,14 +88,24 @@ const UsersPage = () => {
     );
   };
 
-  useEffect(() => {
-    async function fetchUser() {
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
       const response = await fetch("/api/admin/users");
+      if (!response.ok) throw new Error("Failed to fetch users");
       const data = await response.json();
       setUsers(data);
+    } catch (error) {
+      toast.error("Failed to load users");
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
     }
-    fetchUser();
   }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const sortData = (key) => {
     let direction = "asc";
@@ -100,21 +115,37 @@ const UsersPage = () => {
     setSortConfig({ key, direction });
   };
 
-  const getProcessedData = () => {
+  // Convert approval status code to string for filtering
+  const getApprovalStatus = (code) => {
+    if (code === 1) return "approved";
+    if (code === 0) return "pending";
+    if (code === 3) return "banned";
+    return "unknown";
+  };
+
+  const getProcessedData = useCallback(() => {
     let processedData = [...users];
 
     // Apply status filter
     if (statusFilter !== "all") {
       processedData = processedData.filter(
-        (user) => user.status.toLowerCase() === statusFilter.toLowerCase()
+        (user) => user.status?.toLowerCase() === statusFilter.toLowerCase()
       );
     }
 
     // Apply role filter
     if (roleFilter !== "all") {
       processedData = processedData.filter(
-        (user) => user.role.toLowerCase() === roleFilter.toLowerCase()
+        (user) => user.role?.toLowerCase() === roleFilter.toLowerCase()
       );
+    }
+
+    // Apply approval filter
+    if (approvalFilter !== "all") {
+      processedData = processedData.filter((user) => {
+        const userApprovalStatus = getApprovalStatus(user.is_approved);
+        return userApprovalStatus === approvalFilter.toLowerCase();
+      });
     }
 
     // Apply search
@@ -131,10 +162,13 @@ const UsersPage = () => {
     // Apply sorting
     if (sortConfig.key) {
       processedData.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const aValue = a[sortConfig.key] || "";
+        const bValue = b[sortConfig.key] || "";
+
+        if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === "asc" ? 1 : -1;
         }
         return 0;
@@ -142,19 +176,27 @@ const UsersPage = () => {
     }
 
     return processedData;
-  };
+  }, [users, statusFilter, roleFilter, approvalFilter, searchTerm, sortConfig]);
 
-  const getPaginatedData = () => {
+  const getPaginatedData = useCallback(() => {
     const processedData = getProcessedData();
     const startIndex = (currentPage - 1) * itemsPerPage;
     return processedData.slice(startIndex, startIndex + itemsPerPage);
-  };
+  }, [getProcessedData, currentPage]);
 
-  const totalPages = Math.ceil(getProcessedData().length / itemsPerPage);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(getProcessedData().length / itemsPerPage)
+  );
   const totalUsers = getProcessedData().length;
   const activeUsers = getProcessedData().filter(
     (user) => user.status === "Active"
   ).length;
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, roleFilter, approvalFilter, searchTerm]);
 
   const SortIcon = ({ columnKey }) => {
     if (sortConfig.key !== columnKey) return null;
@@ -186,7 +228,7 @@ const UsersPage = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          <div className="flex justify-between items-center gap-4">
+          <div className="flex justify-between items-center gap-4 flex-wrap">
             <div className="flex items-center flex-1 max-w-sm relative">
               <Search className="w-4 h-4 absolute left-3 text-gray-500" />
               <Input
@@ -196,17 +238,18 @@ const UsersPage = () => {
                 className="pl-9"
               />
             </div>
-            <div className="flex gap-2">
-              {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
+            <div className="flex gap-2 flex-wrap">
+              <Select value={approvalFilter} onValueChange={setApprovalFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Approval Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="banned">Banned</SelectItem>
                 </SelectContent>
-              </Select> */}
+              </Select>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="w-32">
                   <SelectValue placeholder="Role" />
@@ -214,7 +257,6 @@ const UsersPage = () => {
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  {/* <SelectItem value="editor">Editor</SelectItem> */}
                   <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
@@ -222,107 +264,134 @@ const UsersPage = () => {
           </div>
 
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead
-                    onClick={() => sortData("name")}
-                    className="cursor-pointer hover:bg-gray-50"
-                  >
-                    Name <SortIcon columnKey="name" />
-                  </TableHead>
-                  <TableHead
-                    onClick={() => sortData("email")}
-                    className="cursor-pointer hover:bg-gray-50"
-                  >
-                    Email <SortIcon columnKey="email" />
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-gray-50">
-                    MAKAUT Roll Number
-                  </TableHead>
-                  <TableHead
-                    onClick={() => sortData("role")}
-                    className="cursor-pointer hover:bg-gray-50"
-                  >
-                    Role <SortIcon columnKey="role" />
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-gray-50">
-                    Approval Status <SortIcon />
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-gray-50">
-                    GitHub Username
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-gray-50">
-                    Leedcode Username
-                  </TableHead>
-                  <TableHead className="w-[60px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {getPaginatedData().map((user) => (
-                  <TableRow key={user.id} className="hover:bg-gray-50">
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.student_id}</TableCell>
-                    <TableCell>
-                      <span className="px-2 py-1 rounded-full text-xs bg-gray-100">
-                        {user.role}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="px-2 py-1 rounded-full text-xs bg-gray-100">
-                        {user.is_approved === 1
-                          ? "Approved"
-                          : user.is_approved === 0
-                          ? "Pending"
-                          : user.is_approved === 3
-                          ? "Banned"
-                          : "Unknown"}
-                      </span>
-                    </TableCell>
-                    <TableCell>{user?.github_username}</TableCell>
-                    <TableCell>{user?.leetcode_username}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0 hover:bg-gray-100"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setIsViewModalOpen(true);
-                            }}
-                          >
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setIsUpdateModalOpen(true); // Open the new update modal
-                            }}
-                          >
-                            Update User
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600"
-                            onClick={() => handleDelete(user.id)}
-                          >
-                            Delete User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            {loading ? (
+              <div className="p-8 text-center">Loading users...</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead
+                      onClick={() => sortData("name")}
+                      className="cursor-pointer hover:bg-gray-50"
+                    >
+                      Name <SortIcon columnKey="name" />
+                    </TableHead>
+                    <TableHead
+                      onClick={() => sortData("email")}
+                      className="cursor-pointer hover:bg-gray-50"
+                    >
+                      Email <SortIcon columnKey="email" />
+                    </TableHead>
+                    <TableHead className="cursor-pointer hover:bg-gray-50">
+                      MAKAUT Roll Number
+                    </TableHead>
+                    <TableHead
+                      onClick={() => sortData("role")}
+                      className="cursor-pointer hover:bg-gray-50"
+                    >
+                      Role <SortIcon columnKey="role" />
+                    </TableHead>
+                    <TableHead
+                      onClick={() => sortData("is_approved")}
+                      className="cursor-pointer hover:bg-gray-50"
+                    >
+                      Approval Status <SortIcon columnKey="is_approved" />
+                    </TableHead>
+                    <TableHead className="cursor-pointer hover:bg-gray-50">
+                      GitHub Username
+                    </TableHead>
+                    <TableHead className="cursor-pointer hover:bg-gray-50">
+                      Leedcode Username
+                    </TableHead>
+                    <TableHead className="w-[60px]">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {getPaginatedData().length > 0 ? (
+                    getPaginatedData().map((user) => (
+                      <TableRow key={user.id} className="hover:bg-gray-50">
+                        <TableCell className="font-medium">
+                          {user.name || "-"}
+                        </TableCell>
+                        <TableCell>{user.email || "-"}</TableCell>
+                        <TableCell>{user.student_id || "-"}</TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 rounded-full text-xs bg-gray-100">
+                            {user.role || "-"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              user.is_approved === 1
+                                ? "bg-green-100 text-green-800"
+                                : user.is_approved === 0
+                                ? "bg-yellow-100 text-yellow-800"
+                                : user.is_approved === 3
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100"
+                            }`}
+                          >
+                            {user.is_approved === 1
+                              ? "Approved"
+                              : user.is_approved === 0
+                              ? "Pending"
+                              : user.is_approved === 3
+                              ? "Banned"
+                              : "Unknown"}
+                          </span>
+                        </TableCell>
+                        <TableCell>{user?.github_username || "-"}</TableCell>
+                        <TableCell>{user?.leetcode_username || "-"}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0 hover:bg-gray-100"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setIsViewModalOpen(true);
+                                }}
+                              >
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setIsUpdateModalOpen(true);
+                                }}
+                              >
+                                Update User
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => handleDelete(user.id)}
+                              >
+                                Delete User
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-6">
+                        No users found matching your filters
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </div>
 
           <div className="flex items-center justify-between">
@@ -334,7 +403,7 @@ const UsersPage = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || loading}
               >
                 Previous
               </Button>
@@ -347,7 +416,7 @@ const UsersPage = () => {
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || loading}
               >
                 Next
               </Button>
@@ -372,7 +441,6 @@ const UsersPage = () => {
         }}
         onUserUpdate={handleUserUpdate}
       />
-      {/* Add the new Update User Popup */}
       <UpdateUserPopup
         user={selectedUser}
         isOpen={isUpdateModalOpen}
