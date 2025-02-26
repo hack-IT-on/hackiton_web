@@ -121,7 +121,9 @@ const UsersPage = () => {
     if (searchTerm) {
       processedData = processedData.filter((user) =>
         Object.values(user).some((value) =>
-          value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+          value !== null && value !== undefined
+            ? value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+            : false
         )
       );
     }

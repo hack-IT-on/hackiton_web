@@ -321,13 +321,13 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       <img
                         src={
                           user.face_image_url ||
-                          "https://via.placeholder.com/400x300?text=Face+Image+Not+Available"
+                          "https://www.keesingtechnologies.com/wp-content/uploads/2022/03/Identity-verification-on-site-biometrics02.jpg"
                         }
                         alt="Face Verification"
                         className="w-full h-auto object-cover"
                         onError={(e) => {
                           e.target.src =
-                            "https://via.placeholder.com/400x300?text=Face+Image+Not+Available";
+                            "https://www.keesingtechnologies.com/wp-content/uploads/2022/03/Identity-verification-on-site-biometrics02.jpg";
                           e.target.alt = "Face image not available";
                         }}
                       />
