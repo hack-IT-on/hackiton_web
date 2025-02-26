@@ -3,7 +3,7 @@ import { connection } from "@/util/db";
 
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const data = await request.json();
 
     try {
@@ -12,17 +12,23 @@ export async function PUT(request, { params }) {
          name = ?, 
          email = ?, 
          role = ?, 
+         is_approved = ?,
          student_id = ?, 
          github_username = ?, 
-         leetcode_username = ? 
+         leetcode_username = ?,
+         total_points = ?,
+         code_coins = ?
          WHERE id = ?`,
         [
           data.name,
           data.email,
           data.role,
+          data.approved,
           data.student_id,
           data.github_username,
           data.leetcode_username,
+          data.total_points,
+          data.code_coins,
           id,
         ]
       );

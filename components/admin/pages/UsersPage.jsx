@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table";
 import EditProfileModal from "../EditProfileModal";
 import ViewDetailsModal from "../ViewDetailsModal";
+import UpdateUserPopup from "../UpdateUserPopup"; // Import the new component
 
 import {
   DropdownMenu,
@@ -57,6 +58,7 @@ const UsersPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // New state for update modal
 
   const handleDelete = async (userId) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
@@ -243,6 +245,9 @@ const UsersPage = () => {
                     Role <SortIcon columnKey="role" />
                   </TableHead>
                   <TableHead className="cursor-pointer hover:bg-gray-50">
+                    Is Approved <SortIcon />
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50">
                     GitHub Username
                   </TableHead>
                   <TableHead className="cursor-pointer hover:bg-gray-50">
@@ -260,6 +265,17 @@ const UsersPage = () => {
                     <TableCell>
                       <span className="px-2 py-1 rounded-full text-xs bg-gray-100">
                         {user.role}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 rounded-full text-xs bg-gray-100">
+                        {user.is_approved === 1
+                          ? "Approved"
+                          : user.is_approved === 0
+                          ? "Pending"
+                          : user.is_approved === 3
+                          ? "Banned"
+                          : "Unknown"}
                       </span>
                     </TableCell>
                     <TableCell>{user?.github_username}</TableCell>
@@ -283,14 +299,14 @@ const UsersPage = () => {
                           >
                             View Details
                           </DropdownMenuItem>
-                          {/* <DropdownMenuItem
+                          <DropdownMenuItem
                             onClick={() => {
                               setSelectedUser(user);
-                              setIsEditModalOpen(true);
+                              setIsUpdateModalOpen(true); // Open the new update modal
                             }}
                           >
-                            Edit User
-                          </DropdownMenuItem> */}
+                            Update User
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-red-600"
@@ -350,6 +366,16 @@ const UsersPage = () => {
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);
+          setSelectedUser(null);
+        }}
+        onUserUpdate={handleUserUpdate}
+      />
+      {/* Add the new Update User Popup */}
+      <UpdateUserPopup
+        user={selectedUser}
+        isOpen={isUpdateModalOpen}
+        onClose={() => {
+          setIsUpdateModalOpen(false);
           setSelectedUser(null);
         }}
         onUserUpdate={handleUserUpdate}

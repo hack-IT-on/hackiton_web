@@ -15,20 +15,43 @@ export async function POST(request) {
       );
     }
 
-    // Find user by email
+    // Find user by email - include is_approved in the query
     const [users] = await connection.execute(
-      "SELECT * FROM users WHERE email = ? AND is_verified = true and is_phone_verified = true",
+      "SELECT * FROM users WHERE email = ? AND is_verified = true",
       [email]
     );
 
     if (users.length === 0) {
       return NextResponse.json(
-        { message: "User not found, or phone/email not verified." },
+        { message: "User not found or email not verified." },
         { status: 404 }
       );
     }
 
     const user = users[0];
+
+    // Check the approval status
+    if (user.is_approved === 0) {
+      return NextResponse.json(
+        { message: "Your account is pending approval." },
+        { status: 403 }
+      );
+    }
+
+    if (user.is_approved === 3) {
+      return NextResponse.json(
+        { message: "Your account has been banned. Please contact support." },
+        { status: 403 }
+      );
+    }
+
+    // Only allow login if is_approved is 1 (approved)
+    if (user.is_approved !== 1) {
+      return NextResponse.json(
+        { message: "Your account status does not allow login." },
+        { status: 403 }
+      );
+    }
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
