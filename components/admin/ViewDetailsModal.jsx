@@ -7,6 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import {
   ExternalLink,
   User,
@@ -21,10 +22,55 @@ import {
   X,
   Coins,
   Trophy,
+  Calendar,
+  Smartphone,
+  MapPin,
+  Briefcase,
+  GraduationCap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ViewDetailsModal = ({ user, isOpen, onClose }) => {
+  const [studentData, setStudentData] = useState({
+    course_name: "",
+    semester: "",
+    mobile_number: "",
+  });
+
+  useEffect(() => {
+    // Only fetch if the modal is open and we have a user
+    if (isOpen && user) {
+      async function fetchStudent() {
+        try {
+          const response = await fetch("/api/verify-student", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: user.name,
+              studentID: user.student_id,
+            }),
+          });
+          const data = await response.json();
+          setStudentData(data);
+        } catch (error) {
+          console.error("Error fetching student data:", error);
+          // Set default values in case of error
+          setStudentData({
+            course_name: "Computer Science & Engineering",
+            semester: "3rd Year",
+            mobile_number: "Not provided",
+          });
+        }
+      }
+      fetchStudent();
+    }
+  }, [isOpen, user]);
+
   if (!user) return null;
 
   const hasGithub = user.github_username && user.github_username.trim() !== "";
@@ -63,10 +109,10 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-xl font-semibold flex items-center">
-            <User className="h-5 w-5 mr-2" /> User Details
+            <User className="h-5 w-5 mr-2" /> User Profile
           </DialogTitle>
           <Button
             variant="ghost"
@@ -78,188 +124,324 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
           </Button>
         </DialogHeader>
 
-        <div className="grid md:grid-cols-2 gap-8 py-4">
-          {/* User Information Column */}
-          <div className="space-y-5 bg-gray-50 p-5 rounded-lg shadow-sm">
-            <div className="text-center mb-4">
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 mb-3">
-                <span className="text-2xl font-semibold text-gray-700">
-                  {user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()}
-                </span>
-              </div>
-              <h3 className="text-lg font-semibold">{user.name}</h3>
-              <p className="text-gray-500">{user.email}</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-3 rounded-md shadow-sm">
-                <div className="flex items-center mb-1">
-                  <Shield className="h-4 w-4 text-gray-500 mr-2" />
-                  <p className="text-sm font-medium text-gray-500">Role</p>
-                </div>
-                <Badge variant="outline" className="capitalize">
-                  {user.role}
-                </Badge>
-              </div>
-
-              <div className="bg-white p-3 rounded-md shadow-sm">
-                <div className="flex items-center mb-1">
-                  <CheckCircle className="h-4 w-4 text-gray-500 mr-2" />
-                  <p className="text-sm font-medium text-gray-500">Status</p>
-                </div>
-                <div
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs ${approval.color}`}
-                >
-                  {approval.icon} {approval.label}
+        <div className="py-4">
+          {/* Profile Header */}
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+            <Avatar className="h-24 w-24 border-4 border-white shadow-md">
+              <AvatarImage src={user.avatar_url} alt={user.name} />
+              <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-2xl">
+                {user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 text-center md:text-left space-y-2">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold">{user.name}</h2>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
+                  <Mail className="h-4 w-4" />
+                  <span>{user.email}</span>
+                  <span className="px-1">•</span>
+                  <Shield className="h-4 w-4" />
+                  <span className="capitalize">{user.role}</span>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-white p-3 rounded-md shadow-sm">
-              <div className="flex items-center mb-1">
-                <IdCard className="h-4 w-4 text-gray-500 mr-2" />
-                <p className="text-sm font-medium text-gray-500">
-                  MAKAUT Roll Number
-                </p>
-              </div>
-              <p className="font-medium">{user.student_id || "Not provided"}</p>
-            </div>
-
-            <div className="bg-white p-3 rounded-md shadow-sm">
-              <div className="flex items-center mb-1">
-                <Github className="h-4 w-4 text-gray-500 mr-2" />
-                <p className="text-sm font-medium text-gray-500">GitHub</p>
-              </div>
-              <div className="flex items-center">
-                <p className="font-medium">
-                  {user.github_username || "Not provided"}
-                </p>
-                {hasGithub && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-2 p-0 h-auto"
-                    onClick={() =>
-                      window.open(
-                        `https://github.com/${user.github_username}`,
-                        "_blank"
-                      )
-                    }
-                  >
-                    <ExternalLink className="h-4 w-4 text-blue-600" />
-                  </Button>
-                )}
+              <div
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${approval.color}`}
+              >
+                {approval.icon} {approval.label}
               </div>
             </div>
-
-            <div className="bg-white p-3 rounded-md shadow-sm">
-              <div className="flex items-center mb-1">
-                <Code className="h-4 w-4 text-gray-500 mr-2" />
-                <p className="text-sm font-medium text-gray-500">LeetCode</p>
-              </div>
-              <div className="flex items-center">
-                <p className="font-medium">
-                  {user.leetcode_username || "Not provided"}
-                </p>
-                {hasLeetcode && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-2 p-0 h-auto"
-                    onClick={() =>
-                      window.open(
-                        `https://leetcode.com/${user.leetcode_username}`,
-                        "_blank"
-                      )
-                    }
-                  >
-                    <ExternalLink className="h-4 w-4 text-blue-600" />
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-3 rounded-md shadow-sm">
-                <div className="flex items-center mb-1">
-                  <Trophy className="h-4 w-4 text-gray-500 mr-2" />
-                  <p className="text-sm font-medium text-gray-500">
-                    Total Points
-                  </p>
-                </div>
-                {user.total_points}
-              </div>
-
-              <div className="bg-white p-3 rounded-md shadow-sm">
-                <div className="flex items-center mb-1">
-                  <Coins className="h-4 w-4 text-gray-500 mr-2" />
-                  <p className="text-sm font-medium text-gray-500">
-                    Total Coins
-                  </p>
-                </div>
-                {user.code_coins}
-              </div>
+            <div className="flex gap-2">
+              {/* <Button variant="outline" size="sm" className="rounded-full">
+                Message
+              </Button> */}
+              {user.is_approved === 0 && (
+                <Button variant="default" size="sm" className="rounded-full">
+                  <CheckCircle className="h-4 w-4 mr-1" /> Approve
+                </Button>
+              )}
             </div>
           </div>
 
-          {/* Images Column */}
-          <div className="space-y-6">
-            {/* Face Verification Image */}
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-medium text-gray-700">
-                  Face Verification
-                </p>
-                <Badge variant="outline" className="bg-blue-50">
-                  Verification Image
-                </Badge>
-              </div>
-              <div className="border rounded-md overflow-hidden shadow-sm">
-                <img
-                  src={user.face_image_url}
-                  alt="Face Verification"
-                  className="w-full h-auto"
-                  onError={(e) => {
-                    e.target.src =
-                      "https://via.placeholder.com/400x300?text=Face+Image+Not+Available";
-                    e.target.alt = "Face image not available";
-                  }}
-                />
-              </div>
-            </div>
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid grid-cols-3 mb-6">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="verification">Verification</TabsTrigger>
+              <TabsTrigger value="activity">Activity & Stats</TabsTrigger>
+            </TabsList>
 
-            {/* ID Card Image */}
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-medium text-gray-700">ID Card</p>
-                <Badge variant="outline" className="bg-blue-50">
-                  Identity Document
-                </Badge>
+            <TabsContent value="profile" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Academic Information */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md font-medium flex items-center">
+                      <GraduationCap className="h-4 w-4 mr-2 text-blue-600" />
+                      Academic Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">
+                        MAKAUT Roll Number
+                      </p>
+                      <div className="font-medium bg-gray-50 p-2 rounded">
+                        {user.student_id || "Not provided"}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Course</p>
+                      <div className="font-medium bg-gray-50 p-2 rounded">
+                        {studentData.course_name ||
+                          "Computer Science & Engineering"}
+                      </div>
+                    </div>
+                    {/* <div>
+                      <p className="text-sm text-gray-500 mb-1">
+                        Year of Study
+                      </p>
+                      <div className="font-medium bg-gray-50 p-2 rounded">
+                        {studentData.semester || "3rd Year"}
+                      </div>
+                    </div> */}
+                  </CardContent>
+                </Card>
+
+                {/* Coding Profiles */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md font-medium flex items-center">
+                      <Code className="h-4 w-4 mr-2 text-blue-600" />
+                      Coding Profiles
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">GitHub</p>
+                      <div className="flex items-center justify-between font-medium bg-gray-50 p-2 rounded">
+                        <span>{user.github_username || "Not provided"}</span>
+                        {hasGithub && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 rounded-full"
+                            onClick={() =>
+                              window.open(
+                                `https://github.com/${user.github_username}`,
+                                "_blank"
+                              )
+                            }
+                          >
+                            <ExternalLink className="h-4 w-4 text-blue-600" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">LeetCode</p>
+                      <div className="flex items-center justify-between font-medium bg-gray-50 p-2 rounded">
+                        <span>{user.leetcode_username || "Not provided"}</span>
+                        {hasLeetcode && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 rounded-full"
+                            onClick={() =>
+                              window.open(
+                                `https://leetcode.com/${user.leetcode_username}`,
+                                "_blank"
+                              )
+                            }
+                          >
+                            <ExternalLink className="h-4 w-4 text-blue-600" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              <div className="border rounded-md overflow-hidden shadow-sm">
-                <img
-                  src={user.id_card_image_url}
-                  alt="ID Card"
-                  className="w-full h-auto"
-                  onError={(e) => {
-                    e.target.src =
-                      "https://via.placeholder.com/400x300?text=ID+Card+Not+Available";
-                    e.target.alt = "ID card not available";
-                  }}
-                />
+
+              {/* Contact & Additional Info */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-md font-medium flex items-center">
+                    <Smartphone className="h-4 w-4 mr-2 text-blue-600" />
+                    Contact Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">
+                        Email Address
+                      </p>
+                      <div className="font-medium bg-gray-50 p-2 rounded">
+                        {user.email}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Phone Number</p>
+                      <div className="font-medium bg-gray-50 p-2 rounded">
+                        {studentData.mobile_number || "Not provided"}
+                      </div>
+                    </div>
+                    {/* <div>
+                      <p className="text-sm text-gray-500 mb-1">Location</p>
+                      <div className="font-medium bg-gray-50 p-2 rounded">
+                        {user.location || "West Bengal, India"}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Joined On</p>
+                      <div className="font-medium bg-gray-50 p-2 rounded">
+                        {user.join_date || "January 15, 2023"}
+                      </div>
+                    </div> */}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="verification" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Face Verification Image */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-md font-medium flex items-center">
+                      <User className="h-4 w-4 mr-2 text-blue-600" />
+                      Face Verification
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-hidden rounded-lg border shadow-sm">
+                      <img
+                        src={
+                          user.face_image_url ||
+                          "https://via.placeholder.com/400x300?text=Face+Image+Not+Available"
+                        }
+                        alt="Face Verification"
+                        className="w-full h-auto object-cover"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/400x300?text=Face+Image+Not+Available";
+                          e.target.alt = "Face image not available";
+                        }}
+                      />
+                    </div>
+                    <div className="mt-3 flex justify-between items-center">
+                      <Badge variant="outline" className="bg-blue-50">
+                        Verification Image
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* ID Card Image */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-md font-medium flex items-center">
+                      <IdCard className="h-4 w-4 mr-2 text-blue-600" />
+                      ID Card
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-hidden rounded-lg border shadow-sm">
+                      <img
+                        src={
+                          user.id_card_image_url ||
+                          "https://via.placeholder.com/400x300?text=ID+Card+Not+Available"
+                        }
+                        alt="ID Card"
+                        className="w-full h-auto object-cover"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/400x300?text=ID+Card+Not+Available";
+                          e.target.alt = "ID card not available";
+                        }}
+                      />
+                    </div>
+                    <div className="mt-3 flex justify-between items-center">
+                      <Badge variant="outline" className="bg-blue-50">
+                        Identity Document
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="activity" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md font-medium flex items-center">
+                      <Trophy className="h-4 w-4 mr-2 text-blue-600" />
+                      Achievement Stats
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="p-6 flex flex-col items-center justify-center text-center space-y-2">
+                      <div className="bg-indigo-100 p-4 rounded-full">
+                        <Trophy className="h-8 w-8 text-indigo-600" />
+                      </div>
+                      <div className="text-3xl font-bold">
+                        {user.total_points || 0}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Total Points Earned
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md font-medium flex items-center">
+                      <Coins className="h-4 w-4 mr-2 text-blue-600" />
+                      Coin Balance
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="p-6 flex flex-col items-center justify-center text-center space-y-2">
+                      <div className="bg-yellow-100 p-4 rounded-full">
+                        <Coins className="h-8 w-8 text-yellow-600" />
+                      </div>
+                      <div className="text-3xl font-bold">
+                        {user.code_coins || 0}
+                      </div>
+                      <div className="text-sm text-gray-500">Code Coins</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
+        <DialogFooter className="border-t pt-4">
+          <div className="flex gap-2 w-full justify-between">
+            <div>
+              {user.is_approved === 0 && (
+                <Button variant="destructive" size="sm">
+                  <XCircle className="h-4 w-4 mr-1" /> Reject
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
+              {user.is_approved === 0 && (
+                <Button variant="default">
+                  <CheckCircle className="h-4 w-4 mr-1" /> Approve User
+                </Button>
+              )}
+            </div>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, studentID } = body;
+    const { name, studentID } = await body;
 
     if (!studentID) {
       return NextResponse.json(
@@ -23,7 +23,7 @@ export async function POST(request) {
 
     // Improved variable naming for clarity (roll_no vs studentID)
     const [rows] = await connection.execute(
-      `SELECT mobile_number 
+      `SELECT * 
       FROM students 
       WHERE name = ? AND roll_no = ?`,
       [name, studentID]
@@ -39,10 +39,7 @@ export async function POST(request) {
       );
     }
 
-    return NextResponse.json(
-      { mobile_number: rows[0].mobile_number },
-      { status: 200 }
-    );
+    return NextResponse.json(rows[0]);
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },

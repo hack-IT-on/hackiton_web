@@ -245,7 +245,7 @@ const UsersPage = () => {
                     Role <SortIcon columnKey="role" />
                   </TableHead>
                   <TableHead className="cursor-pointer hover:bg-gray-50">
-                    Is Approved <SortIcon />
+                    Approval Status <SortIcon />
                   </TableHead>
                   <TableHead className="cursor-pointer hover:bg-gray-50">
                     GitHub Username

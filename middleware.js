@@ -51,6 +51,10 @@ export async function middleware(request) {
         }
       }
 
+      // if (!user.github_username && !user.leetcode_username) {
+      //   NextResponse.redirect("/dashboard");
+      // }
+
       return NextResponse.next();
     } catch (error) {
       return NextResponse.redirect(new URL("/login", request.url));
