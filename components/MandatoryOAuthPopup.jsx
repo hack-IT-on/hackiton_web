@@ -236,7 +236,7 @@ export default function MandatoryOAuthPopup({ user, onComplete }) {
       {/* Logout Prompt Dialog */}
       <Dialog
         open={showLogoutPrompt}
-        onOpenChange={(open) => setShowLogoutPrompt(open)}
+        onOpenChange={() => {}} /* Empty handler prevents closing */
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
