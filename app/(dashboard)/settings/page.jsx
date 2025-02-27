@@ -29,6 +29,7 @@ import {
   Loader2,
   UserCog,
   KeyRound,
+  Lock,
 } from "lucide-react";
 
 const profileSchema = z.object({
@@ -66,6 +67,13 @@ export default function SettingsPage() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    name: "",
+    student_id: "",
+    github_username: "",
+    leetcode_username: "",
+    email: "",
+  });
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
@@ -91,6 +99,7 @@ export default function SettingsPage() {
       try {
         const res = await fetch("/api/settings");
         const data = await res.json();
+        setUserData(data);
         Object.keys(data).forEach((key) => {
           profileForm.setValue(key, data[key]);
         });
@@ -104,11 +113,18 @@ export default function SettingsPage() {
   }, [profileForm]);
 
   async function onProfileSubmit(data) {
+    // Preserve the original name and student_id
+    const updatedData = {
+      ...data,
+      name: userData.name,
+      student_id: userData.student_id,
+    };
+
     try {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(updatedData),
       });
 
       if (!res.ok) throw new Error((await res.json()).error);
@@ -185,9 +201,46 @@ export default function SettingsPage() {
                   onSubmit={profileForm.handleSubmit(onProfileSubmit)}
                   className="space-y-4"
                 >
+                  {/* Read-only fields */}
+                  <div className="space-y-4">
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        Name <Lock className="ml-2 h-3 w-3 text-gray-500" />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          value={userData.name}
+                          readOnly
+                          disabled
+                          className="bg-gray-50 text-gray-600"
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-500">
+                        Name cannot be changed
+                      </p>
+                    </FormItem>
+
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        MAKAUT Roll Number{" "}
+                        <Lock className="ml-2 h-3 w-3 text-gray-500" />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          value={userData.student_id}
+                          readOnly
+                          disabled
+                          className="bg-gray-50 text-gray-600"
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-500">
+                        Roll number cannot be changed
+                      </p>
+                    </FormItem>
+                  </div>
+
+                  {/* Editable fields */}
                   {[
-                    { name: "name", label: "Name" },
-                    { name: "student_id", label: "MAKAUT Roll Number" },
                     { name: "github_username", label: "GitHub Username" },
                     { name: "leetcode_username", label: "LeetCode Username" },
                     { name: "email", label: "Email", type: "email" },
@@ -261,7 +314,7 @@ export default function SettingsPage() {
                     )}
                   />
 
-                  <Button type="submit" className="w-full  transition-colors">
+                  <Button type="submit" className="w-full transition-colors">
                     Change Password
                   </Button>
                 </form>
