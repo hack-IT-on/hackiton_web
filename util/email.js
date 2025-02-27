@@ -220,3 +220,178 @@ export async function sendQRCodeEmailOut(
     throw error;
   }
 }
+
+export async function sendAccountApprovalEmail(
+  email,
+  name,
+  subject = "Account Approved - Welcome to Hack-IT-on"
+) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: subject,
+    html: `
+      <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Approved - Welcome to Hack-IT-on</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #fff;
+            background: #28a745;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #218838;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Account Approved - Welcome to Hack-IT-on!</h1>
+        <p>Hi, ${name}</p>
+        
+        <p>Your account has been successfully approved. You can now access all features and start your journey with us!</p>
+
+        <a href="${process.env.NEXTAUTH_URL}" class="btn">Go to Dashboard</a>
+
+        <p>If the button doesn’t work, copy and paste this link into your browser:</p>
+        <p><a href="${process.env.NEXTAUTH_URL}">${process.env.NEXTAUTH_URL}</a></p>
+
+        <p>We’re excited to have you on board. If you have any questions, feel free to reach out.</p>
+
+        <div class="footer">
+            <p>Happy coding! 🚀<br>Hack-IT-on Team</p>
+        </div>
+    </div>
+</body>
+</html>
+
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+  return true;
+}
+
+export async function sendAccountRejectedEmail(
+  email,
+  name,
+  subject = "Account Rejected - Hack-IT-on"
+) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: subject,
+    html: `
+      <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Rejected - Hack-IT-on</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #d9534f;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #fff;
+            background: #dc3545;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #c82333;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Account Rejected - Please Register Again</h1>
+        <p>Hi ${name},</p>
+        
+        <p>Unfortunately, your account registration has been rejected due to incorrect or incomplete information.</p>
+        <p>To access Hack-IT-on, please ensure that all details provided match the required criteria and try registering again.</p>
+
+        <a href="${process.env.NEXTAUTH_URL}/register" class="btn">Register Again</a>
+
+        <p>If the button doesn’t work, copy and paste this link into your browser:</p>
+        <p><a href="${process.env.NEXTAUTH_URL}/register">${process.env.NEXTAUTH_URL}/register</a></p>
+
+        <p>If you believe this was a mistake, feel free to contact our support team.</p>
+
+        <div class="footer">
+            <p>Best Regards,<br>Hack-IT-on Team</p>
+        </div>
+    </div>
+</body>
+</html>
+
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+  return true;
+}

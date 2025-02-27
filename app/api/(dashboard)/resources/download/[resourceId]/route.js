@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const resourceId = params.resourceId;
+    const resourceId = await params.resourceId;
 
     // Verify purchase
     const [purchaseRows] = await connection.execute(

@@ -17,17 +17,6 @@ export async function PUT(request) {
       [id]
     );
 
-    // console.log(getUser);
-
-    // await fetch("/api/points", {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     activityName: "forum_post",
-    //     activityDescription: "Forum post: " + getUser.title,
-    //     user_id: getUser.user_id,
-    //   }),
-    // });
-
     if (status === "approved") {
       const [activity] = await connection.execute(
         "SELECT * FROM activities WHERE name = ?",

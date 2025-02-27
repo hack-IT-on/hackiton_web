@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
+import {
+  sendAccountApprovalEmail,
+  sendAccountRejectedEmail,
+} from "@/util/email";
 
 export async function PUT(request, { params }) {
   try {
@@ -43,6 +47,10 @@ export async function PUT(request, { params }) {
         [id]
       );
 
+      if (data.approved === 1) {
+        await sendAccountApprovalEmail(data.email, data.name);
+      }
+
       return NextResponse.json(updatedUser[0]);
     } finally {
       //   connection.release();
@@ -58,7 +66,10 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const email = searchParams.get("email");
+    const name = searchParams.get("name");
 
     try {
       const [result] = await connection.query(
@@ -69,6 +80,8 @@ export async function DELETE(request, { params }) {
       if (result.affectedRows === 0) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
+
+      await sendAccountRejectedEmail(email, name);
 
       return NextResponse.json({ message: "User deleted successfully" });
     } finally {

@@ -15,6 +15,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
   Loader2,
   User,
   Mail,
@@ -26,6 +34,7 @@ import {
   RefreshCw,
   X,
   FileImage,
+  HelpCircle,
 } from "lucide-react";
 
 export default function Register() {
@@ -43,6 +52,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
   const [showWebcam, setShowWebcam] = useState(false);
+  const [showHelpDialog, setShowHelpDialog] = useState(false);
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -216,6 +226,12 @@ export default function Register() {
     setShowWebcam(false);
   };
 
+  // Open help dialog with preventing default
+  const openHelpDialog = (e) => {
+    e.preventDefault(); // Prevent form submission
+    setShowHelpDialog(true);
+  };
+
   // Check if the device is iOS
   const isIOS = () => {
     if (typeof navigator !== "undefined") {
@@ -340,13 +356,23 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Face Image Capture Section with updated title */}
+            {/* Face Image Capture Section with help button */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Camera className="h-5 w-5 text-blue-600" />
                 <Label htmlFor="faceImage" className="font-medium">
                   Face verification with college ID
                 </Label>
+                <Button
+                  type="button" // Set type to button to prevent form submission
+                  variant="ghost"
+                  size="sm"
+                  className="p-0 h-6 w-6"
+                  onClick={openHelpDialog}
+                >
+                  <HelpCircle className="h-5 w-5 text-gray-400" />
+                  <span className="sr-only">Verification help</span>
+                </Button>
               </div>
               <div className="border rounded-md p-3">
                 {formData.faceImage ? (
@@ -511,6 +537,45 @@ export default function Register() {
           </p>
         </CardFooter>
       </Card>
+
+      {/* Help Dialog */}
+      <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Face Verification Instructions</DialogTitle>
+            <DialogDescription>
+              How to properly capture your verification photo? This is mandatory
+              to get approval.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative rounded-md overflow-hidden aspect-video">
+              <img
+                src="https://hack-it-on.s3.eu-north-1.amazonaws.com/defaults/Identity.jpg"
+                alt="Verification example"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <p className="text-sm">
+              Take a clear photo of your face while holding your college ID
+              card. Make sure both your face and ID are clearly visible.
+            </p>
+            <ul className="text-sm list-disc pl-5 space-y-1">
+              <li>Ensure good lighting conditions</li>
+              <li>Hold your ID next to your face</li>
+              <li>Make sure both your face and ID text are clearly visible</li>
+              <li>Avoid wearing sunglasses or hats that obscure your face</li>
+              <li>
+                If you don't have your college ID card, write your name and roll
+                number on an A4 page and use it in place of the ID card.
+              </li>
+            </ul>
+          </div>
+          <DialogClose asChild>
+            <Button className="w-full mt-2">Got it</Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

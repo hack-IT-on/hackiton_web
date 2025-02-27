@@ -62,14 +62,17 @@ const UsersPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
-  const handleDelete = async (userId) => {
+  const handleDelete = async (userId, email, name) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/admin/users/${userId}?email=${email}&name=${name}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to delete user");
 
@@ -373,7 +376,9 @@ const UsersPage = () => {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-red-600"
-                                onClick={() => handleDelete(user.id)}
+                                onClick={() =>
+                                  handleDelete(user.id, user.email, user.name)
+                                }
                               >
                                 Delete User
                               </DropdownMenuItem>

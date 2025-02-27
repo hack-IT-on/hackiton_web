@@ -18,7 +18,7 @@ export default function VerifyEmailPage() {
         const data = await response.json();
 
         if (response.ok) {
-          setStatus("Email verified successfully! You can now log in.");
+          setStatus("Email verified successfully! Now, wait for approval.");
         } else {
           setStatus(data.message || "Verification failed");
         }

@@ -79,21 +79,11 @@ export default function PurchasesList({ initialPurchases }) {
             )}
 
             <CardHeader>
-              {/* <div className="flex items-start justify-between">
-                <CardTitle className="text-lg font-semibold line-clamp-2">
-                  {purchase.name}
-                </CardTitle>
-                {purchase.resource_link && (
-                  <a
-                    href={purchase.resource_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    <ExternalLink className="w-5 h-5" />
-                  </a>
-                )}
-              </div> */}
+              <CardTitle className="flex items-center justify-between space-x-2">
+                <span className="text-lg font-semibold line-clamp-1">
+                  {purchase?.name}
+                </span>
+              </CardTitle>
               <CardDescription className="line-clamp-3">
                 {purchase.description}
               </CardDescription>

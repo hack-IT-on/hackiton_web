@@ -321,13 +321,13 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       <img
                         src={
                           user.face_image_url ||
-                          "https://www.keesingtechnologies.com/wp-content/uploads/2022/03/Identity-verification-on-site-biometrics02.jpg"
+                          "https://hack-it-on.s3.eu-north-1.amazonaws.com/defaults/Identity.jpg"
                         }
                         alt="Face Verification"
                         className="w-full h-auto object-cover"
                         onError={(e) => {
                           e.target.src =
-                            "https://www.keesingtechnologies.com/wp-content/uploads/2022/03/Identity-verification-on-site-biometrics02.jpg";
+                            "https://hack-it-on.s3.eu-north-1.amazonaws.com/defaults/Identity.jpg";
                           e.target.alt = "Face image not available";
                         }}
                       />
@@ -353,13 +353,13 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       <img
                         src={
                           user.id_card_image_url ||
-                          "https://via.placeholder.com/400x300?text=ID+Card+Not+Available"
+                          "https://hack-it-on.s3.eu-north-1.amazonaws.com/defaults/Identity.jpg"
                         }
                         alt="ID Card"
                         className="w-full h-auto object-cover"
                         onError={(e) => {
                           e.target.src =
-                            "https://via.placeholder.com/400x300?text=ID+Card+Not+Available";
+                            "https://hack-it-on.s3.eu-north-1.amazonaws.com/defaults/Identity.jpg";
                           e.target.alt = "ID card not available";
                         }}
                       />
