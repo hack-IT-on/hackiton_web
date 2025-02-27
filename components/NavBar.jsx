@@ -24,6 +24,7 @@ export default function NavBar({ user }) {
   const [scrolled, setScrolled] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,6 +33,18 @@ export default function NavBar({ user }) {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close mobile menu when screen size changes to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const navLinks = [
@@ -63,15 +76,15 @@ export default function NavBar({ user }) {
           {/* Logo */}
           <Link
             href="/"
-            className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent hover:opacity-90 transition-opacity"
+            className="flex-shrink-0 text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent hover:opacity-90 transition-opacity"
           >
             <img src="/logo.png" className="h-8 w-auto" alt="Logo" />
           </Link>
 
-          {/* Rest of the component remains the same */}
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
             <NavigationMenu>
-              <NavigationMenuList className="space-x-2">
+              <NavigationMenuList className="flex flex-wrap space-x-2">
                 {navLinks.map((link) => (
                   <NavigationMenuItem key={link.href}>
                     <Link
@@ -108,7 +121,7 @@ export default function NavBar({ user }) {
                     <div className="flex flex-col space-y-1 leading-none">
                       {user.name && <p className="font-medium">{user.name}</p>}
                       {user.email && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground truncate max-w-48">
                           {user.email}
                         </p>
                       )}
@@ -127,14 +140,14 @@ export default function NavBar({ user }) {
                     </DropdownMenuItem>
                   ))}
                   {user.role === "admin" && (
-                    <Link
-                      href="/admin"
-                      className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                      onClick={toggleMenu}
-                    >
-                      {/* {item.icon} */}
-                      <span className="ml-2">Admin</span>
-                    </Link>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin"
+                        className="cursor-pointer flex items-center"
+                      >
+                        <span className="ml-2">Admin</span>
+                      </Link>
+                    </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <div className="p-2">
@@ -145,18 +158,21 @@ export default function NavBar({ user }) {
             )}
           </div>
 
+          {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             className="md:hidden"
             onClick={toggleMenu}
             size="icon"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </div>
 
+        {/* Mobile Navigation Menu */}
         {isOpen && user && (
-          <div className="md:hidden border-t py-4">
+          <div className="md:hidden border-t py-4 max-h-screen overflow-y-auto">
             <div className="flex items-center space-x-4 px-2 py-3 border-b">
               <Avatar className="h-10 w-10">
                 <AvatarImage
@@ -167,9 +183,11 @@ export default function NavBar({ user }) {
                   {user.name?.[0] || <User className="h-6 w-6" />}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <p className="text-sm font-medium">{user.name || "User"}</p>
-                <p className="text-xs text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {user.name || "User"}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
                   {user.email || ""}
                 </p>
               </div>
@@ -180,7 +198,7 @@ export default function NavBar({ user }) {
                   key={link.href}
                   href={link.href}
                   className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                  onClick={toggleMenu}
+                  onClick={closeMenu}
                 >
                   {link.label}
                 </Link>
@@ -192,7 +210,7 @@ export default function NavBar({ user }) {
                     key={item.href}
                     href={item.href}
                     className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                    onClick={toggleMenu}
+                    onClick={closeMenu}
                   >
                     {item.icon}
                     <span className="ml-2">{item.label}</span>
@@ -202,14 +220,13 @@ export default function NavBar({ user }) {
                   <Link
                     href="/admin"
                     className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                    onClick={toggleMenu}
+                    onClick={closeMenu}
                   >
-                    {/* {item.icon} */}
                     <span className="ml-2">Admin</span>
                   </Link>
                 )}
                 <div className="px-3 pt-2">
-                  <LogoutButton />
+                  <LogoutButton onClick={closeMenu} />
                 </div>
               </div>
             </div>

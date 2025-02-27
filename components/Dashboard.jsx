@@ -365,16 +365,16 @@ export default function Dashboard({ user, daily }) {
                   </span>
                 </div>
               </div>
-              <Button className="transition-colors">
-                <Link
-                  href={`https://leetcode.com/problems/${daily.question.titleSlug}`}
-                  className="flex items-center gap-2"
-                  target="_blank"
-                >
+              <Link
+                href={`https://leetcode.com/problems/${daily.question.titleSlug}`}
+                className="flex items-center gap-2"
+                target="_blank"
+              >
+                <Button className="transition-colors">
                   Solve Challenge
                   <ExternalLink className="h-4 w-4" />
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
 
             {/* <div className="space-y-2">

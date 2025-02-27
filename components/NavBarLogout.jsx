@@ -15,6 +15,7 @@ export default function NavBarLogOut() {
   const [scrolled, setScrolled] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +24,18 @@ export default function NavBarLogOut() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close mobile menu when screen size changes to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const navLinks = [
@@ -45,7 +58,7 @@ export default function NavBarLogOut() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent hover:opacity-90 transition-opacity"
+            className="flex-shrink-0 text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent hover:opacity-90 transition-opacity"
           >
             <img src="/logo.png" className="h-8 w-auto" alt="Logo" />
           </Link>
@@ -53,7 +66,7 @@ export default function NavBarLogOut() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
             <NavigationMenu>
-              <NavigationMenuList className="space-x-2">
+              <NavigationMenuList className="flex flex-wrap space-x-2">
                 {navLinks.map((link) => (
                   <NavigationMenuItem key={link.href}>
                     <Link
@@ -74,6 +87,7 @@ export default function NavBarLogOut() {
             className="md:hidden"
             onClick={toggleMenu}
             size="icon"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
@@ -81,14 +95,14 @@ export default function NavBarLogOut() {
 
         {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden border-t py-4">
+          <div className="md:hidden border-t py-4 max-h-screen overflow-y-auto">
             <div className="space-y-1 px-2 py-3">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                  onClick={toggleMenu}
+                  onClick={closeMenu}
                 >
                   {link.label}
                 </Link>
