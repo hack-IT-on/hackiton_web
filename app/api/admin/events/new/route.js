@@ -56,14 +56,15 @@ export async function POST(request) {
     const result = await connection.execute(
       `INSERT INTO events (
         title, description, long_description, image_url, 
-        date, location, interest, user_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        date, registration_deadline, location, interest, user_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         body.title,
         body.description,
         body.long_description || "",
         template_url, // Use the S3 URL here
         body.date,
+        body.registration_deadline,
         body.location,
         body.interest || null,
         user.id,

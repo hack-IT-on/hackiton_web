@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 export async function GET(request, { params }) {
-  const { id } = params;
+  const { id } = await params;
   const [response] = await connection.execute(
     "select * from events where id = ?",
     [id]

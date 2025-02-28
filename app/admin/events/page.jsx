@@ -144,6 +144,7 @@ export default function EventsTable() {
                   <TableHead className="w-[250px]">Title</TableHead>
                   <TableHead className="w-[300px]">Description</TableHead>
                   <TableHead className="w-[150px]">Date</TableHead>
+                  {/* <TableHead className="w-[150px]">Deadline</TableHead> */}
                   <TableHead className="w-[200px]">Location</TableHead>
                   <TableHead className="w-[100px]">Interest</TableHead>
                   <TableHead className="w-[100px]">Actions</TableHead>
@@ -162,6 +163,12 @@ export default function EventsTable() {
                         {format(new Date(event.date), "PPP")}
                       </div>
                     </TableCell>
+                    {/* <TableCell>
+                      <div className="flex items-center gap-2">
+                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                        {format(new Date(event.registration_deadline), "PPP")}
+                      </div>
+                    </TableCell> */}
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <MapPinIcon className="h-4 w-4 text-muted-foreground" />

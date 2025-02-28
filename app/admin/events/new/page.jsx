@@ -43,6 +43,7 @@ export default function NewEventPage() {
     long_description: "",
     image_url: "",
     date: "",
+    registration_deadline: "",
     location: "",
     interest: "",
     is_active: true,
@@ -74,6 +75,7 @@ export default function NewEventPage() {
       !formData.description ||
       !formData.long_description ||
       !formData.date ||
+      !formData.registration_deadline ||
       !formData.location ||
       !formData.interest ||
       !selectedFile
@@ -167,6 +169,24 @@ export default function NewEventPage() {
                   id="date"
                   name="date"
                   value={formData.date}
+                  onChange={handleChange}
+                  type="datetime-local"
+                  className="w-full"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="registration_deadline"
+                  className="text-sm font-medium"
+                >
+                  Registration Deadline<span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="registration_deadline"
+                  name="registration_deadline"
+                  value={formData.registration_deadline}
                   onChange={handleChange}
                   type="datetime-local"
                   className="w-full"
