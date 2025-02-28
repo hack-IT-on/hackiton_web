@@ -31,6 +31,7 @@ export async function PUT(request, { params }) {
       long_description,
       image_url,
       date,
+      registration_deadline,
       location,
       interest,
       is_active,
@@ -40,7 +41,7 @@ export async function PUT(request, { params }) {
     await connection.execute(
       `UPDATE events 
           SET title = ?, description = ?, long_description = ?, image_url = ?,
-              date = ?, location = ?, interest = ?, is_active = ?
+              date = ?, registration_deadline = ?, location = ?, interest = ?, is_active = ?
           WHERE id = ?`,
       [
         title,
@@ -48,6 +49,7 @@ export async function PUT(request, { params }) {
         long_description,
         image_url,
         date,
+        registration_deadline,
         location,
         interest,
         is_active,

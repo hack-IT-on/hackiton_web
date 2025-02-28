@@ -59,6 +59,7 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
       long_description: "",
       image_url: "",
       date: "",
+      registration_deadline: "",
       location: "",
       interest: "",
       is_active: "0",
@@ -71,12 +72,17 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
         ? new Date(event.date).toISOString().slice(0, 16)
         : "";
 
+      const formattedDeadline = event.date
+        ? new Date(event.registration_deadline).toISOString().slice(0, 16)
+        : "";
+
       reset({
         title: event.title || "",
         description: event.description || "",
         long_description: event.long_description || "",
         image_url: event.image_url || "",
         date: formattedDate,
+        registration_deadline: formattedDeadline,
         location: event.location || "",
         interest: event.interest || "",
         is_active: event.is_active?.toString() || "0",
@@ -243,6 +249,24 @@ export default function EventModal({ isOpen, onClose, event, onSuccess }) {
                   {errors.date && (
                     <p className="text-sm text-red-500">
                       {errors.date.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>Registration Deadline</span>
+                  </Label>
+                  <Input
+                    type="datetime-local"
+                    {...register("registration_deadline", {
+                      required: "Deadline is required",
+                    })}
+                    className="w-full"
+                  />
+                  {errors.registration_deadline && (
+                    <p className="text-sm text-red-500">
+                      {errors.registration_deadline.message}
                     </p>
                   )}
                 </div>
