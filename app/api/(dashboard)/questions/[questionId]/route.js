@@ -3,7 +3,7 @@ import { connection } from "@/util/db";
 
 // Handle GET request
 export async function GET(request, { params }) {
-  const { questionId } = params;
+  const { questionId } = await params;
   // console.log(questionId);
 
   // Example: Fetch question details from a database

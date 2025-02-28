@@ -395,3 +395,176 @@ export async function sendAccountRejectedEmail(
   await transporter.sendMail(mailOptions);
   return true;
 }
+
+export async function sendQuestionApprovalEmail(
+  email,
+  name,
+  questionTitle,
+  subject = "Question Approved - Hack-IT-on"
+) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: subject,
+    html: `
+        <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Approved - Hack-IT-on</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #28a745;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #fff;
+            background: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Your Question Has Been Approved!</h1>
+        <p>Hi, ${name},</p>
+        
+        <p>reat news! Your question has been reviewed and approved. It is now live on our platform and available for others to view and answer. You have earned 5 points and 1 coin.</p>
+
+        <p><strong>Question:</strong> "${questionTitle}"</p>
+
+        <p>Thank you for contributing to Hack-IT-on. We appreciate your participation!</p>
+
+        <div class="footer">
+            <p>Best Regards,<br>Hack-IT-on Team</p>
+        </div>
+    </div>
+</body>
+</html>
+  
+      `,
+  };
+
+  await transporter.sendMail(mailOptions);
+  return true;
+}
+
+export async function sendQuestionRejectedEmail(
+  email,
+  name,
+  questionTitle,
+  subject = "Question Rejected - Hack-IT-on"
+) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: subject,
+    html: `
+          <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Rejected - Hack-IT-on</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #d9534f;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #fff;
+            background: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>❌ Your Question Has Been Rejected</h1>
+        <p>Hi, ${name},</p>
+        
+        <p>Unfortunately, your question has been rejected as it does not meet our platform’s guidelines.</p>
+        
+        <p><strong>Question:</strong> "${questionTitle}"</p>
+
+        <p>Please ensure your question follows our guidelines and resubmit it for review.</p>
+
+
+        <p>Thank you for understanding. If you believe this was a mistake, feel free to contact our support team.</p>
+
+        <div class="footer">
+            <p>Best Regards,<br>Hack-IT-on Team</p>
+        </div>
+    </div>
+</body>
+</html>
+
+        `,
+  };
+
+  await transporter.sendMail(mailOptions);
+  return true;
+}

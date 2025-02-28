@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 import checkAndAwardBadges from "@/util/badgeUtils";
+import {
+  sendQuestionApprovalEmail,
+  sendQuestionRejectedEmail,
+} from "@/util/email";
 
 export async function PUT(request) {
   try {
@@ -15,6 +19,15 @@ export async function PUT(request) {
     const [getUser] = await connection.execute(
       "select title, user_id from questions where id = ?",
       [id]
+    );
+
+    const [row] = await connection.execute(
+      "select name, email from users where id = ?",
+      [getUser[0].user_id]
+    );
+    const [question_row] = await connection.execute(
+      "select title from questions where user_id = ? and id = ?",
+      [getUser[0].user_id, id]
     );
 
     if (status === "approved") {
@@ -33,7 +46,21 @@ export async function PUT(request) {
         [activity[0].points, activity[0].coins_reward, getUser[0].user_id]
       );
 
+      await sendQuestionApprovalEmail(
+        row[0].email,
+        row[0].name,
+        question_row[0].title
+      );
+
       await checkAndAwardBadges(getUser[0].user_id, "forum_post");
+    }
+
+    if (status === "rejected") {
+      await sendQuestionRejectedEmail(
+        row[0].email,
+        row[0].name,
+        question_row[0].title
+      );
     }
 
     return NextResponse.json({ success: true });
