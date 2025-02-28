@@ -63,7 +63,7 @@ const UsersPage = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   const handleDelete = async (userId, email, name) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    if (!confirm("Are you sure you want to reject this user?")) return;
 
     try {
       setLoading(true);
@@ -122,7 +122,7 @@ const UsersPage = () => {
   const getApprovalStatus = (code) => {
     if (code === 1) return "approved";
     if (code === 0) return "pending";
-    if (code === 3) return "banned";
+    if (code === 2) return "banned";
     return "unknown";
   };
 
@@ -330,7 +330,7 @@ const UsersPage = () => {
                                 ? "bg-green-100 text-green-800"
                                 : user.is_approved === 0
                                 ? "bg-yellow-100 text-yellow-800"
-                                : user.is_approved === 3
+                                : user.is_approved === 2
                                 ? "bg-red-100 text-red-800"
                                 : "bg-gray-100"
                             }`}
@@ -339,7 +339,7 @@ const UsersPage = () => {
                               ? "Approved"
                               : user.is_approved === 0
                               ? "Pending"
-                              : user.is_approved === 3
+                              : user.is_approved === 2
                               ? "Banned"
                               : "Unknown"}
                           </span>
@@ -380,7 +380,7 @@ const UsersPage = () => {
                                   handleDelete(user.id, user.email, user.name)
                                 }
                               >
-                                Delete User
+                                Reject user
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

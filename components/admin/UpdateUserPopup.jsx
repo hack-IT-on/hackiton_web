@@ -140,14 +140,14 @@ const UpdateUserPopup = ({ user, isOpen, onClose, onUserUpdate }) => {
             </div>
           )}
 
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             className="absolute right-4 top-4"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 py-2">

@@ -114,14 +114,14 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
           <DialogTitle className="text-xl font-semibold flex items-center">
             <User className="h-5 w-5 mr-2" /> User Profile
           </DialogTitle>
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             className="absolute right-4 top-4"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </DialogHeader>
 
         <div className="py-4">
@@ -158,11 +158,11 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
               {/* <Button variant="outline" size="sm" className="rounded-full">
                 Message
               </Button> */}
-              {user.is_approved === 0 && (
+              {/* {user.is_approved === 0 && (
                 <Button variant="default" size="sm" className="rounded-full">
                   <CheckCircle className="h-4 w-4 mr-1" /> Approve
                 </Button>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -425,21 +425,21 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
         <DialogFooter className="border-t pt-4">
           <div className="flex gap-2 w-full justify-between">
             <div>
-              {user.is_approved === 0 && (
+              {/* {user.is_approved === 0 && (
                 <Button variant="destructive" size="sm">
                   <XCircle className="h-4 w-4 mr-1" /> Reject
                 </Button>
-              )}
+              )} */}
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={onClose}>
                 Close
               </Button>
-              {user.is_approved === 0 && (
+              {/* {user.is_approved === 0 && (
                 <Button variant="default">
                   <CheckCircle className="h-4 w-4 mr-1" /> Approve User
                 </Button>
-              )}
+              )} */}
             </div>
           </div>
         </DialogFooter>

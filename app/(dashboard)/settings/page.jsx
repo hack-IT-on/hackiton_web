@@ -31,6 +31,7 @@ import {
   KeyRound,
   Lock,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const profileSchema = z.object({
   name: z
@@ -87,7 +88,7 @@ export default function SettingsPage() {
   });
 
   const passwordForm = useForm({
-    resolver: zodResolver(passwordSchema),
+    // resolver: zodResolver(passwordSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -128,7 +129,7 @@ export default function SettingsPage() {
       });
 
       if (!res.ok) throw new Error((await res.json()).error);
-      setStatus("Profile updated successfully");
+      toast.success("Profile updated successfully");
       setError("");
     } catch (err) {
       setError(err.message);
@@ -145,7 +146,7 @@ export default function SettingsPage() {
       });
 
       if (!res.ok) throw new Error((await res.json()).error);
-      setStatus("Password updated successfully");
+      toast.success("Password updated successfully");
       setError("");
       passwordForm.reset();
     } catch (err) {

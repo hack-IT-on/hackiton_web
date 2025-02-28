@@ -11,6 +11,13 @@ export async function PUT(request, { params }) {
     const data = await request.json();
 
     try {
+      const [row] = await connection.execute(
+        "select * from users where id = ?",
+        [id]
+      );
+
+      const previous_status = row[0].is_approved;
+
       const [result] = await connection.query(
         `UPDATE users SET 
          name = ?, 
@@ -47,7 +54,10 @@ export async function PUT(request, { params }) {
         [id]
       );
 
-      if (data.approved === 1) {
+      if (
+        (previous_status === 0 || previous_status === 2) &&
+        data.approved === 1
+      ) {
         await sendAccountApprovalEmail(data.email, data.name);
       }
 
