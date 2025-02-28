@@ -27,9 +27,11 @@ export async function POST(request, { params }) {
     // Start a transaction to ensure data consistency
 
     const [rows] = await connection.execute(
-      "SELECT er.is_checked_in, er.qr_code_secret, e.title FROM event_registrations er JOIN events e ON er.event_id = e.id WHERE er.qr_code_secret = ? AND er.event_id = ?",
+      "SELECT er.is_checked_in, er.qr_code_secret, er.email, er.user_name, e.title FROM event_registrations er JOIN events e ON er.event_id = e.id WHERE er.qr_code_secret = ? AND er.event_id = ?",
       [qrCodeSecret, eventId]
     );
+
+    // console.log(rows);
 
     if (rows.length === 0) {
       return NextResponse.json(
@@ -63,8 +65,8 @@ export async function POST(request, { params }) {
     );
 
     await sendQRCodeEmailOut(
-      email,
-      userName,
+      registration.email,
+      registration.user_name,
       qrCodeDataUrl,
       registration.title
     );
