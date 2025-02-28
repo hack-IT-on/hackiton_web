@@ -5,7 +5,7 @@ export async function GET() {
   const user = await getCurrentUser();
   try {
     const [response] = await connection.execute(
-      "SELECT e.*, er.user_id FROM events e JOIN event_registrations er ON e.id = er.event_id WHERE er.is_checked_in = 1 and er.user_id = ? order by id desc",
+      "SELECT e.*, er.user_id FROM events e JOIN event_registrations er ON e.id = er.event_id WHERE er.is_checked_in = 1 and er.is_checked_out = 1 and er.user_id = ? order by id desc",
       [user?.id]
     );
     return NextResponse.json(response);
