@@ -225,12 +225,12 @@ export default function EventList({ events }) {
                         : "filter sepia brightness-90"
                     }`}
                 />
-                {isExternal && (
-                  <Badge className="absolute top-4 left-4 z-20 flex items-center gap-1 bg-blue-500 hover:bg-blue-600">
-                    <ExternalLink className="w-4 h-4" />
-                    External Event
-                  </Badge>
-                )}
+                {/* {isExternal && (
+                  // <Badge className="absolute top-4 left-4 z-20 flex items-center gap-1 bg-blue-500 hover:bg-blue-600">
+                  //   <ExternalLink className="w-4 h-4" />
+                  //   External Event
+                  // </Badge>
+                )} */}
                 <Badge
                   className="absolute top-4 right-4 z-20"
                   variant="secondary"
@@ -242,12 +242,11 @@ export default function EventList({ events }) {
               <Link
                 href={
                   isExternal
-                    ? event.registration_link || "#"
+                    ? `external-event/${event.id}` || "#"
                     : registrationOpen
                     ? `/events/${event.id}`
                     : "#"
                 }
-                target={isExternal ? "_blank" : "_self"}
               >
                 <CardHeader className="space-y-2">
                   <h3
@@ -263,7 +262,6 @@ export default function EventList({ events }) {
                     }`}
                   >
                     {event.title}
-                    {isExternal && <ExternalLink className="ml-1 w-4 h-4" />}
                   </h3>
                   <p className="text-muted-foreground text-sm line-clamp-2">
                     {event.description}
@@ -398,8 +396,7 @@ export default function EventList({ events }) {
                     disabled={expired}
                   >
                     <Link
-                      href={event.registration_link || "#"}
-                      target="_blank"
+                      href={`external-event/${event.id}` || "#"}
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2"
                     >
