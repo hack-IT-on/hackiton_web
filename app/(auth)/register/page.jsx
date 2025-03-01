@@ -135,7 +135,7 @@ export default function Register() {
       }
     } catch (err) {
       console.log(err);
-      setError("Network error. Please try again.");
+      setError("Network error. Please try again:" + err);
     } finally {
       setLoading(false);
     }
