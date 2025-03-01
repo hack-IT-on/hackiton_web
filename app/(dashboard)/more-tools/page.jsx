@@ -9,6 +9,7 @@ import {
   Gem,
   Wallet,
   Loader2,
+  Timer,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,14 @@ const toolSections = [
         href: "/algorithm-visualizer",
         color: "purple",
         description: "Explore algorithm mechanics",
+      },
+      {
+        name: "Time Complexity Calculator (Beta)",
+        icon: Timer,
+        href: "/time-complexity-calculator",
+        color: "purple",
+        description:
+          " Just insert your code and instantly get its time complexity.",
       },
     ],
   },
