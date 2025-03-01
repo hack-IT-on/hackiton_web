@@ -4,6 +4,7 @@ import NavBar from "@/components/NavBar";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { Toaster } from "react-hot-toast";
 import NavBarLogOut from "@/components/NavBarLogout";
+import DashboardLayout from "./(dashboard)/dashboard/layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

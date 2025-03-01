@@ -210,12 +210,12 @@ const QuestionsPage = () => {
             >
               <RefreshCcw className="h-4 w-4" />
             </Button>
-            <Button className="w-full md:w-auto" size="lg">
-              <Link href="/questions/new" className="flex items-center gap-2">
+            <Link href="/questions/new" className="flex items-center gap-2">
+              <Button className="w-full md:w-auto" size="lg">
                 <MessageCircle className="w-4 h-4" />
                 Ask a Question
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </div>
 

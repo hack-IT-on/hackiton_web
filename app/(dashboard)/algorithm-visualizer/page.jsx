@@ -12,9 +12,11 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import TreeVisualizer from "@/components/TreeVisualizer";
+import TreeVisualizer from "./_components/TreeVisualizer";
 import { Play, Pause, RotateCcw, StepForward, Plus, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import SearchAlgorithmVisualizer from "./_components/SearchAlgorithmVisualizer";
+import EnhancedLinkedListVisualizer from "./_components/EnhancedLinkedListVisualizer";
 
 // Constants
 const ARRAY_SIZE = 30;
@@ -403,18 +405,6 @@ const LinkedListNode = ({ value, isHighlighted, isLast }) => (
   </motion.div>
 );
 
-const TreeNode = ({ value, isHighlighted }) => (
-  <motion.div
-    className={`w-12 h-12 rounded-full border-2 flex items-center justify-center ${
-      isHighlighted ? "border-green-500 text-green-500" : "border-gray-400"
-    }`}
-    initial={{ opacity: 0, scale: 0.8 }}
-    animate={{ opacity: 1, scale: 1 }}
-  >
-    {value}
-  </motion.div>
-);
-
 // Visualization Components
 const LinkedListVisualizer = ({ nodes, activeNode }) => (
   <div className="flex flex-col h-full">
@@ -434,24 +424,6 @@ const LinkedListVisualizer = ({ nodes, activeNode }) => (
     </div>
   </div>
 );
-
-// const TreeVisualizer = ({ nodes, activeNode }) => (
-//   <div className="h-full flex items-center justify-center p-4">
-//     <div className="flex flex-col items-center">
-//       {nodes.map((level, levelIndex) => (
-//         <div key={levelIndex} className="flex gap-4 my-2">
-//           {level.map((node, nodeIndex) => (
-//             <TreeNode
-//               key={`${levelIndex}-${nodeIndex}`}
-//               value={node}
-//               isHighlighted={activeNode === `${levelIndex}-${nodeIndex}`}
-//             />
-//           ))}
-//         </div>
-//       ))}
-//     </div>
-//   </div>
-// );
 
 const GraphVisualizer = ({ nodes, edges, activeNode }) => (
   <div className="h-full flex items-center justify-center p-4">
@@ -681,6 +653,13 @@ const AlgorithmVisualizer = () => {
                 <Badge variant="secondary" className="ml-4">
                   Passes: {currentPasses}
                 </Badge>
+                <Badge variant="secondary" className="ml-4">
+                  {currentStep > 0 && steps.length > 0 && (
+                    <span className="text-sm">
+                      Step {currentStep} of {steps.length}
+                    </span>
+                  )}
+                </Badge>
               </div>
             </div>
             <div className="flex flex-1 h-[calc(100%-60px)]">
@@ -742,25 +721,28 @@ const AlgorithmVisualizer = () => {
         );
       case "linkedList":
         return (
-          <div className="flex flex-col h-full">
-            <div className="flex-grow">
-              <LinkedListVisualizer
-                nodes={linkedListNodes}
-                activeNode={activeLinkedListNode}
-              />
-            </div>
-            <div className="flex items-center justify-center gap-4 p-4 border-t">
-              <Button onClick={() => handleLinkedListOperation("insert")}>
-                <Plus className="mr-2" />
-                Insert
-              </Button>
-              <Button onClick={() => handleLinkedListOperation("delete")}>
-                <Minus className="mr-2" />
-                Delete
-              </Button>
-            </div>
-          </div>
+          <EnhancedLinkedListVisualizer />
+          // <div className="flex flex-col h-full">
+          //   <div className="flex-grow">
+          //     <LinkedListVisualizer
+          //       nodes={linkedListNodes}
+          //       activeNode={activeLinkedListNode}
+          //     />
+          //   </div>
+          //   <div className="flex items-center justify-center gap-4 p-4 border-t">
+          //     <Button onClick={() => handleLinkedListOperation("insert")}>
+          //       <Plus className="mr-2" />
+          //       Insert
+          //     </Button>
+          //     <Button onClick={() => handleLinkedListOperation("delete")}>
+          //       <Minus className="mr-2" />
+          //       Delete
+          //     </Button>
+          //   </div>
+          // </div>
         );
+      case "searching":
+        return <SearchAlgorithmVisualizer />;
       case "tree":
         return <TreeVisualizer nodes={treeNodes} activeNode={activeTreeNode} />;
       case "graph":
@@ -825,24 +807,13 @@ const AlgorithmVisualizer = () => {
     <div className="min-h-screen bg-gray-50">
       <nav className="border-b p-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Algorithm Visualizer</h1>
-        <div className="flex items-center gap-4">
+        {/* <div className="flex items-center gap-4">
           {currentStep > 0 && steps.length > 0 && (
             <span className="text-sm">
               Step {currentStep} of {steps.length}
             </span>
           )}
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-          >
-            {isDarkMode ? (
-              <Sun className="h-6 w-6" />
-            ) : (
-              <Moon className="h-6 w-6" />
-            )}
-          </Button> */}
-        </div>
+        </div> */}
       </nav>
 
       <main className="container mx-auto p-4">
@@ -853,10 +824,11 @@ const AlgorithmVisualizer = () => {
         >
           <TabsList>
             <TabsTrigger value="sorting">Sorting</TabsTrigger>
+            <TabsTrigger value="searching">Searching</TabsTrigger>
             <TabsTrigger value="linkedList">Linked List</TabsTrigger>
-            {/* <TabsTrigger value="graph">Graph</TabsTrigger>
-            <TabsTrigger value="tree">Tree</TabsTrigger> */}
+            {/* <TabsTrigger value="graph">Graph</TabsTrigger> */}
             <TabsTrigger value="stackQueue">Stack & Queue</TabsTrigger>
+            <TabsTrigger value="tree">Tree</TabsTrigger>
           </TabsList>
 
           <Card className="mt-4 p-6">
@@ -919,9 +891,13 @@ const AlgorithmVisualizer = () => {
               )}
             </div>
 
-            <div className="h-96 border rounded-lg bg-gray-100 dark:bg-gray-800 relative overflow-hidden">
-              {renderVisualization()}
-            </div>
+            {currentTab === "sorting" ? (
+              <div className="h-96 border rounded-lg bg-gray-100 dark:bg-gray-800 relative overflow-hidden">
+                {renderVisualization()}
+              </div>
+            ) : (
+              renderVisualization()
+            )}
           </Card>
         </Tabs>
       </main>
