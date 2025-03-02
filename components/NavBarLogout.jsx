@@ -109,6 +109,7 @@ export default function NavBarLogOut() {
                   {link.label}
                 </Link>
               ))}
+              <ThemeToggle />
             </div>
           </div>
         )}

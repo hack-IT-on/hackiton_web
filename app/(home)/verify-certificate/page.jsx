@@ -64,10 +64,10 @@ export default function VerifyCertificate() {
       <div className="max-w-md mx-auto">
         <div className="text-center mb-6">
           <Shield className="h-12 w-12 text-primary mx-auto mb-2" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          <h1 className="text-2xl font-bold mb-1">
             Certificate Verification Portal
           </h1>
-          <p className="text-gray-600">
+          <p className="">
             Verify the authenticity of your certificates instantly
           </p>
         </div>
@@ -112,7 +112,7 @@ export default function VerifyCertificate() {
             </form>
 
             {result && (
-              <Alert className="mt-6 bg-green-50 border-green-200 transition-all">
+              <Alert className="mt-6  transition-all">
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
                 <AlertTitle className="text-green-800 font-semibold">
                   Certificate Verified Successfully
