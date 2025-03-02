@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTheme } from "next-themes";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,8 @@ import {
   Copy,
   Mail,
   MessageCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
@@ -38,9 +41,25 @@ const QuestionDetail = () => {
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState("votes");
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [previewMode, setPreviewMode] = useState("edit");
   const { questionId } = useParams();
   const router = useRouter();
   const answerRef = useRef(null);
+  const { theme, systemTheme } = useTheme();
+
+  // Handle theme mounting to avoid hydration issues
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Get the effective theme (handling "system" preference)
+  const currentTheme = mounted
+    ? theme === "system"
+      ? systemTheme
+      : theme
+    : "light";
 
   useEffect(() => {
     const fetchQuestionDetails = async () => {
@@ -148,6 +167,11 @@ const QuestionDetail = () => {
     answerRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Toggle preview function
+  const togglePreview = () => {
+    setPreviewMode(previewMode === "edit" ? "preview" : "edit");
+  };
+
   if (!question) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -192,7 +216,7 @@ const QuestionDetail = () => {
           <CardTitle className="text-3xl">{question.title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="prose max-w-none" data-color-mode="light">
+          <div className="prose max-w-none" data-color-mode={currentTheme}>
             <MDEditor.Markdown
               source={question.content}
               style={{ whiteSpace: "pre-wrap" }}
@@ -308,7 +332,7 @@ const QuestionDetail = () => {
                   </p>
                 </div>
               </div>
-              <div data-color-mode="light">
+              <div data-color-mode={currentTheme}>
                 <MDEditor.Markdown
                   source={answer.content}
                   style={{ whiteSpace: "pre-wrap" }}
@@ -335,10 +359,32 @@ const QuestionDetail = () => {
           <CardTitle>Your Answer</CardTitle>
         </CardHeader>
         <CardContent>
-          <div data-color-mode="light">
+          <div className="flex justify-end mb-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={togglePreview}
+              className="flex items-center gap-1"
+            >
+              {previewMode === "edit" ? (
+                <>
+                  <Eye className="h-4 w-4" />
+                  <span>Show Preview</span>
+                </>
+              ) : (
+                <>
+                  <EyeOff className="h-4 w-4" />
+                  <span>Hide Preview</span>
+                </>
+              )}
+            </Button>
+          </div>
+          <div data-color-mode={currentTheme}>
             <MDEditor
               value={value}
               onChange={setValue}
+              preview={previewMode}
               className="min-h-[200px]"
             />
           </div>

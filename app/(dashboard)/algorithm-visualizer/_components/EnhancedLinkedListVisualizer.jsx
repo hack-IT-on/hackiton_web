@@ -615,12 +615,12 @@ const EnhancedLinkedListVisualizer = () => {
                     variant="outline"
                     className={
                       op.type === "add"
-                        ? "bg-green-100"
+                        ? "bg-green-500"
                         : op.type === "delete"
-                        ? "bg-red-100"
+                        ? "bg-red-500"
                         : op.type === "search"
-                        ? "bg-blue-100"
-                        : "bg-gray-100"
+                        ? "bg-blue-500"
+                        : "bg-gray-500 "
                     }
                   >
                     {op.type}

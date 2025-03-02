@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Loader2, HelpCircle } from "lucide-react";
+import { AlertCircle, Loader2, HelpCircle, Eye, EyeOff } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTheme } from "next-themes";
 import { toast } from "react-hot-toast";
 import {
   Dialog,
@@ -23,15 +24,29 @@ const QuestionCreate = () => {
   const [value, setValue] = useState("*Your question here*");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [previewMode, setPreviewMode] = useState("edit");
   const router = useRouter();
+  const { theme, systemTheme } = useTheme();
 
-  // function notify() {
-  //   toast("Good Job!", {
-  //     icon: "👏",
-  //   });
-  // }
+  // Determine the current color mode
+  const [mounted, setMounted] = useState(false);
 
-  // notify();
+  // After mounting, we can safely access the theme
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Get the effective theme (handling "system" preference)
+  const currentTheme = mounted
+    ? theme === "system"
+      ? systemTheme
+      : theme
+    : "light";
+
+  // Toggle preview function
+  const togglePreview = () => {
+    setPreviewMode(previewMode === "edit" ? "preview" : "edit");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,7 +80,7 @@ const QuestionCreate = () => {
         throw new Error("Failed to submit question");
       }
 
-      toast.success("Your question submited for approval.");
+      toast.success("Your question submitted for approval.");
       router.push("/questions");
     } catch (err) {
       setError(err.message || "Failed to submit question");
@@ -151,7 +166,7 @@ const QuestionCreate = () => {
                     </li>
                     <li>Example:</li>
                   </ul>
-                  <div className="bg-gray-100 p-2 rounded mt-2 font-mono text-sm">
+                  <div className="bg-gray-100 dark:bg-gray-600 p-2 rounded mt-2 font-mono text-sm">
                     ```python
                     <br />
                     def factorial(n): return 1 if n == 0 else n * factorial(n -
@@ -243,11 +258,32 @@ const QuestionCreate = () => {
 
         <div className="space-y-2">
           <Label>Question Content</Label>
-          <div data-color-mode="light" className="border rounded-md">
+          <div className="flex justify-end mb-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={togglePreview}
+              className="flex items-center gap-1"
+            >
+              {previewMode === "edit" ? (
+                <>
+                  <Eye className="h-4 w-4" />
+                  <span>Show Preview</span>
+                </>
+              ) : (
+                <>
+                  <EyeOff className="h-4 w-4" />
+                  <span>Hide Preview</span>
+                </>
+              )}
+            </Button>
+          </div>
+          <div data-color-mode={currentTheme} className="border rounded-md">
             <MDEditor
               value={value}
               onChange={setValue}
-              // preview="edit"
+              preview={previewMode}
               height={400}
               className="border-none"
             />

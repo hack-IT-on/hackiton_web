@@ -93,9 +93,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen ">
       {/* Hero Section with Code Background */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+      <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-gradient-to-b ">
         <div className="absolute inset-0 opacity-5">
           <div className="animate-slide-up font-mono text-sm whitespace-pre leading-6">
             {`function solve(n) {\n  let dp = Array(n + 1).fill(0);\n  dp[1] = 1;\n  for(let i = 2; i <= n; i++) {\n    dp[i] = dp[i-1] + dp[i-2];\n  }\n  return dp[n];\n}`}
@@ -141,7 +141,7 @@ export default function Home() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-24 px-4 bg-gradient-to-b from-white to-gray-50">
+      <section className="py-24 px-4 bg-gradient-to-b ">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 gap-8"
@@ -149,7 +149,7 @@ export default function Home() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
+            <Card className=" shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
               <CardHeader>
                 <Code className="text-blue-600 w-12 h-12" />
                 <CardTitle className="text-2xl font-bold">
@@ -166,7 +166,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
+            <Card className=" shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
               <CardHeader>
                 <BookOpen className="text-indigo-600 w-12 h-12" />
                 <CardTitle className="text-2xl font-bold">
@@ -183,7 +183,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
+            <Card className=" shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
               <CardHeader>
                 <Trophy className="text-violet-600 w-12 h-12" />
                 <CardTitle className="text-2xl font-bold">
@@ -199,7 +199,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
+            <Card className=" shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300">
               <CardHeader>
                 <Users className="text-blue-600 w-12 h-12" />
                 <CardTitle className="text-2xl font-bold">
@@ -219,7 +219,7 @@ export default function Home() {
       </section>
 
       {/* Events Section */}
-      <section className="py-24 px-4 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-24 px-4 bg-gradient-to-b ">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-16"
@@ -227,9 +227,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-gray-900">
-              Upcoming Events
-            </h2>
+            <h2 className="text-4xl font-bold mb-4 ">Upcoming Events</h2>
             <p className="text-gray-600">
               Join our community events and level up your skills
             </p>
@@ -243,7 +241,7 @@ export default function Home() {
           >
             {events.map((event) => (
               <Link key={event.id} href={`/all-events/${event.id}`}>
-                <Card className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300 overflow-hidden">
+                <Card className=" shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300 overflow-hidden">
                   <div className="relative h-48 w-full">
                     <img
                       src={event.image_url}
@@ -297,7 +295,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-gray-900">
+            <h2 className="text-4xl font-bold mb-4  ">
               Top Performers
             </h2>
             <p className="text-gray-600">
@@ -326,7 +324,7 @@ export default function Home() {
                     <AvatarFallback>{user.name}</AvatarFallback>
                   </Avatar>
                   <div className="text-left">
-                    <div className="font-bold text-lg text-gray-900">
+                    <div className="font-bold text-lg  ">
                       {user.name}
                     </div>
                     <div className="text-gray-600">{user.rank}</div>
@@ -334,7 +332,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="text-yellow-500 w-5 h-5" />
-                  <span className="font-mono font-bold text-lg text-gray-900">
+                  <span className="font-mono font-bold text-lg  ">
                     {user.total_points}
                   </span>
                 </div>
@@ -358,7 +356,7 @@ export default function Home() {
               {testimonials[activeTestimonial].quote}
             </p>
             <div className="space-y-2">
-              <p className="font-bold text-lg text-gray-900">
+              <p className="font-bold text-lg  ">
                 {testimonials[activeTestimonial].name}
               </p>
               <p className="text-gray-600">
@@ -384,16 +382,14 @@ export default function Home() {
       </section> */}
 
       {/* CTA Section */}
-      <section className="py-24 px-4 bg-gradient-to-b from-white to-blue-50">
+      <section className="py-24 px-4 bg-gradient-to-b ">
         <motion.div
           className="max-w-4xl mx-auto text-center space-y-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-5xl font-bold text-gray-900">
-            Ready to Level Up?
-          </h2>
+          <h2 className="text-5xl font-bold  ">Ready to Level Up?</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Join over 50,000 students who are mastering coding and advancing
             their careers together.
@@ -410,12 +406,12 @@ export default function Home() {
       </section>
 
       {/* Footer with Social Media Links */}
-      <footer className="py-16 px-4 bg-gray-50 border-t border-blue-100">
+      <footer className="py-16 px-4 border-t border-blue-100 ">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
             {/* Company Info */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-gray-900">HackItOn</h3>
+              <h3 className="text-xl font-bold ">HackItOn</h3>
               <p className="text-gray-600">
                 Empowering the next generation of developers through
                 community-driven learning.
@@ -424,9 +420,7 @@ export default function Home() {
 
             {/* Quick Links */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Quick Links
-              </h3>
+              <h3 className="text-lg font-semibold ">Quick Links</h3>
               <ul className="space-y-2">
                 {bottom_nav.map((item) => (
                   <li key={item}>
@@ -443,7 +437,7 @@ export default function Home() {
 
             {/* Community */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Community</h3>
+              <h3 className="text-lg font-semibold ">Community</h3>
               <ul className="space-y-2">
                 {["Blog", "Forums", "Discord Server", "Help Center"].map(
                   (item) => (
@@ -462,9 +456,7 @@ export default function Home() {
 
             {/* Social Media Links */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Connect With Us
-              </h3>
+              <h3 className="text-lg font-semibold ">Connect With Us</h3>
               <div className="flex flex-wrap gap-4">
                 <a
                   href="https://www.instagram.com/bit_hackiton/"

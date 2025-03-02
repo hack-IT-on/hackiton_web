@@ -127,8 +127,8 @@ const QuestionsPage = () => {
               <AvatarFallback>{question.user_name[0]}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium text-gray-900">{question.user_name}</p>
-              <p className="text-sm text-gray-500">{formattedDate}</p>
+              <p className="font-medium ">{question.user_name}</p>
+              <p className="text-sm ">{formattedDate}</p>
             </div>
           </div>
 
@@ -171,7 +171,7 @@ const QuestionsPage = () => {
   const LoadingState = () => (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4">
       <Loader2 className="w-8 h-8 animate-spin " />
-      <p className="text-gray-500 animate-pulse">Loading questions...</p>
+      <p className=" animate-pulse">Loading questions...</p>
     </div>
   );
 
@@ -192,12 +192,10 @@ const QuestionsPage = () => {
   return (
     <div className="container mx-auto p-4 max-w-5xl">
       <div className="space-y-6">
-        <div className="flex flex-col gap-6 md:flex-row justify-between items-center bg-gradient-to-r from-blue-50 to-white p-6 rounded-lg">
+        <div className="flex flex-col gap-6 md:flex-row justify-between items-center bg-gradient-to-r  p-6 rounded-lg">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Community Questions
-            </h1>
-            <p className="text-gray-500 mt-2">
+            <h1 className="text-3xl font-bold ">Community Questions</h1>
+            <p className=" mt-2">
               Explore and contribute to our growing community
             </p>
           </div>
@@ -219,9 +217,9 @@ const QuestionsPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4  p-4 rounded-lg shadow-sm">
           <div className="relative flex-grow">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 " />
             <Input
               placeholder="Search questions..."
               className="pl-10"
@@ -266,11 +264,9 @@ const QuestionsPage = () => {
 
         <div className="space-y-4">
           {currentQuestions.length === 0 ? (
-            <div className="text-center py-10 bg-gray-50 rounded-lg">
-              <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">
-                No questions found. Be the first to ask!
-              </p>
+            <div className="text-center py-10  rounded-lg">
+              <MessageCircle className="w-12 h-12  mx-auto mb-4" />
+              <p className="">No questions found. Be the first to ask!</p>
             </div>
           ) : (
             <>

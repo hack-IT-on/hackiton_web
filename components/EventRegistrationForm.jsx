@@ -132,7 +132,7 @@ export default function EventRegistrationForm({ eventId, eventData }) {
           </Alert>
         )}
 
-        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+        <div className=" p-4 rounded-lg space-y-4">
           <div className="space-y-3">
             <h3 className="font-semibold text-lg">{eventData.title}</h3>
             <p className="text-gray-600">{eventData.description}</p>

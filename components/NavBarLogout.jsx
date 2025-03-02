@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./ThemeToggle";
 
 export default function NavBarLogOut() {
   const [isOpen, setIsOpen] = useState(false);
@@ -77,6 +78,7 @@ export default function NavBarLogOut() {
                     </Link>
                   </NavigationMenuItem>
                 ))}
+                <ThemeToggle />
               </NavigationMenuList>
             </NavigationMenu>
           </div>
