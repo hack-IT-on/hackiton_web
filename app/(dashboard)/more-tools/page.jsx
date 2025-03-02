@@ -38,7 +38,7 @@ const toolSections = [
         name: "Time Complexity Calculator (Beta)",
         icon: Timer,
         href: "/time-complexity-calculator",
-        color: "purple",
+        color: "orange",
         description:
           " Just insert your code and instantly get its time complexity.",
       },
