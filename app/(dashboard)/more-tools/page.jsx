@@ -117,7 +117,7 @@ const ProfileToolsComponent = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/50 py-8">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+        <h2 className="text-3xl font-bold text-center mb-8 ">
           Developer Tools & Resources
         </h2>
 
@@ -130,15 +130,12 @@ const ProfileToolsComponent = () => {
           <TabsContent value="tools">
             {toolSections.map((section) => (
               <div key={section.title} className="mb-8">
-                <h3 className="text-xl font-semibold mb-4 text-gray-700">
-                  {section.title}
-                </h3>
+                <h3 className="text-xl font-semibold mb-4 ">{section.title}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {section.tools.map((tool) => (
                     <Link key={tool.name} href={tool.href} className="block">
                       <Card
-                        className={`bg-gradient-to-br from-${tool.color}-50 to-white 
-                        hover:shadow-md transition-all duration-300 
+                        className={` transition-all duration-300 
                         hover:scale-105 hover:border-${tool.color}-200`}
                       >
                         <CardContent className="p-4 text-center">

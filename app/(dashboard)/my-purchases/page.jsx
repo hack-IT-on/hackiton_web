@@ -45,7 +45,7 @@ export default async function PurchasesPage() {
   const purchases = await getPurchasedResources(user?.id);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="space-y-8">
           {/* Header Section */}

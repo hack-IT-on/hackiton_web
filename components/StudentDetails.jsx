@@ -147,7 +147,7 @@ const StudentDetails = () => {
             <label
               className={`flex flex-col items-center justify-center w-full h-40 border-2 ${
                 dragActive ? "border-primary" : "border-dashed"
-              } rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200`}
+              } rounded-lg cursor-pointer  transition-colors duration-200`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}

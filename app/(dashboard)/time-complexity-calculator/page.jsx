@@ -60,7 +60,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <main className="min-h-screen ">
       {/* <Header /> */}
 
       <div className="container max-w-6xl mx-auto px-4 py-8">

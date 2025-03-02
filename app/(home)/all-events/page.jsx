@@ -68,9 +68,9 @@ export default function Home() {
     );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen ">
       {/* Events Section */}
-      <section className="py-24 px-4 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-24 px-4 ">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-16"
@@ -78,7 +78,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-gray-900">
+            <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-50">
               All Events
             </h2>
             <p className="text-gray-600">
@@ -94,7 +94,7 @@ export default function Home() {
           >
             {events.map((event) => (
               <Link key={event.id} href={`/all-events/${event.id}`}>
-                <Card className="bg-white shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300 overflow-hidden">
+                <Card className=" shadow-lg hover:shadow-xl transition-all border-blue-100 hover:border-blue-300 overflow-hidden">
                   <div className="relative h-48 w-full">
                     <img
                       src={event.image_url}

@@ -100,7 +100,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
       return {
         label: "Unknown",
         color: "bg-gray-100 text-gray-800",
-        icon: <AlertCircle className="h-4 w-4 text-gray-600 mr-1" />,
+        icon: <AlertCircle className="h-4 w-4   mr-1" />,
       };
     }
   };
@@ -126,7 +126,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
 
         <div className="py-4">
           {/* Profile Header */}
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6 p-4 bg-gradient-to-r  rounded-lg">
             <Avatar className="h-24 w-24 border-4 border-white shadow-md">
               <AvatarImage src={user.avatar_url} alt={user.name} />
               <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-2xl">
@@ -140,7 +140,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
             <div className="flex-1 text-center md:text-left space-y-2">
               <div className="space-y-1">
                 <h2 className="text-2xl font-bold">{user.name}</h2>
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-sm  ">
                   <Mail className="h-4 w-4" />
                   <span>{user.email}</span>
                   <span className="px-1">•</span>
@@ -185,25 +185,23 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">
-                        MAKAUT Roll Number
-                      </p>
-                      <div className="font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">MAKAUT Roll Number</p>
+                      <div className="font-medium   p-2 rounded">
                         {user.student_id || "Not provided"}
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Course</p>
-                      <div className="font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">Course</p>
+                      <div className="font-medium   p-2 rounded">
                         {studentData.course_name ||
                           "Computer Science & Engineering"}
                       </div>
                     </div>
                     {/* <div>
-                      <p className="text-sm text-gray-500 mb-1">
+                      <p className="text-sm   mb-1">
                         Year of Study
                       </p>
-                      <div className="font-medium bg-gray-50 p-2 rounded">
+                      <div className="font-medium   p-2 rounded">
                         {studentData.semester || "3rd Year"}
                       </div>
                     </div> */}
@@ -220,8 +218,8 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">GitHub</p>
-                      <div className="flex items-center justify-between font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">GitHub</p>
+                      <div className="flex items-center justify-between font-medium   p-2 rounded">
                         <span>{user.github_username || "Not provided"}</span>
                         {hasGithub && (
                           <Button
@@ -241,8 +239,8 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">LeetCode</p>
-                      <div className="flex items-center justify-between font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">LeetCode</p>
+                      <div className="flex items-center justify-between font-medium   p-2 rounded">
                         <span>{user.leetcode_username || "Not provided"}</span>
                         {hasLeetcode && (
                           <Button
@@ -276,28 +274,26 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">
-                        Email Address
-                      </p>
-                      <div className="font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">Email Address</p>
+                      <div className="font-medium   p-2 rounded">
                         {user.email}
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Phone Number</p>
-                      <div className="font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">Phone Number</p>
+                      <div className="font-medium   p-2 rounded">
                         {studentData.mobile_number || "Not provided"}
                       </div>
                     </div>
                     {/* <div>
-                      <p className="text-sm text-gray-500 mb-1">Location</p>
-                      <div className="font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">Location</p>
+                      <div className="font-medium   p-2 rounded">
                         {user.location || "West Bengal, India"}
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Joined On</p>
-                      <div className="font-medium bg-gray-50 p-2 rounded">
+                      <p className="text-sm   mb-1">Joined On</p>
+                      <div className="font-medium   p-2 rounded">
                         {user.join_date || "January 15, 2023"}
                       </div>
                     </div> */}
@@ -333,7 +329,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       />
                     </div>
                     <div className="mt-3 flex justify-between items-center">
-                      <Badge variant="outline" className="bg-blue-50">
+                      <Badge variant="outline" className=" bg-blue-500">
                         Verification Image
                       </Badge>
                     </div>
@@ -365,7 +361,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       />
                     </div>
                     <div className="mt-3 flex justify-between items-center">
-                      <Badge variant="outline" className="bg-blue-50">
+                      <Badge variant="outline" className=" bg-blue-500">
                         Identity Document
                       </Badge>
                     </div>
@@ -391,9 +387,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       <div className="text-3xl font-bold">
                         {user.total_points || 0}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        Total Points Earned
-                      </div>
+                      <div className="text-sm  ">Total Points Earned</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -413,7 +407,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                       <div className="text-3xl font-bold">
                         {user.code_coins || 0}
                       </div>
-                      <div className="text-sm text-gray-500">Code Coins</div>
+                      <div className="text-sm  ">Code Coins</div>
                     </div>
                   </CardContent>
                 </Card>

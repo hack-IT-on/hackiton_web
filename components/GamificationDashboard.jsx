@@ -74,7 +74,7 @@ const GamificationDashboard = () => {
             {leaderboard.map((user, index) => (
               <div
                 key={index}
-                className="flex justify-between items-center p-2 hover:bg-gray-50 rounded"
+                className="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-500 rounded"
               >
                 <div className="flex items-center space-x-2">
                   {getIndex(index + 1)}

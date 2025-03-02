@@ -53,7 +53,7 @@ const TreeNode = ({
   } else if (isHighlighted) {
     nodeClass += " border-green-500 bg-green-100 text-green-800 font-bold";
   } else {
-    nodeClass += " border-gray-400 bg-white";
+    nodeClass += " border-gray-400 ";
   }
 
   return (
@@ -101,7 +101,7 @@ const TreeNode = ({
                 ? "destructive"
                 : "secondary"
             }
-            className="absolute -bottom-6 -right-2 text-xs"
+            className="absolute -bottom-6 -right-2 text-xs dark:text-gray-700"
           >
             {balance > 0 ? "+" : ""}
             {balance}
@@ -844,9 +844,7 @@ const TreeVisualizer = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="text-sm font-medium">Animation Speed</label>
-                  <span className="text-xs text-gray-500">
-                    {animationSpeed}ms
-                  </span>
+                  <span className="text-xs ">{animationSpeed}ms</span>
                 </div>
                 <Slider
                   value={[animationSpeed]}
@@ -877,7 +875,7 @@ const TreeVisualizer = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 border rounded-lg p-2 overflow-hidden">
-              <div className="w-full overflow-auto h-[500px] bg-gray-50 rounded-lg relative">
+              <div className="w-full overflow-auto h-[500px] rounded-lg relative">
                 <div
                   className="absolute min-w-[800px] h-[500px] transition-transform duration-300"
                   style={{ transformOrigin: "center" }}
@@ -903,7 +901,7 @@ const TreeVisualizer = () => {
             </div>
 
             <div className="border rounded-lg p-4 h-[500px] overflow-auto">
-              <h3 className="font-medium mb-2 text-sm text-gray-700 flex items-center">
+              <h3 className="font-medium mb-2 text-sm  flex items-center">
                 <Info className="h-4 w-4 mr-1" />
                 Operation History
               </h3>
@@ -912,14 +910,14 @@ const TreeVisualizer = () => {
                   {operationHistory.map((op, i) => (
                     <div
                       key={i}
-                      className="text-sm p-2 bg-gray-50 rounded border-l-4 border-blue-500"
+                      className="text-sm p-2  rounded border-l-4 border-blue-500"
                     >
                       {op}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-sm text-gray-500 italic">
+                <div className="text-sm  italic">
                   No operations performed yet
                 </div>
               )}

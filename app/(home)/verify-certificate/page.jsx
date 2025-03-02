@@ -60,7 +60,7 @@ export default function VerifyCertificate() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4">
+    <div className="min-h-screen  py-12 px-4">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-6">
           <Shield className="h-12 w-12 text-primary mx-auto mb-2" />

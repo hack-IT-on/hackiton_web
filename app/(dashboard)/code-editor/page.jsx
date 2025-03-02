@@ -40,7 +40,7 @@ const CodeEditorPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4">
+    <div className="min-h-screen ">
       <Card className="max-w-[1400px] mx-auto">
         <div className="border-b p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">

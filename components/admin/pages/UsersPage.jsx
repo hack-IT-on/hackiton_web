@@ -219,9 +219,7 @@ const UsersPage = () => {
               <Users className="w-6 h-6" />
               Users Management
             </CardTitle>
-            <p className="text-sm text-gray-500 mt-1">
-              {totalUsers} total users
-            </p>
+            <p className="text-sm  mt-1">{totalUsers} total users</p>
           </div>
           {/* <Button className="flex items-center gap-2">
             <UserPlus className="w-4 h-4" />
@@ -233,7 +231,7 @@ const UsersPage = () => {
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center gap-4 flex-wrap">
             <div className="flex items-center flex-1 max-w-sm relative">
-              <Search className="w-4 h-4 absolute left-3 text-gray-500" />
+              <Search className="w-4 h-4 absolute left-3 " />
               <Input
                 placeholder="Search users..."
                 value={searchTerm}
@@ -275,35 +273,35 @@ const UsersPage = () => {
                   <TableRow>
                     <TableHead
                       onClick={() => sortData("name")}
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer "
                     >
                       Name <SortIcon columnKey="name" />
                     </TableHead>
                     <TableHead
                       onClick={() => sortData("email")}
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer  "
                     >
                       Email <SortIcon columnKey="email" />
                     </TableHead>
-                    <TableHead className="cursor-pointer hover:bg-gray-50">
+                    <TableHead className="cursor-pointer  ">
                       MAKAUT Roll Number
                     </TableHead>
                     <TableHead
                       onClick={() => sortData("role")}
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer  "
                     >
                       Role <SortIcon columnKey="role" />
                     </TableHead>
                     <TableHead
                       onClick={() => sortData("is_approved")}
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer  "
                     >
                       Approval Status <SortIcon columnKey="is_approved" />
                     </TableHead>
-                    <TableHead className="cursor-pointer hover:bg-gray-50">
+                    <TableHead className="cursor-pointer  ">
                       GitHub Username
                     </TableHead>
-                    <TableHead className="cursor-pointer hover:bg-gray-50">
+                    <TableHead className="cursor-pointer  ">
                       Leedcode Username
                     </TableHead>
                     <TableHead className="w-[60px]">Actions</TableHead>
@@ -312,14 +310,14 @@ const UsersPage = () => {
                 <TableBody>
                   {getPaginatedData().length > 0 ? (
                     getPaginatedData().map((user) => (
-                      <TableRow key={user.id} className="hover:bg-gray-50">
+                      <TableRow key={user.id} className=" ">
                         <TableCell className="font-medium">
                           {user.name || "-"}
                         </TableCell>
                         <TableCell>{user.email || "-"}</TableCell>
                         <TableCell>{user.student_id || "-"}</TableCell>
                         <TableCell>
-                          <span className="px-2 py-1 rounded-full text-xs bg-gray-100">
+                          <span className="px-2 py-1 rounded-full text-xs ">
                             {user.role || "-"}
                           </span>
                         </TableCell>

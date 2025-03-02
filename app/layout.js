@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/getCurrentUser";
 import { Toaster } from "react-hot-toast";
 import NavBarLogOut from "@/components/NavBarLogout";
 import DashboardLayout from "./(dashboard)/dashboard/layout";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,10 +34,17 @@ export default async function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        {/* <NavBar user={user} /> */}
-        {getNavBar()}
-        <Toaster />
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* <NavBar user={user} /> */}
+          {getNavBar()}
+          <Toaster />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

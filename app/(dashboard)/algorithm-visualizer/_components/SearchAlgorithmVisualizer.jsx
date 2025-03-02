@@ -344,7 +344,7 @@ const SearchAlgorithmVisualizer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       {/* <nav className="border-b p-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Search Algorithm Visualizer</h1>
         <div className="flex items-center gap-4">
@@ -442,7 +442,7 @@ const SearchAlgorithmVisualizer = () => {
               {showPseudocode && (
                 <div className="w-1/3 p-4 border-r overflow-auto">
                   <h3 className="text-lg font-medium mb-2">Pseudocode</h3>
-                  <pre className="text-sm whitespace-pre-wrap bg-gray-100 p-4 rounded">
+                  <pre className="text-sm whitespace-pre-wrap  p-4 rounded">
                     {pseudoCode[selectedAlgorithm]}
                   </pre>
                 </div>
@@ -461,7 +461,7 @@ const SearchAlgorithmVisualizer = () => {
                   <h3 className="text-lg font-medium mb-2">
                     Algorithm Explanation
                   </h3>
-                  <div className="bg-gray-100 p-4 rounded-lg">
+                  <div className="p-4 rounded-lg">
                     {selectedAlgorithm === "linear" ? (
                       <p>
                         Linear Search checks each element sequentially until it

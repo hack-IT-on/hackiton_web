@@ -193,7 +193,7 @@ const ProfileComponent = ({ user }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="cursor-help">
-                        <Info className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                        <Info className="h-5 w-5 " />
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="right" className="w-80 p-4">
@@ -252,10 +252,10 @@ const ProfileComponent = ({ user }) => {
                   <div className="flex-1">
                     <div className="flex flex-col md:flex-row md:items-center justify-between">
                       <div>
-                        <h1 className="text-3xl font-bold text-gray-800">
+                        <h1 className="text-3xl font-bold ">
                           {profile.name || profile.login}
                         </h1>
-                        <p className="text-gray-500">@{profile.login}</p>
+                        <p className="">@{profile.login}</p>
                       </div>
                       <div className="mt-4 md:mt-0">
                         <Button
@@ -273,12 +273,10 @@ const ProfileComponent = ({ user }) => {
                     </div>
 
                     {profile.bio && (
-                      <p className="mt-4 text-gray-700 leading-relaxed">
-                        {profile.bio}
-                      </p>
+                      <p className="mt-4  leading-relaxed">{profile.bio}</p>
                     )}
 
-                    <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+                    <div className="mt-4 flex flex-wrap gap-4 text-sm  ">
                       {profile.company && (
                         <div className="flex items-center">
                           <Code className="mr-2 h-4 w-4" />
@@ -319,7 +317,7 @@ const ProfileComponent = ({ user }) => {
                 </div>
 
                 <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Card className="bg-gradient-to-br from-blue-50 to-white">
+                  <Card className="bg-gradient-to-br ">
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
                         <Code className="h-5 w-5 text-blue-600" />
@@ -327,11 +325,11 @@ const ProfileComponent = ({ user }) => {
                       <p className="text-2xl font-bold text-blue-600">
                         {profile.public_repos.toLocaleString()}
                       </p>
-                      <p className="text-sm text-gray-600">Repositories</p>
+                      <p className="text-sm  ">Repositories</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-purple-50 to-white">
+                  <Card className="bg-gradient-to-br ">
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
                         <Users className="h-5 w-5 text-purple-600" />
@@ -339,11 +337,11 @@ const ProfileComponent = ({ user }) => {
                       <p className="text-2xl font-bold text-purple-600">
                         {profile.followers.toLocaleString()}
                       </p>
-                      <p className="text-sm text-gray-600">Followers</p>
+                      <p className="text-sm  ">Followers</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-green-50 to-white">
+                  <Card className="bg-gradient-to-br ">
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
                         <Users className="h-5 w-5 text-green-600" />
@@ -351,11 +349,11 @@ const ProfileComponent = ({ user }) => {
                       <p className="text-2xl font-bold text-green-600">
                         {profile.following.toLocaleString()}
                       </p>
-                      <p className="text-sm text-gray-600">Following</p>
+                      <p className="text-sm  ">Following</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-orange-50 to-white">
+                  <Card className="bg-gradient-to-br ">
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
                         <Code className="h-5 w-5 text-orange-600" />
@@ -363,13 +361,13 @@ const ProfileComponent = ({ user }) => {
                       <p className="text-2xl font-bold text-orange-600">
                         {profile.public_gists.toLocaleString()}
                       </p>
-                      <p className="text-sm text-gray-600">Gists</p>
+                      <p className="text-sm  ">Gists</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
                   <Link href={"/events/certificates/generate"}>
-                    <Card className="bg-gradient-to-br from-blue-50 to-white">
+                    <Card className="bg-gradient-to-br">
                       <CardContent className="p-4 text-center">
                         <div className="flex items-center justify-center mb-2">
                           <CreditCard className="h-5 w-5 text-orange-600" />
@@ -377,14 +375,12 @@ const ProfileComponent = ({ user }) => {
                         <p className="text-2xl font-bold text-orange-600">
                           {certCount}
                         </p>
-                        <p className="text-sm text-gray-600">
-                          Event Certificates
-                        </p>
+                        <p className="text-sm  ">Event Certificates</p>
                       </CardContent>
                     </Card>
                   </Link>
 
-                  <Card className="bg-gradient-to-br from-purple-50 to-white">
+                  <Card className="bg-gradient-to-br">
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
                         <CircleHelp className="h-5 w-5 text-green-600" />
@@ -392,11 +388,11 @@ const ProfileComponent = ({ user }) => {
                       <p className="text-2xl font-bold text-green-600">
                         {questionCount}
                       </p>
-                      <p className="text-sm text-gray-600">Question Raised</p>
+                      <p className="text-sm  ">Question Raised</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-green-50 to-white">
+                  <Card className="bg-gradient-to-br ">
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
                         <MessageCircleQuestion className="h-5 w-5 text-purple-600" />
@@ -404,11 +400,11 @@ const ProfileComponent = ({ user }) => {
                       <p className="text-2xl font-bold text-purple-600">
                         {answersCount}
                       </p>
-                      <p className="text-sm text-gray-600">Answers Provided</p>
+                      <p className="text-sm  ">Answers Provided</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-orange-50 to-white">
+                  <Card className="bg-gradient-to-br ">
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
                         <Activity className="h-5 w-5 text-blue-600" />
@@ -416,7 +412,7 @@ const ProfileComponent = ({ user }) => {
                       <p className="text-2xl font-bold text-blue-600">
                         {activityCount}
                       </p>
-                      <p className="text-sm text-gray-600">Activity</p>
+                      <p className="text-sm  ">Activity</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -428,12 +424,10 @@ const ProfileComponent = ({ user }) => {
                 className="mt-0 focus-visible:outline-none"
               >
                 <CardContent className="p-6 border-t">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                    Achievements
-                  </h2>
+                  <h2 className="text-2xl font-bold ">Achievements</h2>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <Card className="bg-gradient-to-br from-yellow-50 to-white">
+                    <Card className="bg-gradient-to-br ">
                       <CardContent className="p-4 text-center">
                         <div className="flex items-center justify-center mb-2">
                           <Star className="h-5 w-5 text-yellow-600" />
@@ -441,11 +435,11 @@ const ProfileComponent = ({ user }) => {
                         <p className="text-2xl font-bold text-yellow-600">
                           {points.toLocaleString()}
                         </p>
-                        <p className="text-sm text-gray-600">Points</p>
+                        <p className="text-sm  ">Points</p>
                       </CardContent>
                     </Card>
 
-                    <Card className="bg-gradient-to-br from-amber-50 to-white">
+                    <Card className="bg-gradient-to-br ">
                       <CardContent className="p-4 text-center">
                         <div className="flex items-center justify-center mb-2">
                           <Coins className="h-5 w-5 text-amber-600" />
@@ -453,11 +447,11 @@ const ProfileComponent = ({ user }) => {
                         <p className="text-2xl font-bold text-amber-600">
                           {coins.toLocaleString()}
                         </p>
-                        <p className="text-sm text-gray-600">Coins</p>
+                        <p className="text-sm  ">Coins</p>
                       </CardContent>
                     </Card>
 
-                    <Card className="bg-gradient-to-br from-indigo-50 to-white">
+                    <Card className="bg-gradient-to-br ">
                       <CardContent className="p-4 text-center">
                         <div className="flex items-center justify-center mb-2">
                           <Trophy className="h-5 w-5 text-indigo-600" />
@@ -465,7 +459,7 @@ const ProfileComponent = ({ user }) => {
                         <p className="text-2xl font-bold text-indigo-600">
                           {badges?.length || 0}
                         </p>
-                        <p className="text-sm text-gray-600">Badges Earned</p>
+                        <p className="text-sm  ">Badges Earned</p>
                       </CardContent>
                     </Card>
                   </div>
@@ -473,7 +467,7 @@ const ProfileComponent = ({ user }) => {
                   {/* Badges Display */}
                   {badges && badges.length > 0 && (
                     <div className="mt-6">
-                      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                      <h3 className="text-lg font-semibold  mb-4">
                         Earned Badges
                       </h3>
                       <div className="flex flex-wrap gap-4">
@@ -481,7 +475,7 @@ const ProfileComponent = ({ user }) => {
                           {badges.map((badge, index) => (
                             <Tooltip key={index}>
                               <TooltipTrigger>
-                                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-white shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br  shadow-md hover:shadow-lg transition-shadow">
                                   {/* Replace with actual badge icon */}
                                   <img
                                     className="h-6 w-6"
@@ -492,7 +486,7 @@ const ProfileComponent = ({ user }) => {
                               <TooltipContent>
                                 <div className="text-sm">
                                   <p className="font-semibold">{badge.name}</p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs ">
                                     {badge.description}
                                   </p>
                                 </div>

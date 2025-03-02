@@ -120,16 +120,14 @@ export default function GeneratePage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <Card className="shadow-lg border-t-4 border-t-primary">
-        <CardHeader className="text-center bg-gradient-to-r from-blue-50 to-indigo-50">
+        <CardHeader className="text-center bg-gradient-to-r ">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Award className="w-8 h-8 text-primary" />
-            <CardTitle className="text-2xl font-bold text-gray-800">
+            <CardTitle className="text-2xl font-bold ">
               Event Certificates
             </CardTitle>
           </div>
-          <p className="text-gray-600">
-            Download your event participation certificates
-          </p>
+          <p className="">Download your event participation certificates</p>
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
@@ -149,7 +147,7 @@ export default function GeneratePage() {
           {certificates.length > 0 ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium ">
                   Select Certificate
                 </label>
                 <Select

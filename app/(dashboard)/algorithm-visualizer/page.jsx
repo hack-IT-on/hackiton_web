@@ -804,7 +804,7 @@ const AlgorithmVisualizer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <nav className="border-b p-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Algorithm Visualizer</h1>
         {/* <div className="flex items-center gap-4">

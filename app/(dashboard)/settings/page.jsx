@@ -181,17 +181,11 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="p-6">
           <Tabs defaultValue="profile" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100">
-              <TabsTrigger
-                value="profile"
-                className="data-[state=active]:bg-blue-100 "
-              >
+            <TabsList className="grid w-full grid-cols-2 ">
+              <TabsTrigger value="profile" className="">
                 <UserCog className="mr-2 h-4 w-4" /> Profile
               </TabsTrigger>
-              <TabsTrigger
-                value="password"
-                className="data-[state=active]:bg-blue-100 "
-              >
+              <TabsTrigger value="password" className="">
                 <KeyRound className="mr-2 h-4 w-4" /> Security
               </TabsTrigger>
             </TabsList>
@@ -206,7 +200,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        Name <Lock className="ml-2 h-3 w-3 text-gray-500" />
+                        Name <Lock className="ml-2 h-3 w-3 " />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -216,9 +210,7 @@ export default function SettingsPage() {
                           className="bg-gray-50 text-gray-600"
                         />
                       </FormControl>
-                      <p className="text-xs text-gray-500">
-                        Name cannot be changed
-                      </p>
+                      <p className="text-xs ">Name cannot be changed</p>
                     </FormItem>
 
                     <FormItem>

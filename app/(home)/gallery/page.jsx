@@ -186,7 +186,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen ">
       <div className="container mx-auto py-8 px-4">
         {/* Header Section */}
         <div className="flex flex-col space-y-6 mb-8">

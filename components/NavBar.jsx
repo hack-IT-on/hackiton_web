@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./ThemeToggle";
 
 export default function NavBar({ user }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -95,6 +96,7 @@ export default function NavBar({ user }) {
                     </Link>
                   </NavigationMenuItem>
                 ))}
+                <ThemeToggle />
               </NavigationMenuList>
             </NavigationMenu>
 

@@ -75,8 +75,8 @@ const AdminDashboard = () => {
     <ScrollArea className="h-screen">
       <div className="container mx-auto py-8 px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-500 mt-2">
+          <h1 className="text-3xl font-bold ">Admin Dashboard</h1>
+          <p className=" mt-2">
             Manage your application settings and view system statistics
           </p>
         </div>
@@ -98,12 +98,10 @@ const AdminDashboard = () => {
                       {option.icon}
                     </div>
                     <div className="space-y-1">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold  ">
                         {option.title}
                       </h3>
-                      <p className="text-sm text-gray-500">
-                        {option.description}
-                      </p>
+                      <p className="text-sm ">{option.description}</p>
                     </div>
                   </div>
                 </div>
