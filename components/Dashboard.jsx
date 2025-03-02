@@ -516,16 +516,42 @@ export default function Dashboard({ user, daily }) {
             </CardHeader>
             <CardContent className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={activityCount}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day_name" />
-                  <YAxis />
-                  <Tooltip />
+                <LineChart
+                  data={activityCount}
+                  className="text-gray-900 dark:text-gray-100"
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#CBD5E1"
+                    strokeOpacity={0.8}
+                    className="dark:stroke-gray-700"
+                  />
+                  <XAxis
+                    dataKey="day_name"
+                    stroke="#64748B"
+                    className="dark:stroke-gray-400"
+                    tick={{ fill: "currentColor" }}
+                  />
+                  <YAxis
+                    stroke="#64748B"
+                    className="dark:stroke-gray-400"
+                    tick={{ fill: "currentColor" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "white",
+                      border: "1px solid #E2E8F0",
+                      color: "#1E293B",
+                      className:
+                        "dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100",
+                    }}
+                  />
                   <Line
                     type="monotone"
                     dataKey="count"
                     stroke="#2563eb"
                     strokeWidth={2}
+                    className="dark:stroke-blue-400"
                   />
                 </LineChart>
               </ResponsiveContainer>
