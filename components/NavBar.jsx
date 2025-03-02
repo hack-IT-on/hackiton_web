@@ -205,7 +205,7 @@ export default function NavBar({ user }) {
                   {link.label}
                 </Link>
               ))}
-
+              <ThemeToggle />
               <div className="border-t pt-4 mt-4 space-y-1">
                 {profileMenuItems.map((item) => (
                   <Link
