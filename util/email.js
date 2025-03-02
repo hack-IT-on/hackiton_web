@@ -461,7 +461,7 @@ export async function sendQuestionApprovalEmail(
         <h1>✅ Your Question Has Been Approved!</h1>
         <p>Hi, ${name},</p>
         
-        <p>reat news! Your question has been reviewed and approved. It is now live on our platform and available for others to view and answer. You have earned 5 points and 1 coin.</p>
+        <p>Great news! Your question has been reviewed and approved. It is now live on our platform and available for others to view and answer. You have earned 5 points and 1 coin.</p>
 
         <p><strong>Question:</strong> "${questionTitle}"</p>
 
