@@ -51,10 +51,10 @@ export const generatePDF = async (
         "https://hack-it-on.s3.eu-north-1.amazonaws.com/logos/Logo-1392644265.png"
       ),
       getImageAsBase64(
-        "https://camo.githubusercontent.com/9ad27ae3c86b026112ff04e6a7c2f2004f556e93ee430b3f67228d1785e3b5fe/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f393837332f3236383034362f39636564333435342d386566632d313165322d383136652d6139623137306135313030342e706e67"
+        "https://hack-it-on.s3.eu-north-1.amazonaws.com/signatures/IIC.png"
       ),
       getImageAsBase64(
-        "https://camo.githubusercontent.com/9ad27ae3c86b026112ff04e6a7c2f2004f556e93ee430b3f67228d1785e3b5fe/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f393837332f3236383034362f39636564333435342d386566632d313165322d383136652d6139623137306135313030342e706e67"
+        "https://hack-it-on.s3.eu-north-1.amazonaws.com/signatures/Principal.png"
       ),
       getImageAsBase64(
         "https://hack-it-on.s3.eu-north-1.amazonaws.com/signatures/sph_sign.png"
@@ -71,7 +71,7 @@ export const generatePDF = async (
 
     // Adjusted logo positions
     doc.addImage(logo1Base64, "PNG", 55, logoY, 20, 20);
-    doc.addImage(logo2Base64, "PNG", 133.5, logoY, 35, 15);
+    doc.addImage(logo2Base64, "PNG", 120, logoY, 55, 12.73);
     doc.addImage(logo3Base64, "PNG", 212, logoY, logoWidth, logoHeight);
 
     // Certificate Title (moved up by additional 10mm)
@@ -144,7 +144,7 @@ export const generatePDF = async (
     // Digital signatures (keeping original position)
     const signatureWidth = 35;
     const signatureHeight = 25;
-    const signatureY = 165;
+    const signatureY = 162;
 
     // Add signatures
     doc.addImage(
@@ -179,7 +179,7 @@ export const generatePDF = async (
     doc.text("Prof. Tapan Kumar Pal \n President of IIC 7.0", 72.5, 190, {
       align: "center",
     });
-    doc.text("Prof. N.C. Ghosh \n Principal of the Institute", 151, 190, {
+    doc.text("Prof.(Dr) N.C. Ghosh \n Principal of the Institute", 151, 190, {
       align: "center",
     });
     doc.text(

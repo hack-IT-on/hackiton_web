@@ -19,6 +19,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
 
 export default function GeneratePage() {
   const [certificates, setCertificates] = useState([]);
@@ -147,9 +148,9 @@ export default function GeneratePage() {
           {certificates.length > 0 ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium ">
+                <Label className="text-sm font-medium ">
                   Select Certificate
-                </label>
+                </Label>
                 <Select
                   value={selectedCertificate}
                   onValueChange={setSelectedCertificate}
@@ -159,11 +160,7 @@ export default function GeneratePage() {
                   </SelectTrigger>
                   <SelectContent>
                     {certificates.map((cert) => (
-                      <SelectItem
-                        key={cert.id}
-                        value={cert.id}
-                        className="cursor-pointer hover:bg-gray-50"
-                      >
+                      <SelectItem key={cert.id} value={cert.id}>
                         {cert.name}
                       </SelectItem>
                     ))}
