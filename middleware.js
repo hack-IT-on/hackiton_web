@@ -11,6 +11,7 @@ const protectedRoutes = [
   "/questions",
   "/problems",
   "/algorithm-visualizer",
+  "/time-complexity-calculator",
   "/projects",
   "/events",
   "/leaderboard",
