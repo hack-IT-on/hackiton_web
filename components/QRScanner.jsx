@@ -93,7 +93,7 @@ const QRCodeScanner = ({ eventId, eventData }) => {
   return (
     <div className="flex flex-col gap-4 p-4">
       <Card className="w-full max-w-lg mx-auto shadow-lg">
-        <CardHeader className="border-b bg-gray-50">
+        <CardHeader className="border-b ">
           <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
             <Camera className="w-6 h-6" />
             Check-in for event: {eventData.title}
