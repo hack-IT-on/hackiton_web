@@ -317,7 +317,7 @@ const QuestionDetail = () => {
           <Card key={answer.id}>
             <CardContent className="pt-6">
               <div className="flex items-center space-x-4 mb-4">
-                <Link href={`user-profile/${answer?.user_id}`}>
+                <Link href={`/user-profile/${answer?.user_id}`}>
                   <Avatar>
                     <AvatarImage
                       src={`https://api.dicebear.com/7.x/initials/svg?seed=${answer.user_name}`}
@@ -326,7 +326,7 @@ const QuestionDetail = () => {
                   </Avatar>
                 </Link>
                 <div>
-                  <Link href={`user-profile/${answer?.user_id}`}>
+                  <Link href={`/user-profile/${answer?.user_id}`}>
                     <p className="font-semibold">{answer.user_name}</p>
                   </Link>
                   <p className="text-sm text-gray-500">
