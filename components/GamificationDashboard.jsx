@@ -38,11 +38,11 @@ const GamificationDashboard = ({ logedUser }) => {
   };
 
   function getIndex(index) {
-    if (index === 1) return <span className="font-semibold">🥇 {index}</span>;
+    if (index === 1) return <span className="font-semibold">🥇{index}</span>;
     else if (index === 2)
-      return <span className="font-semibold">🥈 {index}</span>;
+      return <span className="font-semibold">🥈{index}</span>;
     else if (index === 3)
-      return <span className="font-semibold">🥉 {index}</span>;
+      return <span className="font-semibold">🥉{index}</span>;
     else return <span className="font-semibold">{index}</span>;
   }
 
