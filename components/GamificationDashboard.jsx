@@ -98,7 +98,7 @@ const GamificationDashboard = ({ logedUser }) => {
 
       <Card className="col-span-1">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">Code Coins</CardTitle>
+          <CardTitle className="text-lg font-medium">Coins</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2">
