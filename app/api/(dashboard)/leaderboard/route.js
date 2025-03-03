@@ -5,7 +5,7 @@ export async function GET(req) {
   const period = searchParams.get("period") || "all-time";
 
   let query = `
-          SELECT u.name, u.total_points, COUNT(DISTINCT ub.badge_id) as badge_count
+          SELECT u.name,u.id, u.total_points, COUNT(DISTINCT ub.badge_id) as badge_count
           FROM users u
           LEFT JOIN user_badges ub ON u.id = ub.user_id
       `;
