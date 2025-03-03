@@ -18,6 +18,7 @@ const protectedRoutes = [
   "/more-tools",
   "/my-purchases",
   "/resource-hub",
+  "/user-profile",
   "/admin",
 ];
 

@@ -19,6 +19,10 @@ import {
   MessageCircleQuestion,
   Activity,
   Info,
+  Share2,
+  Twitter,
+  Linkedin,
+  Facebook,
 } from "lucide-react";
 import {
   Tooltip,
@@ -32,7 +36,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { set } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import GitHubCalendar from "react-github-calendar";
 
 const pointsGuide = [
@@ -55,6 +66,8 @@ const ProfileComponent = ({ user }) => {
   const [questionCount, setQuestionCount] = useState(0);
   const [answersCount, setAnswersCount] = useState(0);
   const [activityCount, setActivityCount] = useState(0);
+  const [selectedBadge, setSelectedBadge] = useState(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -137,6 +150,44 @@ const ProfileComponent = ({ user }) => {
 
     fetchProfile();
   }, [user?.github_username]);
+
+  const handleShareBadge = (badge) => {
+    setSelectedBadge(badge);
+    setShareDialogOpen(true);
+  };
+
+  const shareToSocialMedia = (platform) => {
+    if (!selectedBadge) return;
+
+    const baseUrl = window.location.origin;
+    const username = profile?.login || user?.github_username;
+    const shareText = `I just earned the "${selectedBadge.name}" badge! ${selectedBadge.description} #coding #achievement`;
+    const shareUrl = `${baseUrl}/profile/${username}`;
+
+    let shareLink = "";
+
+    switch (platform) {
+      case "twitter":
+        shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          shareText
+        )}&url=${encodeURIComponent(shareUrl)}`;
+        break;
+      case "linkedin":
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+          shareUrl
+        )}&summary=${encodeURIComponent(shareText)}`;
+        break;
+      case "facebook":
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          shareUrl
+        )}&quote=${encodeURIComponent(shareText)}`;
+        break;
+      default:
+        return;
+    }
+
+    window.open(shareLink, "_blank");
+  };
 
   if (loading) {
     return (
@@ -467,20 +518,40 @@ const ProfileComponent = ({ user }) => {
                   {/* Badges Display */}
                   {badges && badges.length > 0 && (
                     <div className="mt-6">
-                      <h3 className="text-lg font-semibold  mb-4">
-                        Earned Badges
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <span>Earned Badges</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="cursor-help ml-2">
+                                <Info className="h-4 w-4 text-gray-400" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              <p className="text-xs">
+                                Click on a badge to share it!
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </h3>
                       <div className="flex flex-wrap gap-4">
                         <TooltipProvider>
                           {badges.map((badge, index) => (
                             <Tooltip key={index}>
                               <TooltipTrigger>
-                                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br  shadow-md hover:shadow-lg transition-shadow">
-                                  {/* Replace with actual badge icon */}
+                                <div
+                                  className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer group"
+                                  onClick={() => handleShareBadge(badge)}
+                                >
                                   <img
-                                    className="h-6 w-6"
+                                    className="h-12 w-12"
                                     src={badge.icon_url}
+                                    alt={badge.name}
                                   />
+                                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Share2 className="h-5 w-5 text-white" />
+                                  </div>
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -503,6 +574,62 @@ const ProfileComponent = ({ user }) => {
           </Card>
         </Tabs>
       </div>
+
+      {/* Badge Sharing Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Your Badge</DialogTitle>
+            <DialogDescription>
+              Share your "{selectedBadge?.name}" badge with your network!
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center my-4">
+            <div className="bg-gradient-to-br from-gray-100 to-gray-200 p-6 rounded-full shadow-md">
+              {selectedBadge && (
+                <img
+                  src={selectedBadge.icon_url}
+                  alt={selectedBadge.name}
+                  className="h-24 w-24"
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col space-y-2 text-center">
+            {selectedBadge && (
+              <>
+                <h3 className="font-bold text-lg">{selectedBadge.name}</h3>
+                <p className="text-sm text-gray-500">
+                  {selectedBadge.description}
+                </p>
+              </>
+            )}
+          </div>
+          <div className="flex justify-center gap-4 mt-4">
+            <Button
+              onClick={() => shareToSocialMedia("twitter")}
+              className="bg-blue-400 hover:bg-blue-500"
+            >
+              <Twitter className="h-5 w-5 mr-2" />
+              Twitter
+            </Button>
+            <Button
+              onClick={() => shareToSocialMedia("linkedin")}
+              className="bg-blue-700 hover:bg-blue-800"
+            >
+              <Linkedin className="h-5 w-5 mr-2" />
+              LinkedIn
+            </Button>
+            <Button
+              onClick={() => shareToSocialMedia("facebook")}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Facebook className="h-5 w-5 mr-2" />
+              Facebook
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
