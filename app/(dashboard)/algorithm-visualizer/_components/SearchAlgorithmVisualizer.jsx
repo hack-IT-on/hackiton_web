@@ -312,7 +312,7 @@ const SearchAlgorithmVisualizer = () => {
     if (!currentStepData) return null;
 
     return (
-      <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+      <div className="mt-6 p-4  rounded-lg">
         <h3 className="text-lg font-medium mb-2">Search Status</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
