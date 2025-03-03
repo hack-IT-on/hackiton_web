@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 const QuestionDetail = () => {
   const [question, setQuestion] = useState(null);
@@ -316,14 +317,18 @@ const QuestionDetail = () => {
           <Card key={answer.id}>
             <CardContent className="pt-6">
               <div className="flex items-center space-x-4 mb-4">
-                <Avatar>
-                  <AvatarImage
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${answer.user_name}`}
-                  />
-                  <AvatarFallback>{answer.user_name[0]}</AvatarFallback>
-                </Avatar>
+                <Link href={`user-profile/${answer?.user_id}`}>
+                  <Avatar>
+                    <AvatarImage
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${answer.user_name}`}
+                    />
+                    <AvatarFallback>{answer.user_name[0]}</AvatarFallback>
+                  </Avatar>
+                </Link>
                 <div>
-                  <p className="font-semibold">{answer.user_name}</p>
+                  <Link href={`user-profile/${answer?.user_id}`}>
+                    <p className="font-semibold">{answer.user_name}</p>
+                  </Link>
                   <p className="text-sm text-gray-500">
                     Answered{" "}
                     {formatDistanceToNow(new Date(answer.created_at), {
@@ -338,17 +343,6 @@ const QuestionDetail = () => {
                   style={{ whiteSpace: "pre-wrap" }}
                 />
               </div>
-              {/* <div className="flex items-center space-x-4 mt-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleUpvote(answer.id)}
-                  className="space-x-2"
-                >
-                  <ThumbsUp className="w-4 h-4" />
-                  <span>{answer.upvotes}</span>
-                </Button>
-              </div> */}
             </CardContent>
           </Card>
         ))}

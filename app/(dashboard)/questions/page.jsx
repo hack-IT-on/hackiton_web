@@ -120,14 +120,18 @@ const QuestionsPage = () => {
       <Card className="p-6 hover:shadow-lg transition-all duration-300 border-l-4 border-l-black-500">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <Avatar className="border-2 border-blue-100">
-              <AvatarImage
-                src={`https://api.dicebear.com/7.x/initials/svg?seed=${question.user_name}`}
-              />
-              <AvatarFallback>{question.user_name[0]}</AvatarFallback>
-            </Avatar>
+            <Link href={`user-profile/${question?.user_id}`}>
+              <Avatar className="border-2 border-blue-100">
+                <AvatarImage
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${question.user_name}`}
+                />
+                <AvatarFallback>{question.user_name[0]}</AvatarFallback>
+              </Avatar>
+            </Link>
             <div>
-              <p className="font-medium ">{question.user_name}</p>
+              <Link href={`user-profile/${question?.user_id}`}>
+                <p className="font-medium ">{question.user_name}</p>
+              </Link>
               <p className="text-sm ">{formattedDate}</p>
             </div>
           </div>
