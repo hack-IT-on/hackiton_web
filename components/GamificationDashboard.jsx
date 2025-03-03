@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Trophy, Coins, Award, Target, User } from "lucide-react";
+import Link from "next/link";
 
 const GamificationDashboard = ({ logedUser }) => {
   const [points, setPoints] = useState(0);
@@ -173,7 +174,9 @@ const GamificationDashboard = ({ logedUser }) => {
                   <div className="flex items-center space-x-3">
                     <div className="w-8 text-center">{getIndex(index + 1)}</div>
                     <div className="font-medium">
-                      {user?.name}
+                      <Link href={`user-profile/${user?.id}`}>
+                        {user?.name}
+                      </Link>
                       {user?.id === logedUser?.id && (
                         <span className="ml-2 text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5">
                           You
