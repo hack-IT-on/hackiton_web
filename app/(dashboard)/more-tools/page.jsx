@@ -10,6 +10,7 @@ import {
   Wallet,
   Loader2,
   Timer,
+  Puzzle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,14 @@ const toolSections = [
         href: "/time-complexity-calculator",
         color: "orange",
         description:
-          " Just insert your code and instantly get its time complexity.",
+          "Just insert your code and instantly get its time complexity.",
+      },
+      {
+        name: "Block Code",
+        icon: Puzzle,
+        href: "/code-blocks",
+        color: "pink",
+        description: "Build blocks, generate JavaScript",
       },
     ],
   },
