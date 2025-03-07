@@ -205,7 +205,7 @@ const BlocklyWorkspace = forwardRef(
                         shadow: {
                           type: "text",
                           id: "test_text",
-                          fields: { TEXT: "Hello from Blockly!" },
+                          fields: { TEXT: "Hello from <Hack-IT-on>" },
                         },
                       },
                     },
