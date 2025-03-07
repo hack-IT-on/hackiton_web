@@ -48,7 +48,7 @@ const toolSections = [
         icon: Puzzle,
         href: "/code-blocks",
         color: "pink",
-        description: "Build blocks, generate JavaScript",
+        description: "Build blocks, generate code!",
       },
     ],
   },

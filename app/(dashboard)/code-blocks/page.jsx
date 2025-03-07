@@ -9,7 +9,8 @@ export default function Home() {
   const [error, setError] = useState(null);
   const blocklyRef = useRef(null);
   const [workspaceLoaded, setWorkspaceLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState("block"); // "block" or "javascript"
+  const [activeTab, setActiveTab] = useState("block"); // "block" or code language
+  const [language, setLanguage] = useState("javascript");
 
   const updateCode = () => {
     if (!blocklyRef.current?.workspace || !blocklyRef.current?.Blockly) {
@@ -20,33 +21,56 @@ export default function Home() {
       const workspace = blocklyRef.current.workspace;
       const Blockly = blocklyRef.current.Blockly;
 
-      if (!Blockly.JavaScript) {
-        console.error("JavaScript generator is undefined");
-        setError("JavaScript generator not loaded properly");
+      // Get the appropriate generator based on the selected language
+      const generator =
+        language === "javascript"
+          ? Blockly.JavaScript
+          : language === "python"
+          ? Blockly.Python
+          : language === "php"
+          ? Blockly.PHP
+          : null;
+
+      if (!generator) {
+        console.error(`${language} generator is undefined`);
+        setError(`${language} generator not loaded properly`);
         return;
       }
 
-      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      if (generator === Blockly.JavaScript) {
+        Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      }
 
       const workspaceState = Blockly.serialization.workspaces.save(workspace);
 
       const topBlocks = workspace.getTopBlocks();
 
       if (topBlocks.length === 0) {
-        setCode("// No blocks in workspace. Add some blocks to generate code!");
+        setCode(`// No blocks in workspace. Add some blocks to generate code!`);
         return;
       }
 
-      const generatedCode = Blockly.JavaScript.workspaceToCode(workspace);
+      const generatedCode = generator.workspaceToCode(workspace);
 
-      setCode(generatedCode || "// No code generated. Try adding more blocks!");
+      // Set appropriate comment syntax based on language
+      const commentPrefix =
+        language === "php" ? "// " : language === "python" ? "# " : "// ";
+
+      setCode(
+        generatedCode ||
+          `${commentPrefix}No code generated. Try adding more blocks!`
+      );
       setError(null);
 
       // Save workspace state
       localStorage.setItem("blocklyWorkspace", JSON.stringify(workspaceState));
     } catch (error) {
       console.error("Error generating code:", error);
-      setCode(`// Error generating JavaScript code: ${error.message}`);
+      const commentPrefix =
+        language === "php" ? "// " : language === "python" ? "# " : "// ";
+      setCode(
+        `${commentPrefix}Error generating ${language} code: ${error.message}`
+      );
       setError(error.message);
     }
   };
@@ -66,14 +90,20 @@ export default function Home() {
     if (workspaceLoaded) {
       updateCode();
     }
-  }, [workspaceLoaded]);
+  }, [workspaceLoaded, language]);
+
+  // Handle language change
+  const changeLanguage = (newLanguage) => {
+    setLanguage(newLanguage);
+    setActiveTab(newLanguage);
+  };
 
   return (
     <main className="flex flex-col h-screen">
       <div className="container mx-auto p-4 flex flex-col h-full">
         <header className="mb-4">
           <h1 className="text-2xl font-bold">Block Code</h1>
-          <p className="">Build blocks, generate JavaScript</p>
+          <p className="">Build blocks, generate code!</p>
         </header>
 
         {error && (
@@ -104,9 +134,38 @@ export default function Home() {
                     ? "border-b-2 border-blue-500 text-blue-600"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
-                onClick={() => setActiveTab("javascript")}
+                onClick={() => {
+                  setActiveTab("javascript");
+                  changeLanguage("javascript");
+                }}
               >
-                JavaScript Output
+                JavaScript
+              </button>
+              <button
+                className={`px-4 py-2 font-medium text-sm ${
+                  activeTab === "python"
+                    ? "border-b-2 border-blue-500 text-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => {
+                  setActiveTab("python");
+                  changeLanguage("python");
+                }}
+              >
+                Python
+              </button>
+              <button
+                className={`px-4 py-2 font-medium text-sm ${
+                  activeTab === "php"
+                    ? "border-b-2 border-blue-500 text-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => {
+                  setActiveTab("php");
+                  changeLanguage("php");
+                }}
+              >
+                PHP
               </button>
             </div>
           </CardHeader>
@@ -124,10 +183,10 @@ export default function Home() {
               />
             </div>
 
-            {/* JavaScript Output Tab */}
+            {/* Code Output Tab (for all languages) */}
             <div
               className={`h-full w-full ${
-                activeTab === "javascript" ? "block" : "hidden"
+                activeTab !== "block" ? "block" : "hidden"
               }`}
             >
               <pre
