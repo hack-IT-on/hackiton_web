@@ -19,6 +19,7 @@ const protectedRoutes = [
   "/my-purchases",
   "/resource-hub",
   "/user-profile",
+  "/code-blocks",
   "/admin",
 ];
 

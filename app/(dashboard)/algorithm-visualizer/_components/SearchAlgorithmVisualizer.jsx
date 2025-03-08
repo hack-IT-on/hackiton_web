@@ -13,7 +13,16 @@ import { Slider } from "@/components/ui/slider";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, RotateCcw, StepForward, Search } from "lucide-react";
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  StepForward,
+  Search,
+  Code,
+  BarChart,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Constants
 const ARRAY_SIZE = 20;
@@ -40,6 +49,94 @@ const pseudoCode = {
     else
       right = mid - 1
   return -1`,
+};
+
+const cCode = {
+  linear: `#include <stdio.h>
+
+int linearSearch(int arr[], int n, int target) {
+    // Time complexity: O(n)
+    for (int i = 0; i < n; i++) {
+        // One comparison per element
+        if (arr[i] == target) {
+            return i; // Found the target
+        }
+    }
+    return -1; // Target not found
+}
+
+int main() {
+    int arr[] = {/* array values */};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int target = /* target value */;
+    
+    int result = linearSearch(arr, n, target);
+    
+    if (result != -1) {
+        printf("Element found at index %d\\n", result);
+    } else {
+        printf("Element not found\\n");
+    }
+    
+    return 0;
+}`,
+
+  binary: `#include <stdio.h>
+
+int binarySearch(int arr[], int left, int right, int target) {
+    // Time complexity: O(log n)
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        // Check if target is present at mid
+        if (arr[mid] == target)
+            return mid;
+            
+        // If target greater, ignore left half
+        if (arr[mid] < target)
+            left = mid + 1;
+            
+        // If target is smaller, ignore right half
+        else
+            right = mid - 1;
+    }
+    
+    // Target not found
+    return -1;
+}
+
+int main() {
+    int arr[] = {/* sorted array values */};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int target = /* target value */;
+    
+    int result = binarySearch(arr, 0, n-1, target);
+    
+    if (result != -1) {
+        printf("Element found at index %d\\n", result);
+    } else {
+        printf("Element not found\\n");
+    }
+    
+    return 0;
+}`,
+};
+
+const timeComplexities = {
+  linear: {
+    best: "O(1)",
+    average: "O(n/2)",
+    worst: "O(n)",
+    explanation:
+      "Linear search examines each element sequentially until it finds the target or reaches the end. In the best case (target at the beginning), it takes O(1) time. In the worst case (target at the end or not present), it examines all n elements, resulting in O(n) time complexity.",
+  },
+  binary: {
+    best: "O(1)",
+    average: "O(log n)",
+    worst: "O(log n)",
+    explanation:
+      "Binary search divides the search interval in half with each comparison. This logarithmic search process results in O(log n) worst-case time complexity. Even with n = 1,000,000 elements, binary search requires at most 20 comparisons, making it significantly faster than linear search for large datasets.",
+  },
 };
 
 // Searching algorithms implementation
@@ -143,6 +240,182 @@ const searchingAlgorithms = {
   },
 };
 
+// Complex time complexity visual component
+const TimeComplexityVisual = ({ algorithm }) => {
+  const complexityData = timeComplexities[algorithm];
+
+  const renderComplexityCurve = () => {
+    if (algorithm === "linear") {
+      return (
+        <svg width="100%" height="200" viewBox="0 0 400 200" className="mt-4">
+          <defs>
+            <linearGradient
+              id="linearGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+          {/* Axes */}
+          <line
+            x1="50"
+            y1="150"
+            x2="350"
+            y2="150"
+            stroke="#666"
+            strokeWidth="2"
+          />
+          <line
+            x1="50"
+            y1="150"
+            x2="50"
+            y2="20"
+            stroke="#666"
+            strokeWidth="2"
+          />
+
+          {/* Labels */}
+          <text x="200" y="180" textAnchor="middle" fill="#666">
+            Input Size (n)
+          </text>
+          <text
+            x="30"
+            y="85"
+            textAnchor="middle"
+            fill="#666"
+            transform="rotate(-90, 20, 85)"
+          >
+            Time
+          </text>
+
+          {/* O(n) line */}
+          <path
+            d="M50,150 L350,30"
+            stroke="#3b82f6"
+            strokeWidth="3"
+            fill="none"
+          />
+          <text x="360" y="30" fill="#3b82f6" fontWeight="bold">
+            O(n)
+          </text>
+
+          {/* Data points */}
+          <circle cx="50" cy="150" r="4" fill="#3b82f6" />
+          <circle cx="100" cy="130" r="4" fill="#3b82f6" />
+          <circle cx="150" cy="110" r="4" fill="#3b82f6" />
+          <circle cx="200" cy="90" r="4" fill="#3b82f6" />
+          <circle cx="250" cy="70" r="4" fill="#3b82f6" />
+          <circle cx="300" cy="50" r="4" fill="#3b82f6" />
+          <circle cx="350" cy="30" r="4" fill="#3b82f6" />
+        </svg>
+      );
+    } else {
+      return (
+        <svg width="100%" height="200" viewBox="0 0 400 200" className="mt-4">
+          <defs>
+            <linearGradient id="logGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+          {/* Axes */}
+          <line
+            x1="50"
+            y1="150"
+            x2="350"
+            y2="150"
+            stroke="#666"
+            strokeWidth="2"
+          />
+          <line
+            x1="50"
+            y1="150"
+            x2="50"
+            y2="20"
+            stroke="#666"
+            strokeWidth="2"
+          />
+
+          {/* Labels */}
+          <text x="200" y="180" textAnchor="middle" fill="#666">
+            Input Size (n)
+          </text>
+          <text
+            x="30"
+            y="85"
+            textAnchor="middle"
+            fill="#666"
+            transform="rotate(-90, 20, 85)"
+          >
+            Time
+          </text>
+
+          {/* O(log n) curve */}
+          <path
+            d="M50,150 Q100,100 350,60"
+            stroke="#8b5cf6"
+            strokeWidth="3"
+            fill="none"
+          />
+          <text x="360" y="60" fill="#8b5cf6" fontWeight="bold">
+            O(log n)
+          </text>
+
+          {/* O(n) reference line (lighter) */}
+          <path
+            d="M50,150 L350,30"
+            stroke="#ccc"
+            strokeWidth="2"
+            strokeDasharray="5,5"
+            fill="none"
+          />
+          <text x="360" y="30" fill="#ccc">
+            O(n)
+          </text>
+
+          {/* Data points */}
+          <circle cx="50" cy="150" r="4" fill="#8b5cf6" />
+          <circle cx="100" cy="120" r="4" fill="#8b5cf6" />
+          <circle cx="150" cy="100" r="4" fill="#8b5cf6" />
+          <circle cx="200" cy="90" r="4" fill="#8b5cf6" />
+          <circle cx="250" cy="80" r="4" fill="#8b5cf6" />
+          <circle cx="300" cy="70" r="4" fill="#8b5cf6" />
+          <circle cx="350" cy="60" r="4" fill="#8b5cf6" />
+        </svg>
+      );
+    }
+  };
+
+  return (
+    <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg">
+      <h3 className="text-lg font-medium mb-2">Time Complexity Analysis</h3>
+
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+          <h4 className="font-medium text-sm">Best Case</h4>
+          <p className="text-xl font-bold">{complexityData.best}</p>
+        </div>
+        <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+          <h4 className="font-medium text-sm">Average Case</h4>
+          <p className="text-xl font-bold">{complexityData.average}</p>
+        </div>
+        <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
+          <h4 className="font-medium text-sm">Worst Case</h4>
+          <p className="text-xl font-bold">{complexityData.worst}</p>
+        </div>
+      </div>
+
+      <p className="mb-4">{complexityData.explanation}</p>
+
+      {renderComplexityCurve()}
+    </div>
+  );
+};
+
 const SearchAlgorithmVisualizer = () => {
   // State
   const [array, setArray] = useState([]);
@@ -156,6 +429,7 @@ const SearchAlgorithmVisualizer = () => {
   const [showPseudocode, setShowPseudocode] = useState(false);
   const [currentComparisons, setCurrentComparisons] = useState(0);
   const [searchResult, setSearchResult] = useState({ found: false, index: -1 });
+  const [currentTab, setCurrentTab] = useState("visualization");
   const animationRef = useRef(null);
 
   // Initialize array
@@ -312,7 +586,7 @@ const SearchAlgorithmVisualizer = () => {
     if (!currentStepData) return null;
 
     return (
-      <div className="mt-6 p-4  rounded-lg">
+      <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg">
         <h3 className="text-lg font-medium mb-2">Search Status</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -343,19 +617,79 @@ const SearchAlgorithmVisualizer = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen ">
-      {/* <nav className="border-b p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Search Algorithm Visualizer</h1>
-        <div className="flex items-center gap-4">
-          {currentStep > 0 && steps.length > 0 && (
-            <span className="text-sm">
-              Step {currentStep} of {steps.length}
-            </span>
-          )}
-        </div>
-      </nav> */}
+  // In the renderCodeVisualizer function, move the displayArray declaration above where it's used
 
+  const renderCodeVisualizer = () => {
+    const code = cCode[selectedAlgorithm];
+    const currentStepData = steps[currentStep - 1];
+    const displayArray = selectedAlgorithm === "binary" ? sortedArray : array;
+
+    // Determine which lines to highlight based on the current step
+    let highlightLine = 0;
+
+    if (currentStepData) {
+      if (selectedAlgorithm === "linear") {
+        if (currentStepData.found) {
+          highlightLine = 5; // return i
+        } else if (currentStepData.notFound) {
+          highlightLine = 8; // return -1
+        } else {
+          highlightLine = 4; // if comparison
+        }
+      } else if (selectedAlgorithm === "binary") {
+        if (currentStepData.found) {
+          highlightLine = 8; // return mid
+        } else if (currentStepData.notFound) {
+          highlightLine = 20; // return -1
+        } else if (currentStepData.current < displayArray.indexOf(target)) {
+          highlightLine = 12; // left = mid + 1
+        } else {
+          highlightLine = 16; // right = mid - 1
+        }
+      }
+    }
+
+    // Replace placeholders in code with actual values
+    const populatedCode = code
+      .replace("/* array values */", displayArray.join(", "))
+      .replace("/* sorted array values */", sortedArray.join(", "))
+      .replace("/* target value */", target);
+
+    // Split code into lines for syntax highlighting
+    const codeLines = populatedCode.split("\n");
+
+    return (
+      <div className="mt-6 bg-gray-900 rounded-lg overflow-hidden">
+        <div className="p-4 bg-gray-800 text-white font-medium flex items-center">
+          <Code className="mr-2 h-4 w-4" />
+          <span>C Implementation</span>
+        </div>
+        <div className="p-4 overflow-auto max-h-96">
+          <pre className="text-sm font-mono">
+            {codeLines.map((line, index) => (
+              <div
+                key={index}
+                className={`py-1 px-2 ${
+                  index === highlightLine
+                    ? "bg-yellow-500 bg-opacity-30 -mx-2 rounded"
+                    : ""
+                }`}
+                style={{ transition: "background-color 0.3s" }}
+              >
+                <span className="text-gray-500 inline-block w-8">
+                  {index + 1}
+                </span>
+                <span className="text-white">{line}</span>
+              </div>
+            ))}
+          </pre>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen">
       <main className="container mx-auto p-4">
         <Card className="mt-4 p-6">
           <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -437,49 +771,79 @@ const SearchAlgorithmVisualizer = () => {
             </div>
           </div>
 
-          <div className="flex flex-col">
-            <div className="flex h-full">
-              {showPseudocode && (
-                <div className="w-1/3 p-4 border-r overflow-auto">
-                  <h3 className="text-lg font-medium mb-2">Pseudocode</h3>
-                  <pre className="text-sm whitespace-pre-wrap  p-4 rounded">
-                    {pseudoCode[selectedAlgorithm]}
-                  </pre>
-                </div>
-              )}
-              <div className={`${showPseudocode ? "w-2/3" : "w-full"} p-6`}>
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium mb-4">
-                    {selectedAlgorithm === "binary" ? "Sorted Array" : "Array"}
-                  </h3>
-                  {renderArrayVisualization()}
-                </div>
+          <Tabs value={currentTab} onValueChange={setCurrentTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="visualization">
+                <Search className="mr-2 h-4 w-4" />
+                Visualization
+              </TabsTrigger>
+              <TabsTrigger value="code">
+                <Code className="mr-2 h-4 w-4" />C Code
+              </TabsTrigger>
+              <TabsTrigger value="complexity">
+                <BarChart className="mr-2 h-4 w-4" />
+                Time Complexity
+              </TabsTrigger>
+            </TabsList>
 
-                {currentStep > 0 && renderStatusInfo()}
+            <TabsContent value="visualization" className="mt-0">
+              <div className="flex flex-col">
+                <div className="flex h-full">
+                  {showPseudocode && (
+                    <div className="w-1/3 p-4 border-r overflow-auto">
+                      <h3 className="text-lg font-medium mb-2">Pseudocode</h3>
+                      <pre className="text-sm whitespace-pre-wrap p-4 rounded">
+                        {pseudoCode[selectedAlgorithm]}
+                      </pre>
+                    </div>
+                  )}
+                  <div className={`${showPseudocode ? "w-2/3" : "w-full"} p-6`}>
+                    <div className="mb-4">
+                      <h3 className="text-lg font-medium mb-4">
+                        {selectedAlgorithm === "binary"
+                          ? "Sorted Array"
+                          : "Array"}
+                      </h3>
+                      {renderArrayVisualization()}
+                    </div>
 
-                <div className="mt-6">
-                  <h3 className="text-lg font-medium mb-2">
-                    Algorithm Explanation
-                  </h3>
-                  <div className="p-4 rounded-lg">
-                    {selectedAlgorithm === "linear" ? (
-                      <p>
-                        Linear Search checks each element sequentially until it
-                        finds the target or reaches the end of the array. Time
-                        complexity: O(n).
-                      </p>
-                    ) : (
-                      <p>
-                        Binary Search requires a sorted array and works by
-                        repeatedly dividing the search interval in half. Time
-                        complexity: O(log n).
-                      </p>
-                    )}
+                    {currentStep > 0 && renderStatusInfo()}
+
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-2">
+                        Algorithm Explanation
+                      </h3>
+                      <div className="p-4 rounded-lg">
+                        {selectedAlgorithm === "linear" ? (
+                          <p>
+                            Linear Search checks each element sequentially until
+                            it finds the target or reaches the end of the array.
+                            Time complexity: O(n).
+                          </p>
+                        ) : (
+                          <p>
+                            Binary Search requires a sorted array and works by
+                            repeatedly dividing the search interval in half.
+                            Time complexity: O(log n).
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="code" className="mt-0">
+              {renderCodeVisualizer()}
+              {currentStep > 0 && renderStatusInfo()}
+            </TabsContent>
+
+            <TabsContent value="complexity" className="mt-0">
+              <TimeComplexityVisual algorithm={selectedAlgorithm} />
+              {currentStep > 0 && renderStatusInfo()}
+            </TabsContent>
+          </Tabs>
         </Card>
       </main>
     </div>
