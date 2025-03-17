@@ -105,7 +105,11 @@ export default function ResponseDisplay({ response, loading }) {
             <TabsTrigger value="headers">Headers</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="body" className="h-96">
+          <TabsContent
+            value="body"
+            className="h-96 border rounded-md overflow-hidden"
+          >
+            {/* <div className="h-64 "> */}
             <Editor
               height="100%"
               language="json"
@@ -120,6 +124,7 @@ export default function ResponseDisplay({ response, loading }) {
               }}
               theme="vs-dark"
             />
+            {/* </div> */}
           </TabsContent>
 
           <TabsContent value="headers">
