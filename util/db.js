@@ -1,18 +1,15 @@
-import mysql from "mysql2/promise";
+import { Pool } from "pg";
 
-// Create the connection to database
-export const connection = await mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 3306, // Default MySQL port is 3306
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+const connectionString = process.env.DATABASE_CONNECTION_STRING;
+
+export const connection = new Pool({
+  connectionString,
 });
 
 export async function query(sql, params) {
   try {
-    const [rows] = await connection.execute(sql, params);
-    return rows;
+    const rows = await connection.query(sql, params);
+    return rows.rows;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Database error occurred");

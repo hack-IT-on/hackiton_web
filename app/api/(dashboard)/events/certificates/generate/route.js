@@ -12,18 +12,11 @@ export async function POST(request) {
     const userName = user?.name;
 
     // Get certificate template
-    const [templates] = await connection.execute(
-      "SELECT * FROM event_certificates WHERE id = ?",
+    const templateResult = await connection.query(
+      "SELECT * FROM event_certificates WHERE id = $1",
       [certificateId]
     );
-    const template = templates[0];
-
-    const [certificate_regs] = await connection.execute(
-      "SELECT  `certificate_id` FROM `event_registrations` WHERE event_id = ? and user_id = ?",
-      [template.event_id, user?.id]
-    );
-
-    const certificate_reg = certificate_regs[0];
+    const template = templateResult.rows[0];
 
     if (!template) {
       return NextResponse.json(
@@ -32,7 +25,12 @@ export async function POST(request) {
       );
     }
 
-    // console.log(template);
+    const certificateRegResult = await connection.query(
+      "SELECT certificate_id FROM event_registrations WHERE event_id = $1 AND user_id = $2",
+      [template.event_id, user?.id]
+    );
+
+    const certificate_reg = certificateRegResult.rows[0];
 
     // Generate PDF
     // const issueDate = new Date();
@@ -58,6 +56,7 @@ export async function POST(request) {
 
     // return NextResponse.json({ id, pdfUrl });
   } catch (error) {
+    console.error("Certificate generation error:", error);
     return NextResponse.json(
       { error: "Failed to generate certificate" },
       { status: 500 }

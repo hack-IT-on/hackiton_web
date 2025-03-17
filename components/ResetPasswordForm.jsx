@@ -91,7 +91,7 @@ export default function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center p-4 ">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-2">
@@ -106,7 +106,7 @@ export default function ResetPasswordForm() {
         </CardHeader>
         <CardContent>
           {message && (
-            <Alert className="mb-6 bg-green-50 text-green-700 border-green-200">
+            <Alert className="mb-6  text-green-700 border-green-200">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>{message}</AlertDescription>
             </Alert>

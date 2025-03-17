@@ -141,7 +141,7 @@ const QRCodeScanner = ({ eventId, eventData }) => {
           )}
 
           {isSuccess && (
-            <Alert className="bg-green-50 border-green-200 text-green-800 animate-in fade-in">
+            <Alert className=" border-green-200 text-green-800 animate-in fade-in">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
               <AlertTitle>Success</AlertTitle>
               <AlertDescription>

@@ -11,19 +11,22 @@ export async function GET(request) {
     let query = "SELECT * FROM gallery";
     const params = [];
     const conditions = [];
+    let paramIndex = 1; // PostgreSQL uses $1, $2, etc. for parameter placeholders
 
     if (fromDate) {
-      conditions.push("uploaded_at >= ?");
+      conditions.push(`uploaded_at >= $${paramIndex}`);
       params.push(fromDate);
+      paramIndex++;
     }
     if (toDate) {
-      conditions.push("uploaded_at <= ?");
+      conditions.push(`uploaded_at <= $${paramIndex}`);
       params.push(toDate);
+      paramIndex++;
     }
     if (tags && tags.length > 0) {
       const tagConditions = tags.map((tag) => {
         params.push(`%${tag}%`);
-        return "tags LIKE ?";
+        return `tags LIKE $${paramIndex++}`;
       });
       conditions.push(`(${tagConditions.join(" AND ")})`);
     }
@@ -34,9 +37,9 @@ export async function GET(request) {
 
     query += " ORDER BY id DESC";
 
-    const [rows] = await connection.execute(query, params);
+    const result = await connection.query(query, params);
 
-    return NextResponse.json(rows);
+    return NextResponse.json(result.rows);
   } catch (error) {
     console.error("Database error:", error);
     return NextResponse.json(

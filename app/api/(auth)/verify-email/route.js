@@ -13,22 +13,33 @@ export async function GET(request) {
   }
 
   try {
-    // Find user with matching token that hasn't expired
-    const [users] = await connection.execute(
-      "SELECT * FROM users WHERE verification_token = ? AND token_expiry > NOW()",
+    const userResult = await connection.query(
+      "SELECT * FROM users WHERE verification_token = $1",
       [token]
     );
 
+    const users = userResult.rows;
+
     if (users.length === 0) {
+      const verifiedUserResult = await connection.query(
+        "SELECT * FROM users WHERE is_verified = true AND verification_token IS NULL"
+      );
+
+      if (verifiedUserResult.rows.length > 0) {
+        return NextResponse.json(
+          { message: "Email has already been verified" },
+          { status: 200 }
+        );
+      }
+
       return NextResponse.json(
         { message: "Invalid or expired verification token" },
         { status: 404 }
       );
     }
 
-    // Update user as verified
-    await connection.execute(
-      "UPDATE users SET is_verified = true, verification_token = NULL, token_expiry = NULL WHERE verification_token = ?",
+    await connection.query(
+      "UPDATE users SET is_verified = true, verification_token = NULL, token_expiry = NULL WHERE verification_token = $1",
       [token]
     );
 

@@ -159,23 +159,23 @@ const StudentsPage = () => {
                 <TableRow>
                   <TableHead
                     onClick={() => sortData("roll_no")}
-                    className="cursor-pointer hover:bg-gray-50"
+                    className="cursor-pointer hover:bg-gray-500"
                   >
                     Roll No. <SortIcon columnKey="roll_no" />
                   </TableHead>
                   <TableHead
                     onClick={() => sortData("name")}
-                    className="cursor-pointer hover:bg-gray-50"
+                    className="cursor-pointer hover:bg-gray-500"
                   >
                     Name <SortIcon columnKey="name" />
                   </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-gray-50">
+                  <TableHead className="cursor-pointer hover:bg-gray-500">
                     Semester
                   </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-gray-50">
-                    Mobile No.
+                  <TableHead className="cursor-pointer hover:bg-gray-500">
+                    Email
                   </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-gray-50">
+                  <TableHead className="cursor-pointer hover:bg-gray-500">
                     Course
                   </TableHead>
                   {/* <TableHead className="cursor-pointer hover:bg-gray-50">
@@ -186,13 +186,13 @@ const StudentsPage = () => {
               </TableHeader>
               <TableBody>
                 {getPaginatedData().map((user) => (
-                  <TableRow key={user.roll_no} className="hover:bg-gray-50">
+                  <TableRow key={user.roll_no} className="hover:bg-gray-600">
                     <TableCell className="font-medium">
                       {user.roll_no}
                     </TableCell>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.semester}</TableCell>
-                    <TableCell>{user.mobile_number}</TableCell>
+                    <TableCell>{user.email}</TableCell>
                     <TableCell>{user.course_name}</TableCell>
                   </TableRow>
                 ))}

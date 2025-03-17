@@ -17,18 +17,18 @@ export async function checkInAttendee(qrCode) {
 
     try {
       // Verify registration and check-in status
-      const [rows] = await connection.execute(
-        "SELECT is_checked_in, qr_code_secret FROM registrations WHERE id = ? AND event_id = ?",
+      const rows = await connection.query(
+        "SELECT is_checked_in, qr_code_secret FROM registrations WHERE id = $1 AND event_id = $2",
         [registrationId, eventId]
       );
 
-      if (rows.length === 0) {
+      if (rows.rowCount === 0) {
         return {
           error: "Registration not found",
         };
       }
 
-      const registration = rows[0];
+      const registration = rows.rows[0];
 
       if (registration.qr_code_secret !== secret) {
         return {

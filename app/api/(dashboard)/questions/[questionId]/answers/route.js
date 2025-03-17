@@ -5,8 +5,8 @@ import { getCurrentUser } from "@/lib/getCurrentUser";
 export async function GET(req, { params }) {
   const { questionId } = await params;
 
-  const [question] = await connection.execute(
-    "SELECT answers.*, users.name AS user_name FROM answers JOIN users ON answers.user_id = users.id WHERE answers.question_id = ? order by answers.id desc",
+  const question = await connection.query(
+    "SELECT answers.*, users.name AS user_name FROM answers JOIN users ON answers.user_id = users.id WHERE answers.question_id = $1 order by answers.id desc",
     [questionId]
   );
 
@@ -14,7 +14,7 @@ export async function GET(req, { params }) {
     return NextResponse.json({ error: "Question not found" }, { status: 404 });
   }
 
-  return NextResponse.json(question);
+  return NextResponse.json(question.rows);
 }
 
 export async function POST(req, { params }) {
@@ -35,8 +35,8 @@ export async function POST(req, { params }) {
     }
 
     // Execute SQL query
-    const [result] = await connection.execute(
-      "INSERT INTO answers(`question_id`, `user_id`, `content`) VALUES (?, ?, ?)",
+    const result = await connection.query(
+      "INSERT INTO answers(question_id, user_id, content) VALUES ($1, $2, $3)",
       [questionId, user?.id, body.content]
     );
 

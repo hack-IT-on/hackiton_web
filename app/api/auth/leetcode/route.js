@@ -5,10 +5,8 @@ export async function POST(req) {
   try {
     // const user = await getCurrentUser();
     const { userId, leetcodeUsername } = await req.json();
-    // console.log(githubUsername);
-
-    await connection.execute(
-      "UPDATE `users` SET `leetcode_username`=? WHERE id = ?",
+    await connection.query(
+      "UPDATE users SET leetcode_username = $1 WHERE id = $2",
       [leetcodeUsername, userId]
     );
 

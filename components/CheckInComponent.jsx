@@ -12,7 +12,7 @@ const CheckInComponent = () => {
       try {
         // setLoading(true);
         const response = await fetch(`/api/events/${id}`);
-        const [eventData] = await response.json();
+        const eventData = await response.json();
         setData(eventData);
       } catch (err) {
         console.error("Error fetching data:", err);

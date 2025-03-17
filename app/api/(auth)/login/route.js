@@ -16,19 +16,19 @@ export async function POST(request) {
     }
 
     // Find user by email - include is_approved in the query
-    const [users] = await connection.execute(
-      "SELECT * FROM users WHERE email = ? AND is_verified = true",
+    const users = await connection.query(
+      "SELECT * FROM users WHERE email = $1 AND is_verified = true",
       [email]
     );
 
-    if (users.length === 0) {
+    if (users.rows.length === 0) {
       return NextResponse.json(
         { message: "User not found or email not verified." },
         { status: 404 }
       );
     }
 
-    const user = users[0];
+    const user = users.rows[0];
 
     // Check the approval status
     if (user.is_approved === 0) {

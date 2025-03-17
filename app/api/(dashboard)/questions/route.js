@@ -8,11 +8,11 @@ export async function GET(request) {
   //   return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   // }
 
-  const [questions] = await connection.execute(
+  const questions = await connection.query(
     "SELECT questions.*, users.name AS user_name FROM questions JOIN users ON questions.user_id = users.id WHERE questions.status = 'approved' order by id desc"
   );
 
-  return NextResponse.json(questions);
+  return NextResponse.json(questions.rows);
 }
 
 export async function POST(request) {
@@ -32,8 +32,8 @@ export async function POST(request) {
     const tags = Array.isArray(body.tags) ? body.tags.join(",") : body.tags;
 
     // Execute the query
-    const response = await connection.execute(
-      "INSERT INTO `questions`( `user_id`, `title`, `content`, `tags`) VALUES (?, ?, ?, ?)",
+    const response = await connection.query(
+      "INSERT INTO questions(user_id, title, content, tags) VALUES ($1, $2, $3, $4)",
       [user?.id, body.title, body.content, tags]
     );
 
@@ -58,8 +58,8 @@ export async function PUT(request) {
 
   const { questionId, status } = await request.json();
 
-  await connection.execute(
-    "UPDATE questions SET status = ?, approved_at = NOW() WHERE id = ?",
+  await connection.query(
+    "UPDATE questions SET status = $1, approved_at = NOW() WHERE id = $2",
     [status, questionId]
   );
 

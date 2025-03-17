@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import MDEditor from "@uiw/react-md-editor";
 import {
   Table,
   TableBody,
@@ -26,10 +27,20 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  X,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { useTheme } from "next-themes";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   return (
@@ -69,8 +80,22 @@ export default function QuestionsPage({ initialQuestions }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [mounted, setMounted] = useState(false);
+  const [viewQuestion, setViewQuestion] = useState(null);
 
   const router = useRouter();
+
+  const { theme, systemTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Get the effective theme (handling "system" preference)
+  const currentTheme = mounted
+    ? theme === "system"
+      ? systemTheme
+      : theme
+    : "light";
 
   const ITEMS_PER_PAGE = 10;
 
@@ -217,9 +242,10 @@ export default function QuestionsPage({ initialQuestions }) {
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="">
                     <TableHead className="font-semibold">Title</TableHead>
                     <TableHead className="font-semibold">Content</TableHead>
+                    <TableHead className="font-semibold">Actions</TableHead>
                     <TableHead className="font-semibold">Status</TableHead>
                     <TableHead className="font-semibold">Tags</TableHead>
                     <TableHead className="text-right font-semibold">
@@ -231,10 +257,7 @@ export default function QuestionsPage({ initialQuestions }) {
                 </TableHeader>
                 <TableBody>
                   {paginatedQuestions.map((question) => (
-                    <TableRow
-                      key={question.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
+                    <TableRow key={question.id} className=" transition-colors">
                       <TableCell className="font-medium">
                         {question.title}
                       </TableCell>
@@ -242,6 +265,17 @@ export default function QuestionsPage({ initialQuestions }) {
                         {question.content.length > 100
                           ? `${question.content.slice(0, 100)}...`
                           : question.content}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setViewQuestion(question)}
+                          className="flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </Button>
                       </TableCell>
                       <TableCell>
                         <Select
@@ -283,10 +317,10 @@ export default function QuestionsPage({ initialQuestions }) {
                       <TableCell className="text-right">
                         {question.views}
                       </TableCell>
-                      <TableCell className="text-gray-600">
+                      <TableCell className="">
                         {format(new Date(question.created_at), "MMM d, yyyy")}
                       </TableCell>
-                      <TableCell className="text-gray-600">
+                      <TableCell className="">
                         {question.approved_at
                           ? format(
                               new Date(question.approved_at),
@@ -306,6 +340,92 @@ export default function QuestionsPage({ initialQuestions }) {
             />
           </>
         )}
+
+        {/* View Content Dialog */}
+        <Dialog
+          open={!!viewQuestion}
+          onOpenChange={() => setViewQuestion(null)}
+        >
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">
+                {viewQuestion?.title}
+              </DialogTitle>
+              <DialogClose className="absolute right-4 top-4">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="mt-2">
+                <h3 className="text-sm font-medium text-gray-500">Content</h3>
+                <div className="mt-1 whitespace-pre-wrap text-gray-900  p-4 rounded-md border">
+                  <div data-color-mode={currentTheme}>
+                    <MDEditor.Markdown
+                      source={viewQuestion?.content}
+                      style={{ whiteSpace: "pre-wrap" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                  <Badge
+                    className={`mt-1 ${
+                      viewQuestion?.status === "approved"
+                        ? "bg-green-100 text-green-800"
+                        : viewQuestion?.status === "rejected"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {viewQuestion?.status}
+                  </Badge>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium">Views</h3>
+                  <p className="mt-1 text-gray-900">{viewQuestion?.views}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium ">Created</h3>
+                  <p className="mt-1 text-gray-900">
+                    {viewQuestion?.created_at
+                      ? format(new Date(viewQuestion.created_at), "PPP")
+                      : "-"}
+                  </p>
+                </div>
+
+                {viewQuestion?.approved_at && (
+                  <div>
+                    <h3 className="text-sm font-medium ">Approved</h3>
+                    <p className="mt-1 text-gray-900">
+                      {format(new Date(viewQuestion.approved_at), "PPP")}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium ">Tags</h3>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {viewQuestion?.tags.split(",").map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="bg-blue-100 text-blue-800"
+                    >
+                      {tag.trim()}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

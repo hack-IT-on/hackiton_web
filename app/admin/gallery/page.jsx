@@ -139,7 +139,7 @@ const GalleryTable = () => {
   // Empty state component
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-12 space-y-4">
-      <div className="rounded-full bg-gray-100 p-4">
+      <div className="rounded-full bg-gray-500 p-4">
         <ImageIcon className="h-8 w-8 text-gray-400" />
       </div>
       <h3 className="text-lg font-medium">No images found</h3>
@@ -217,7 +217,7 @@ const GalleryTable = () => {
                 </TableRow>
               ) : (
                 filteredImages.map((image) => (
-                  <TableRow key={image.id} className="hover:bg-gray-50">
+                  <TableRow key={image.id} className="hover:bg-gray-500">
                     <TableCell>
                       <div className="h-16 w-16 relative rounded-lg overflow-hidden border bg-gray-50">
                         <img

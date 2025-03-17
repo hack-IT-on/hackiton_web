@@ -11,14 +11,13 @@ function generateHexCode() {
 export async function POST(request, { params }) {
   const user = await getCurrentUser();
   const { searchParams } = new URL(request.url);
-  const { id } = await params;
+  const { id } = params;
   const eventId = id;
 
   // const userName = user?.name;
   // const email = user?.email;
-  // return NextResponse.json(eventId);
+
   const qrCodeSecret = searchParams.get("qr_code_secret_out");
-  // console.log(qrCodeSecret);
 
   if (!qrCodeSecret) {
     return NextResponse.json(
@@ -28,21 +27,23 @@ export async function POST(request, { params }) {
   }
 
   try {
-    // Start a transaction to ensure data consistency
-
-    const [rows] = await connection.execute(
-      "SELECT er.is_checked_out, er.qr_code_secret_out, e.title FROM event_registrations er JOIN events e ON er.event_id = e.id WHERE er.qr_code_secret_out = ? AND er.event_id = ?",
+    // PostgreSQL syntax for JOIN
+    const result = await connection.query(
+      `SELECT er.is_checked_out, er.qr_code_secret_out, e.title 
+       FROM event_registrations er 
+       JOIN events e ON er.event_id = e.id 
+       WHERE er.qr_code_secret_out = $1 AND er.event_id = $2`,
       [qrCodeSecret, eventId]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Registration not found" },
         { status: 404 }
       );
     }
 
-    const registration = rows[0];
+    const registration = result.rows[0];
 
     if (registration.qr_code_secret_out !== qrCodeSecret) {
       return NextResponse.json({ error: "Invalid QR code" }, { status: 400 });
@@ -57,9 +58,13 @@ export async function POST(request, { params }) {
 
     let certificate_id = `BIT_HACKITON_${user.id}${generateHexCode()}`;
 
-    // Mark as checked in
-    await connection.execute(
-      "UPDATE event_registrations SET is_checked_out = TRUE, check_out_time = NOW(), certificate_id = ? WHERE qr_code_secret_out = ? AND event_id = ?",
+    // Mark as checked out - PostgreSQL NOW() function works the same way
+    await connection.query(
+      `UPDATE event_registrations 
+       SET is_checked_out = 1, 
+           check_out_time = NOW(), 
+           certificate_id = $1 
+       WHERE qr_code_secret_out = $2 AND event_id = $3`,
       [certificate_id, qrCodeSecret, eventId]
     );
 
@@ -68,8 +73,6 @@ export async function POST(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
-    // Rollback transaction on error
-
     console.error("Check-out error:", error);
     return NextResponse.json(
       { error: "Failed to process check-out" },

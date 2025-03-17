@@ -17,8 +17,8 @@ export async function GET(req) {
   }
   query += ` GROUP BY u.id ORDER BY u.total_points DESC LIMIT 100`;
   try {
-    const [leaderboard] = await connection.execute(query);
-    return NextResponse.json(leaderboard);
+    const leaderboard = await connection.query(query);
+    return NextResponse.json(leaderboard.rows);
   } catch (error) {
     // console.log(error);
     return NextResponse.json(

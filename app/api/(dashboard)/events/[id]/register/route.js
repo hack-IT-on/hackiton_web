@@ -20,33 +20,41 @@ export async function POST(request) {
       );
     }
 
-    // Generate unique registration ID and QR code secret
-    const registrationId = uuidv4();
-    const qrCodeSecret = uuidv4();
+    // Generate unique registration ID with a more scanner-friendly format
+    // Using a shorter alphanumeric string that's easier to scan
+    const registrationId = uuidv4()
+      .replace(/-/g, "")
+      .substring(0, 16)
+      .toUpperCase();
 
-    // Generate QR code
-    const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${registrationId}`;
+    // Add a prefix to make the code more identifiable and structured
+    const qrCodeContent = `EVENT-${eventId}-${registrationId}`;
+
+    // Generate QR code with error correction level 'H' (high) for better scanning reliability
+    const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+      qrCodeContent
+    )}&ecc=H`;
 
     try {
-      const [rows] = await connection.execute(
-        "select * from event_registrations where user_id = ? and event_id = ?",
+      const result = await connection.query(
+        "SELECT * FROM event_registrations WHERE user_id = $1 AND event_id = $2",
         [user?.id, eventId]
       );
 
-      if (rows.length > 0) {
+      if (result.rows.length > 0) {
         return NextResponse.json(
           { message: "You already registered for this event" },
           { status: 200 }
         );
       }
-      await connection.execute(
-        "INSERT INTO event_registrations (event_id, user_id, user_name, email, qr_code_secret) VALUES (?, ?, ?, ?, ?)",
-        [eventId, user?.id, userName, email, registrationId]
+
+      await connection.query(
+        "INSERT INTO event_registrations (event_id, user_id, user_name, email, qr_code_secret) VALUES ($1, $2, $3, $4, $5)",
+        [eventId, user?.id, userName, email, qrCodeContent]
       );
 
       // Send QR code via email
       await sendQRCodeEmail(email, userName, qrCodeDataUrl, eventName);
-      // console.log(qrCodeDataUrl);
 
       return NextResponse.json(
         {
@@ -56,11 +64,12 @@ export async function POST(request) {
         { status: 200 }
       );
     } finally {
+      // No connection release needed if using a pool
     }
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { message: "You already registered for this event" },
+      { message: "An error occurred during registration. Please try again." },
       { status: 500 }
     );
   }

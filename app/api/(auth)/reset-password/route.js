@@ -13,11 +13,12 @@ export async function POST(request) {
       );
     }
 
-    // Find user with valid reset token
-    const [users] = await connection.execute(
-      "SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()",
+    const userResult = await connection.query(
+      "SELECT * FROM users WHERE reset_token = $1 AND reset_token_expiry > NOW()",
       [token]
     );
+
+    const users = userResult.rows;
 
     if (users.length === 0) {
       return NextResponse.json(
@@ -29,9 +30,8 @@ export async function POST(request) {
     // Hash new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Update user password and clear reset token
-    await connection.execute(
-      "UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = ?",
+    await connection.query(
+      "UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = $2",
       [hashedPassword, token]
     );
 
