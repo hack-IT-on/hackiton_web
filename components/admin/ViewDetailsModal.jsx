@@ -167,9 +167,9 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-6">
+            <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="verification">Verification</TabsTrigger>
+              {/* <TabsTrigger value="verification">Verification</TabsTrigger> */}
               <TabsTrigger value="activity">Activity & Stats</TabsTrigger>
             </TabsList>
 
@@ -302,9 +302,8 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="verification" className="space-y-6">
+            {/* <TabsContent value="verification" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Face Verification Image */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-md font-medium flex items-center">
@@ -336,7 +335,6 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                   </CardContent>
                 </Card>
 
-                {/* ID Card Image */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-md font-medium flex items-center">
@@ -368,7 +366,7 @@ const ViewDetailsModal = ({ user, isOpen, onClose }) => {
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="activity" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
