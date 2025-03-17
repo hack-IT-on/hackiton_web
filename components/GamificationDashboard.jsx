@@ -30,12 +30,19 @@ const GamificationDashboard = ({ logedUser }) => {
 
   const fetchLeaderboard = async () => {
     setLoading(true);
-    const response = await fetch(
-      `/api/leaderboard?period=${leaderboardPeriod}`
-    );
-    const data = await response.json();
-    setLeaderboard(data);
-    setLoading(false);
+    try {
+      const response = await fetch(
+        `/api/leaderboard?period=${leaderboardPeriod}`
+      );
+      const data = await response.json();
+      // Ensure the data is an array before setting state
+      setLeaderboard(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      setLeaderboard([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   function getIndex(index) {
@@ -75,9 +82,9 @@ const GamificationDashboard = ({ logedUser }) => {
   }
 
   // Find user's position in leaderboard
-  const userPosition = leaderboard.findIndex(
-    (user) => user?.id === logedUser?.id
-  );
+  const userPosition = Array.isArray(leaderboard)
+    ? leaderboard.findIndex((user) => user?.id === logedUser?.id)
+    : -1;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
@@ -160,7 +167,7 @@ const GamificationDashboard = ({ logedUser }) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-1 max-h-96 overflow-y-auto">
-            {leaderboard.length > 0 ? (
+            {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
               leaderboard.map((user, index) => (
                 <div
                   key={index}
