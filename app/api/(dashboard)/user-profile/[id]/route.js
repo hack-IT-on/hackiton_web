@@ -14,8 +14,8 @@ export async function GET(request, { params }) {
     }
 
     // Query to get user data
-    const [userData] = await connection.execute(
-      "SELECT * FROM users WHERE id = ?",
+    const userData = await connection.query(
+      "SELECT * FROM users WHERE id = $1",
       [id]
     );
 
@@ -25,15 +25,15 @@ export async function GET(request, { params }) {
     }
 
     // Query to get badges data separately
-    const [badgesData] = await connection.execute(
-      "SELECT b.* FROM badges b JOIN user_badges ub ON b.id = ub.badge_id WHERE ub.user_id = ?",
+    const badgesData = await connection.query(
+      "SELECT b.* FROM badges b JOIN user_badges ub ON b.id = ub.badge_id WHERE ub.user_id = $1",
       [id]
     );
 
     // Return both sets of data separately
     return NextResponse.json({
-      user: userData[0],
-      badges: badgesData,
+      user: userData.rows[0],
+      badges: badgesData.rows,
     });
   } catch (error) {
     console.error("Error fetching user:", error.message);

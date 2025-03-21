@@ -11,38 +11,43 @@ export async function PUT(request) {
     const { id, status } = await request.json();
     // console.log(id, status);
 
-    await connection.execute(
-      "UPDATE questions SET status = ?, approved_at = ? WHERE id = ?",
+    await connection.query(
+      "UPDATE questions SET status = $1, approved_at = $2 WHERE id = $3",
       [status, status === "approved" ? new Date() : null, id]
     );
 
-    const [getUser] = await connection.execute(
-      "select title, user_id from questions where id = ?",
+    const getUserResult = await connection.query(
+      "SELECT title, user_id FROM questions WHERE id = $1",
       [id]
     );
+    const getUser = getUserResult.rows;
 
-    const [row] = await connection.execute(
-      "select name, email from users where id = ?",
+    const userResult = await connection.query(
+      "SELECT name, email FROM users WHERE id = $1",
       [getUser[0].user_id]
     );
-    const [question_row] = await connection.execute(
-      "select title from questions where user_id = ? and id = ?",
+    const row = userResult.rows;
+
+    const questionResult = await connection.query(
+      "SELECT title FROM questions WHERE user_id = $1 AND id = $2",
       [getUser[0].user_id, id]
     );
+    const question_row = questionResult.rows;
 
     if (status === "approved") {
-      const [activity] = await connection.execute(
-        "SELECT * FROM activities WHERE name = ?",
+      const activityResult = await connection.query(
+        "SELECT * FROM activities WHERE name = $1",
         ["forum_post"]
       );
+      const activity = activityResult.rows;
 
-      await connection.execute(
-        "INSERT INTO user_activities (user_id, activity_id, name) VALUES (?, ?, ?)",
+      await connection.query(
+        "INSERT INTO user_activities (user_id, activity_id, name) VALUES ($1, $2, $3)",
         [getUser[0].user_id, activity[0].id, "Forum post: " + getUser[0].title]
       );
 
-      await connection.execute(
-        "UPDATE users SET total_points = total_points + ?, code_coins = code_coins + ?, points_created_at = current_timestamp() WHERE id = ?",
+      await connection.query(
+        "UPDATE users SET total_points = total_points + $1, code_coins = code_coins + $2, points_created_at = CURRENT_TIMESTAMP WHERE id = $3",
         [activity[0].points, activity[0].coins_reward, getUser[0].user_id]
       );
 

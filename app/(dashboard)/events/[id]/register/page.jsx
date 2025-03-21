@@ -13,7 +13,7 @@ export default function RegisterPage() {
       try {
         setLoading(true);
         const response = await fetch(`/api/events/${id}`);
-        const [eventData] = await response.json();
+        const eventData = await response.json();
         setData(eventData);
         // console.log(eventData);
         // console.log(data);

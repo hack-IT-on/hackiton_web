@@ -18,7 +18,7 @@ export default function VerifyEmailPage() {
         const data = await response.json();
 
         if (response.ok) {
-          setStatus("Email verified successfully! Now, wait for approval.");
+          setStatus("Email verified successfully!");
         } else {
           setStatus(data.message || "Verification failed");
         }
@@ -31,8 +31,8 @@ export default function VerifyEmailPage() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md text-center">
+    <div className="min-h-screen flex items-center justify-center ">
+      <div className=" p-8 rounded shadow-md text-center">
         <h1 className="text-2xl mb-4">Email Verification</h1>
         <p>{status}</p>
         <br />

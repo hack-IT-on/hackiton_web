@@ -3,18 +3,17 @@ import { NextResponse } from "next/server";
 
 // Helper function to get image by ID
 async function getImageById(id) {
-  const [rows] = await connection.execute(
-    "SELECT * FROM gallery WHERE id = ?",
-    [id]
-  );
-  return rows[0];
+  const rows = await connection.query("SELECT * FROM gallery WHERE id = $1", [
+    id,
+  ]);
+  return rows.rows[0];
 }
 
 export async function DELETE(request, { params }) {
   try {
     // const image = await getImageById(params.id);
 
-    await connection.execute("DELETE FROM gallery WHERE id = ?", [params.id]);
+    await connection.query("DELETE FROM gallery WHERE id = $1", [params.id]);
 
     return NextResponse.json({ message: "Image deleted successfully" });
   } catch (error) {
@@ -40,8 +39,8 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
-    await connection.execute(
-      "UPDATE gallery SET title = ?, tags = ? WHERE id = ?",
+    await connection.query(
+      "UPDATE gallery SET title = $1, tags = $2 WHERE id = $3",
       [title, tags, params.id]
     );
 

@@ -13,11 +13,12 @@ export async function POST(request) {
       );
     }
 
-    // Find user by email
-    const [users] = await connection.execute(
-      "SELECT * FROM users WHERE email = ? AND is_verified = true",
+    const userResult = await connection.query(
+      "SELECT * FROM users WHERE email = $1 AND is_verified = true",
       [email]
     );
+
+    const users = userResult.rows;
 
     if (users.length === 0) {
       return NextResponse.json(
@@ -30,9 +31,8 @@ export async function POST(request) {
     const resetToken = generateVerificationToken();
     const tokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
-    // Update user with reset token
-    await connection.execute(
-      "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?",
+    await connection.query(
+      "UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE email = $3",
       [resetToken, tokenExpiry, email]
     );
 

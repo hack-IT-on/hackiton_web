@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Webcam from "react-webcam";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,14 +14,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
   Loader2,
   User,
   Mail,
@@ -30,11 +21,7 @@ import {
   IdCard,
   AlertCircle,
   CheckCircle2,
-  Camera,
-  RefreshCw,
-  X,
-  FileImage,
-  HelpCircle,
+  Info,
 } from "lucide-react";
 
 export default function Register() {
@@ -44,69 +31,137 @@ export default function Register() {
     email: "",
     password: "",
     cpassword: "",
-    faceImage: null,
-    idCardImage: null,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
-  const [showWebcam, setShowWebcam] = useState(false);
-  const [showHelpDialog, setShowHelpDialog] = useState(false);
+  const [retrievedEmail, setRetrievedEmail] = useState(null);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [studentVerified, setStudentVerified] = useState(false);
+  const [verifyingStudent, setVerifyingStudent] = useState(false);
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
-  // Camera input refs
-  const cameraInputRef = useRef(null);
-  const idCardInputRef = useRef(null);
-  const webcamRef = useRef(null);
+  function maskEmail(email) {
+    if (!email) return null;
+
+    const [username, domain] = email.split("@");
+
+    let maskedUsername = "";
+    if (username.length <= 3) {
+      maskedUsername = username.charAt(0) + "*".repeat(username.length - 1);
+    } else {
+      maskedUsername =
+        username.substring(0, 3) +
+        "*".repeat(username.length - 3) +
+        username.charAt(username.length - 1);
+    }
+
+    return `${maskedUsername}@${domain}`;
+  }
 
   useEffect(() => {
     setMounted(true);
-
-    // Check if device is mobile or desktop
-    const checkMobile = () => {
-      const userAgent =
-        typeof window !== "undefined" ? navigator.userAgent : "";
-      const mobileRegex =
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-      setIsMobile(mobileRegex.test(userAgent));
-    };
-
-    checkMobile();
-
-    // Add event listener for window resize to update mobile status
-    window.addEventListener("resize", checkMobile);
-
-    return () => {
-      window.removeEventListener("resize", checkMobile);
-    };
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
+
+    // Reset email verification if name or studentID changes
+    if (name === "name" || name === "studentID") {
+      setStudentVerified(false);
+      setRetrievedEmail(null);
+      setEmailVerified(false);
+    }
+
+    // Reset email verification if user changes the email after verification
+    if (name === "email" && emailVerified) {
+      setEmailVerified(false);
+    }
   };
 
   const validateForm = () => {
+    if (!studentVerified) {
+      setError("Please verify your student information first");
+      return false;
+    }
+
+    if (!emailVerified) {
+      setError("Please use the email associated with your student account");
+      return false;
+    }
+
     if (formData.password !== formData.cpassword) {
       setError("Passwords do not match");
       return false;
     }
+
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters");
       return false;
     }
-    if (!formData.faceImage) {
-      setError("Face image capture is required");
-      return false;
-    }
-    if (!formData.idCardImage) {
-      setError("College ID card image is required");
-      return false;
-    }
+
     return true;
+  };
+
+  const verifyStudentInfo = async () => {
+    if (!formData.name.trim() || !formData.studentID.trim()) {
+      setError("Name and Roll Number are required");
+      return;
+    }
+
+    try {
+      setVerifyingStudent(true);
+      setError("");
+
+      const response = await fetch("/api/verify-student", {
+        method: "POST",
+        body: JSON.stringify({
+          name: formData.name,
+          studentID: formData.studentID,
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStudentVerified(true);
+        // Display masked email
+        setRetrievedEmail(data.maskedEmail);
+      } else {
+        setError(data.message || "Student verification failed");
+        setStudentVerified(false);
+        setRetrievedEmail(null);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Network error. Please try again");
+      setStudentVerified(false);
+    } finally {
+      setVerifyingStudent(false);
+    }
+  };
+
+  const verifyEmail = () => {
+    if (!retrievedEmail || !formData.email) {
+      setError("Please verify your student information first");
+      return;
+    }
+
+    // Extract actual email from retrieved email for comparison
+    const actualEmail = retrievedEmail.replace(/[*]/g, "");
+    console.log(retrievedEmail);
+
+    if (formData.email.toLowerCase() === actualEmail.toLowerCase()) {
+      setEmailVerified(true);
+      setError("");
+    } else {
+      setEmailVerified(false);
+      setError("Email does not match with your student record");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -141,111 +196,12 @@ export default function Register() {
     }
   };
 
-  // Open camera to capture photo based on device type
-  const capturePhoto = () => {
-    if (isMobile) {
-      if (cameraInputRef.current) {
-        cameraInputRef.current.click();
-      }
-    } else {
-      setShowWebcam(true);
-    }
-  };
-
-  // Open camera/file picker for ID card
-  const captureIdCard = () => {
-    if (idCardInputRef.current) {
-      idCardInputRef.current.click();
-    }
-  };
-
-  // Handle image capture from the mobile camera
-  const handleImageCapture = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError("Please capture an image");
-      return;
-    }
-
-    // Process the captured image
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      setFormData((prev) => ({ ...prev, faceImage: event.target.result }));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Handle ID card image capture
-  const handleIdCardCapture = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image of your college ID");
-      return;
-    }
-
-    // Process the captured image
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      setFormData((prev) => ({ ...prev, idCardImage: event.target.result }));
-    };
-    reader.readAsDataURL(file);
-
-    // Reset the file input value to allow re-selection of the same file
-    e.target.value = null;
-  };
-
-  // Handle webcam capture for desktop
-  const captureWebcamImage = () => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setFormData((prev) => ({ ...prev, faceImage: imageSrc }));
-      setShowWebcam(false);
-    }
-  };
-
-  const retakePhoto = () => {
-    setFormData((prev) => ({ ...prev, faceImage: null }));
-  };
-
-  const retakeIdCard = () => {
-    // Reset the ID card image
-    setFormData((prev) => ({ ...prev, idCardImage: null }));
-
-    // Trigger the file picker dialog again
-    setTimeout(() => {
-      captureIdCard();
-    }, 100);
-  };
-
-  // Cancel webcam capture
-  const cancelWebcam = () => {
-    setShowWebcam(false);
-  };
-
-  // Open help dialog with preventing default
-  const openHelpDialog = (e) => {
-    e.preventDefault(); // Prevent form submission
-    setShowHelpDialog(true);
-  };
-
-  // Check if the device is iOS
-  const isIOS = () => {
-    if (typeof navigator !== "undefined") {
-      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    }
-    return false;
-  };
-
   if (!mounted) {
     return null;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 ">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
@@ -263,7 +219,7 @@ export default function Register() {
             </Alert>
           )}
           {success && (
-            <Alert className="mb-6 bg-green-50 text-green-700 border-green-200">
+            <Alert className="mb-6  text-green-700 border-green-200">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>{success}</AlertDescription>
             </Alert>
@@ -283,6 +239,7 @@ export default function Register() {
                     onChange={handleChange}
                     required
                     className="pl-10"
+                    disabled={studentVerified}
                   />
                 </div>
               </div>
@@ -299,230 +256,141 @@ export default function Register() {
                     onChange={handleChange}
                     required
                     className="pl-10"
+                    disabled={studentVerified}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cpassword">Confirm Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="cpassword"
-                    name="cpassword"
-                    type="password"
-                    placeholder="••••••••"
-                    value={formData.cpassword}
-                    onChange={handleChange}
-                    required
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Face Image Capture Section with help button */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Camera className="h-5 w-5 text-blue-600" />
-                <Label htmlFor="faceImage" className="font-medium">
-                  Face verification with college ID
-                </Label>
-                <Button
-                  type="button" // Set type to button to prevent form submission
-                  variant="ghost"
-                  size="sm"
-                  className="p-0 h-6 w-6"
-                  onClick={openHelpDialog}
-                >
-                  <HelpCircle className="h-5 w-5 text-gray-400" />
-                  <span className="sr-only">Verification help</span>
-                </Button>
-              </div>
-              <div className="border rounded-md p-3">
-                {formData.faceImage ? (
-                  <div className="space-y-3">
-                    <div className="relative bg-gray-100 rounded-md overflow-hidden aspect-video">
-                      <img
-                        src={formData.faceImage}
-                        alt="Captured face"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={retakePhoto}
-                      className="w-full flex items-center justify-center"
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Retake Photo
-                    </Button>
-                  </div>
-                ) : showWebcam && !isMobile ? (
-                  <div className="space-y-3">
-                    <div className="relative bg-gray-100 rounded-md overflow-hidden aspect-video">
-                      <Webcam
-                        audio={false}
-                        ref={webcamRef}
-                        screenshotFormat="image/jpeg"
-                        videoConstraints={{
-                          facingMode: "user",
-                          width: 480,
-                          height: 360,
-                        }}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        onClick={captureWebcamImage}
-                        className="flex-1 flex items-center justify-center"
-                      >
-                        <Camera className="mr-2 h-4 w-4" />
-                        Capture
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={cancelWebcam}
-                        className="flex items-center justify-center"
-                      >
-                        <X className="mr-2 h-4 w-4" />
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
+            {/* Student Verification Button */}
+            {!studentVerified ? (
+              <Button
+                type="button"
+                onClick={verifyStudentInfo}
+                className="w-full"
+                disabled={
+                  verifyingStudent || !formData.name || !formData.studentID
+                }
+              >
+                {verifyingStudent ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verifying student information...
+                  </>
                 ) : (
+                  "Verify Student Information"
+                )}
+              </Button>
+            ) : (
+              <Alert className=" text-blue-700 border-blue-200">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Student verification successful. Please use the email
+                  associated with your account.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Conditionally show email section after student verification */}
+            {studentVerified && retrievedEmail && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <p className="text-sm text-gray-500 mb-2">
+                    Please enter your email address that matches with your
+                    student record: <strong>{maskEmail(retrievedEmail)}</strong>
+                  </p>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className={`pl-10 ${
+                        emailVerified ? "border-green-500" : ""
+                      }`}
+                      disabled={emailVerified}
+                    />
+                  </div>
+                </div>
+
+                {!emailVerified && (
                   <Button
                     type="button"
-                    onClick={capturePhoto}
-                    className="w-full flex items-center justify-center"
+                    onClick={verifyEmail}
+                    className="w-full"
+                    disabled={!formData.email}
                   >
-                    <Camera className="mr-2 h-4 w-4" />
-                    Capture Face Photo
+                    Verify Email
                   </Button>
                 )}
-                {/* Hidden camera input for native camera capture on mobile */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture={isIOS() ? undefined : "user"}
-                  ref={cameraInputRef}
-                  onChange={handleImageCapture}
-                  className="hidden"
-                />
-              </div>
-              {!formData.faceImage && !showWebcam && (
-                <p className="text-xs text-gray-500 mt-1">
-                  {isMobile
-                    ? "Click the button to open your device camera and take a clear photo of your face."
-                    : "Click the button to use your webcam and take a clear photo of your face."}
-                </p>
-              )}
-            </div>
 
-            {/* College ID Card Upload Section */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <FileImage className="h-5 w-5 text-blue-600" />
-                <Label htmlFor="idCardImage" className="font-medium">
-                  Upload College ID Card
-                </Label>
-              </div>
-              <div className="border rounded-md p-3">
-                {formData.idCardImage ? (
-                  <div className="space-y-3">
-                    <div className="relative bg-gray-100 rounded-md overflow-hidden aspect-video">
-                      <img
-                        src={formData.idCardImage}
-                        alt="College ID Card"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={retakeIdCard}
-                      className="w-full flex items-center justify-center"
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Upload Different ID
-                    </Button>
+                {emailVerified && (
+                  <Alert className=" text-green-700 border-green-200">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <AlertDescription>
+                      Email verification successful!
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </>
+            )}
+
+            {/* Show password fields only after email is verified */}
+            {emailVerified && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      className="pl-10"
+                    />
                   </div>
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={captureIdCard}
-                    className="w-full flex items-center justify-center"
-                  >
-                    <FileImage className="mr-2 h-4 w-4" />
-                    Upload College ID Card
-                  </Button>
-                )}
-                {/* Hidden file input for ID card upload */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={idCardInputRef}
-                  onChange={handleIdCardCapture}
-                  className="hidden"
-                />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cpassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="cpassword"
+                      name="cpassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.cpassword}
+                      onChange={handleChange}
+                      required
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
               </div>
-              {!formData.idCardImage && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Please upload a clear photo of your college ID card for
-                  verification purposes.
-                </p>
-              )}
-            </div>
+            )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : (
-                "Create Account"
-              )}
-            </Button>
+            {/* Show submit button only when all verifications are complete */}
+            {emailVerified && (
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+            )}
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
@@ -537,45 +405,6 @@ export default function Register() {
           </p>
         </CardFooter>
       </Card>
-
-      {/* Help Dialog */}
-      <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Face Verification Instructions</DialogTitle>
-            <DialogDescription>
-              How to properly capture your verification photo? This is mandatory
-              to get approval.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="relative rounded-md overflow-hidden aspect-video">
-              <img
-                src="https://hack-it-on.s3.eu-north-1.amazonaws.com/defaults/Identity.jpg"
-                alt="Verification example"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <p className="text-sm">
-              Take a clear photo of your face while holding your college ID
-              card. Make sure both your face and ID are clearly visible.
-            </p>
-            <ul className="text-sm list-disc pl-5 space-y-1">
-              <li>Ensure good lighting conditions</li>
-              <li>Hold your ID next to your face</li>
-              <li>Make sure both your face and ID text are clearly visible</li>
-              <li>Avoid wearing sunglasses or hats that obscure your face</li>
-              <li>
-                If you don't have your college ID card, write your name and roll
-                number on an A4 page and use it in place of the ID card.
-              </li>
-            </ul>
-          </div>
-          <DialogClose asChild>
-            <Button className="w-full mt-2">Got it</Button>
-          </DialogClose>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

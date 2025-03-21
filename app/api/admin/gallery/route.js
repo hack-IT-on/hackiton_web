@@ -3,11 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const [rows] = await connection.execute(
+    const rows = await connection.query(
       "SELECT * FROM gallery ORDER BY id DESC"
     );
 
-    return NextResponse.json(rows);
+    return NextResponse.json(rows.rows);
   } catch (error) {
     console.error("Database error:", error);
     return NextResponse.json(

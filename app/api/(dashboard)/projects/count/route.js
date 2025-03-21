@@ -4,11 +4,11 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const user = await getCurrentUser();
   try {
-    const [response] = await connection.execute(
-      "select * from projects where user_id = ?",
+    const response = await connection.query(
+      "select * from projects where user_id = $1",
       [user?.id]
     );
-    return NextResponse.json(response);
+    return NextResponse.json(response.rows);
   } catch (err) {
     console.log(err);
   }

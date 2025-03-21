@@ -35,7 +35,6 @@ export default function NewEventPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -48,21 +47,6 @@ export default function NewEventPage() {
     interest: "",
     is_active: true,
   });
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError("File size should be less than 5MB");
-        return;
-      }
-      if (!file.type.startsWith("image/")) {
-        setError("Please upload an image file");
-        return;
-      }
-      setSelectedFile(file);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,28 +62,20 @@ export default function NewEventPage() {
       !formData.registration_deadline ||
       !formData.location ||
       !formData.interest ||
-      !selectedFile
+      !formData.image_url
     ) {
-      setError("Please fill in all required fields and upload an image");
+      setError("Please fill in all required fields including image URL");
       setLoading(false);
       return;
     }
 
     try {
-      const submitFormData = new FormData();
-
-      // Add all form fields to FormData
-      Object.keys(formData).forEach((key) => {
-        submitFormData.append(key, formData[key]);
-      });
-
-      if (selectedFile) {
-        submitFormData.append("file", selectedFile);
-      }
-
       const response = await fetch("/api/admin/events/new", {
         method: "POST",
-        body: submitFormData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -268,12 +244,14 @@ export default function NewEventPage() {
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="image_url" className="text-sm font-medium">
-                  Image <span className="text-red-500">*</span>
+                  Image URL <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
+                  id="image_url"
+                  name="image_url"
+                  value={formData.image_url}
+                  onChange={handleChange}
+                  placeholder="Enter image URL"
                   className="w-full"
                   required
                 />

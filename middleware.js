@@ -20,6 +20,7 @@ const protectedRoutes = [
   "/resource-hub",
   "/user-profile",
   "/code-blocks",
+  "/api-playground",
   "/admin",
 ];
 

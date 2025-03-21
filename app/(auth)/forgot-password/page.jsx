@@ -74,7 +74,7 @@ export default function ForgotPasswordForm() {
         </CardHeader>
         <CardContent>
           {message && (
-            <Alert className="mb-6 bg-green-50 text-green-700 border-green-200">
+            <Alert className="mb-6  text-green-700 border-green-200">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>{message}</AlertDescription>
             </Alert>

@@ -12,9 +12,8 @@ export async function POST(request, { params }) {
 
   const userName = user?.name;
   const email = user?.email;
-  // return NextResponse.json(eventId);
+
   const qrCodeSecret = searchParams.get("qr_code_secret");
-  // console.log(qrCodeSecret);
 
   if (!qrCodeSecret) {
     return NextResponse.json(
@@ -24,23 +23,20 @@ export async function POST(request, { params }) {
   }
 
   try {
-    // Start a transaction to ensure data consistency
-
-    const [rows] = await connection.execute(
-      "SELECT er.is_checked_in, er.qr_code_secret, er.email, er.user_name, e.title FROM event_registrations er JOIN events e ON er.event_id = e.id WHERE er.qr_code_secret = ? AND er.event_id = ?",
+    // Get registration information
+    const result = await connection.query(
+      "SELECT er.is_checked_in, er.qr_code_secret, er.email, er.user_name, e.title FROM event_registrations er JOIN events e ON er.event_id = e.id WHERE er.qr_code_secret = $1 AND er.event_id = $2",
       [qrCodeSecret, eventId]
     );
 
-    // console.log(rows);
-
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Registration not found" },
         { status: 404 }
       );
     }
 
-    const registration = rows[0];
+    const registration = result.rows[0];
 
     if (registration.qr_code_secret !== qrCodeSecret) {
       return NextResponse.json({ error: "Invalid QR code" }, { status: 400 });
@@ -53,15 +49,28 @@ export async function POST(request, { params }) {
       );
     }
 
-    const qr_check_out = uuidv4();
+    // const qr_check_out = uuidv4();
 
-    // Generate QR code
-    const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${qr_check_out}`;
+    // // Generate QR code
+    // const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${qr_check_out}`;
+
+    const qr_check_out = uuidv4()
+      .replace(/-/g, "")
+      .substring(0, 16)
+      .toUpperCase();
+
+    // Add a prefix to make the code more identifiable and structured
+    const qrCodeContent = `EVENT-${eventId}-${qr_check_out}`;
+
+    // Generate QR code with error correction level 'H' (high) for better scanning reliability
+    const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+      qrCodeContent
+    )}&ecc=H`;
 
     // Mark as checked in
-    await connection.execute(
-      "UPDATE event_registrations SET is_checked_in = TRUE, check_in_time = NOW(), qr_code_secret_out = ? WHERE qr_code_secret = ? AND event_id = ?",
-      [qr_check_out, qrCodeSecret, eventId]
+    await connection.query(
+      "UPDATE event_registrations SET is_checked_in = TRUE, check_in_time = NOW(), qr_code_secret_out = $1 WHERE qr_code_secret = $2 AND event_id = $3",
+      [qrCodeContent, qrCodeSecret, eventId]
     );
 
     await sendQRCodeEmailOut(
@@ -76,8 +85,6 @@ export async function POST(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
-    // Rollback transaction on error
-
     console.error("Check-in error:", error);
     return NextResponse.json(
       { error: "Failed to process check-in" },

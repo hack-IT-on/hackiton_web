@@ -230,13 +230,29 @@ export default function SettingsPage() {
                         Roll number cannot be changed
                       </p>
                     </FormItem>
+
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        Email <Lock className="ml-2 h-3 w-3 text-gray-500" />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          value={userData.email}
+                          readOnly
+                          disabled
+                          className="bg-gray-50 text-gray-600"
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-500">
+                        Email cannot be changed
+                      </p>
+                    </FormItem>
                   </div>
 
                   {/* Editable fields */}
                   {[
                     { name: "github_username", label: "GitHub Username" },
                     { name: "leetcode_username", label: "LeetCode Username" },
-                    { name: "email", label: "Email", type: "email" },
                   ].map(({ name, label, type }) => (
                     <FormField
                       key={name}

@@ -8,70 +8,41 @@ import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Upload, X } from "lucide-react";
+import { Link, X } from "lucide-react";
 
-const ImageUploadForm = () => {
+const ImageURLForm = () => {
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
-  const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [dragActive, setDragActive] = useState(false);
 
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
+  const handleImageUrlChange = (e) => {
+    const url = e.target.value;
+    setImageUrl(url);
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type.startsWith("image/")) {
-      handleFileSelection(droppedFile);
+    // Set preview if URL is valid
+    if (url && (url.startsWith("http://") || url.startsWith("https://"))) {
+      setPreview(url);
+      setError("");
+    } else if (url) {
+      setPreview(null);
+      setError("Please enter a valid URL starting with http:// or https://");
     } else {
-      setError("Please drop an image file");
-    }
-  };
-
-  const handleFileSelection = (selectedFile) => {
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      setError("File size must be less than 5MB");
-      return;
-    }
-
-    setFile(selectedFile);
-    setError("");
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
-    reader.readAsDataURL(selectedFile);
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      handleFileSelection(selectedFile);
+      setPreview(null);
+      setError("");
     }
   };
 
   const removeImage = () => {
-    setFile(null);
+    setImageUrl("");
     setPreview(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) return;
+    if (!imageUrl) return;
 
     setLoading(true);
     setError("");
@@ -80,7 +51,7 @@ const ImageUploadForm = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("tags", tags);
-      formData.append("file", file);
+      formData.append("imageUrl", imageUrl);
 
       const response = await fetch("/api/admin/gallery/upload", {
         method: "POST",
@@ -92,16 +63,16 @@ const ImageUploadForm = () => {
       }
 
       const data = await response.json();
-      toast.success("Image uploaded successfully");
+      toast.success("Image added successfully");
 
       // Reset form
       setTitle("");
       setTags("");
-      setFile(null);
+      setImageUrl("");
       setPreview(null);
     } catch (error) {
-      setError("Failed to upload image. Please try again.");
-      toast.error("Failed to upload image");
+      setError("Failed to add image. Please try again.");
+      toast.error("Failed to add image");
     } finally {
       setLoading(false);
     }
@@ -111,8 +82,8 @@ const ImageUploadForm = () => {
     <Card className="w-full max-w-md mx-auto mt-8">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Upload className="w-5 h-5" />
-          Upload Image
+          <Link className="w-5 h-5" />
+          Add Image
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -140,46 +111,31 @@ const ImageUploadForm = () => {
             />
           </div>
 
-          <div
-            className={`space-y-2 ${
-              dragActive ? "border-2 border-blue-500" : ""
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <Label htmlFor="image">Image</Label>
-            {!preview ? (
-              <div className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors">
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  required
-                  className="hidden"
-                />
-                <label
-                  htmlFor="image"
-                  className="cursor-pointer flex flex-col items-center"
-                >
-                  <Upload className="w-8 h-8 mb-2 text-gray-400" />
-                  <span className="text-sm text-gray-500">
-                    Click to upload or drag and drop
-                  </span>
-                  <span className="text-xs text-gray-400 mt-1">
-                    Maximum file size: 5MB
-                  </span>
-                </label>
-              </div>
-            ) : (
-              <div className="relative">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="max-w-full h-48 object-contain rounded-lg"
-                />
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl">Image URL</Label>
+            <Input
+              id="imageUrl"
+              type="url"
+              value={imageUrl}
+              onChange={handleImageUrlChange}
+              required
+              placeholder="https://example.com/image.jpg"
+              className="focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {preview && (
+            <div className="relative">
+              <img
+                src={preview}
+                alt="Preview"
+                className="max-w-full h-48 object-contain rounded-lg"
+                onError={() => {
+                  setError("Failed to load image. Please check the URL.");
+                  setPreview(null);
+                }}
+              />
+              {preview && (
                 <button
                   type="button"
                   onClick={removeImage}
@@ -187,9 +143,9 @@ const ImageUploadForm = () => {
                 >
                   <X className="w-4 h-4" />
                 </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {error && (
             <Alert variant="destructive">
@@ -201,18 +157,18 @@ const ImageUploadForm = () => {
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || !imageUrl || error}
             className="w-full transition-all"
           >
             {loading ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                Uploading...
+                Adding...
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload
+                <Link className="w-4 h-4" />
+                Add Image
               </div>
             )}
           </Button>
@@ -222,4 +178,4 @@ const ImageUploadForm = () => {
   );
 };
 
-export default ImageUploadForm;
+export default ImageURLForm;

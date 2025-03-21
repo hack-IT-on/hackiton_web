@@ -2,72 +2,14 @@ import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail, generateVerificationToken } from "@/util/email";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { v4 as uuidv4 } from "uuid";
-
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
-// Helper function to upload image to S3
-async function uploadImageToS3(imageData, prefix, studentID) {
-  // Process base64 image data
-  const base64Data = imageData.split(";base64,").pop();
-  const buffer = Buffer.from(base64Data, "base64");
-
-  // Generate unique filename
-  const fileExt = imageData.includes("image/jpeg")
-    ? "jpg"
-    : imageData.includes("image/png")
-    ? "png"
-    : "jpg";
-  const fileName = `${prefix}/${studentID}_${uuidv4()}.${fileExt}`;
-
-  // Upload to S3
-  const params = {
-    Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: fileName,
-    Body: buffer,
-    ContentType: imageData.includes("image/jpeg")
-      ? "image/jpeg"
-      : imageData.includes("image/png")
-      ? "image/png"
-      : "image/jpeg",
-  };
-
-  const command = new PutObjectCommand(params);
-  await s3Client.send(command);
-
-  return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
-}
 
 export async function POST(request) {
   try {
-    const {
-      name,
-      studentID,
-      email,
-      password,
-      cpassword,
-      faceImage,
-      idCardImage,
-    } = await request.json();
+    const { name, studentID, email, password, cpassword } =
+      await request.json();
 
     // Validate input
-    if (
-      !name ||
-      !studentID ||
-      !email ||
-      !password ||
-      !cpassword ||
-      !faceImage ||
-      !idCardImage
-    ) {
+    if (!name || !studentID || !email || !password || !cpassword) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
@@ -76,59 +18,47 @@ export async function POST(request) {
 
     if (password !== cpassword) {
       return NextResponse.json(
-        { message: "Password and confirm password is not matched!" },
+        { message: "Password and confirm password do not match" },
+        { status: 400 }
+      );
+    }
+
+    // Check if student exists and get their email - case insensitive name search
+    const studentResult = await connection.query(
+      "SELECT * FROM students WHERE roll_no = $1 AND LOWER(name) = LOWER($2)",
+      [studentID, name]
+    );
+
+    if (studentResult.rows.length === 0) {
+      return NextResponse.json(
+        { message: "The name and roll number do not match any student record" },
+        { status: 409 }
+      );
+    }
+
+    const studentEmail = studentResult.rows[0].email;
+    const correctName = studentResult.rows[0].name; // Store the correctly capitalized name
+
+    // Verify if the provided email matches the student's email (case insensitive)
+    if (email.toLowerCase() !== studentEmail.toLowerCase()) {
+      return NextResponse.json(
+        {
+          message: "The provided email does not match with your student record",
+        },
         { status: 400 }
       );
     }
 
     // Check if user already exists
-    const [existingUsers] = await connection.execute(
-      "SELECT * FROM users WHERE email = ? or student_id = ?",
+    const existingUsersResult = await connection.query(
+      "SELECT * FROM users WHERE LOWER(email) = LOWER($1) OR student_id = $2",
       [email, studentID]
     );
 
-    const [existingStudent] = await connection.execute(
-      "SELECT * FROM students WHERE roll_no = ? AND name = ?",
-      [studentID, name]
-    );
-
-    if (existingStudent.length == 0) {
+    if (existingUsersResult.rows.length > 0) {
       return NextResponse.json(
-        { message: `The name and roll number do not match.` },
+        { message: "An account with this email or roll number already exists" },
         { status: 409 }
-      );
-    }
-
-    if (existingUsers.length > 0) {
-      return NextResponse.json(
-        { message: "Email or roll no. already exists" },
-        { status: 409 }
-      );
-    }
-
-    // Upload face image and ID card image to S3
-    let faceImageUrl = null;
-    let idCardImageUrl = null;
-
-    try {
-      // Upload face image
-      if (faceImage) {
-        faceImageUrl = await uploadImageToS3(faceImage, "faces", studentID);
-      }
-
-      // Upload ID card image
-      if (idCardImage) {
-        idCardImageUrl = await uploadImageToS3(
-          idCardImage,
-          "id_cards",
-          studentID
-        );
-      }
-    } catch (uploadError) {
-      console.error("Error uploading images to S3:", uploadError);
-      return NextResponse.json(
-        { message: "Failed to upload images. Please try again." },
-        { status: 500 }
       );
     }
 
@@ -139,26 +69,25 @@ export async function POST(request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user with verification details and both image URLs
-    const insertQuery = await connection.execute(
-      "INSERT INTO users (email, name, student_id, password, verification_token, token_expiry, is_verified, face_image_url, id_card_image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    // Insert new user with verification details
+    // Use the correctly capitalized name from the database
+    const insertResult = await connection.query(
+      "INSERT INTO users (email, name, student_id, password, verification_token, token_expiry, is_verified) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
       [
         email,
-        name,
+        correctName, // Use the correctly capitalized name from the database
         studentID,
         hashedPassword,
         verificationToken,
         tokenExpiry,
         false,
-        faceImageUrl,
-        idCardImageUrl,
       ]
     );
 
     // Send verification email
     const sendMail = await sendVerificationEmail(email, verificationToken);
 
-    if (insertQuery && sendMail) {
+    if (insertResult.rowCount > 0 && sendMail) {
       return NextResponse.json(
         { message: "User registered successfully" },
         { status: 200 }

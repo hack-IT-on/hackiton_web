@@ -3,10 +3,10 @@ import { getCurrentUser } from "@/lib/getCurrentUser";
 
 export async function getResources() {
   try {
-    const [rows] = await connection.execute(
+    const rows = await connection.query(
       "SELECT * FROM resources ORDER BY id DESC"
     );
-    return rows || [];
+    return rows.rows || [];
   } catch (error) {
     console.error("Error fetching resources:", error);
     return [];
@@ -21,12 +21,12 @@ export async function getCoins() {
       return [{ code_coins: 0 }]; // Return default value if no user
     }
 
-    const [coins] = await connection.execute(
-      "SELECT code_coins FROM users WHERE id = ?",
+    const coins = await connection.query(
+      "SELECT code_coins FROM users WHERE id = $1",
       [user.id]
     );
 
-    return coins || [{ code_coins: 0 }];
+    return coins.rows || [{ code_coins: 0 }];
   } catch (error) {
     console.error("Error fetching coins:", error);
     return [{ code_coins: 0 }];
@@ -41,7 +41,7 @@ export async function getPurchasedResources() {
       return []; // Return empty array if no user
     }
 
-    const [rows] = await connection.execute(
+    const rows = await connection.query(
       `SELECT 
         r.id,
         r.name,
@@ -53,12 +53,12 @@ export async function getPurchasedResources() {
         p.resource_id
        FROM purchases p
        JOIN resources r ON p.resource_id = r.id
-       WHERE p.user_id = ?
+       WHERE p.user_id = $1
        ORDER BY p.purchased_at DESC`,
       [user.id]
     );
 
-    return rows || [];
+    return rows.rows || [];
   } catch (error) {
     console.error("Error fetching purchased resources:", error);
     return [];

@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 export default function EventPage({ params }) {
   const { id } = use(params);
@@ -29,6 +30,20 @@ export default function EventPage({ params }) {
   const [registrationOpen, setRegistrationOpen] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState("");
   const timerRef = useRef(null);
+  const { theme, systemTheme } = useTheme();
+
+  // Handle theme mounting to avoid hydration issues
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = mounted
+    ? theme === "system"
+      ? systemTheme
+      : theme
+    : "light";
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -105,7 +120,7 @@ export default function EventPage({ params }) {
       try {
         setLoading(true);
         const response = await fetch(`/api/events/${id}`);
-        const [eventData] = await response.json();
+        const eventData = await response.json();
         setData(eventData);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -216,7 +231,7 @@ export default function EventPage({ params }) {
 
           {/* Add a more prominent countdown display */}
           {data.registration_deadline && registrationOpen && (
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+            <div className="mt-4 p-3  border border-green-200 rounded-md">
               <div className="flex items-center justify-center gap-2 text-green-700">
                 <Clock className="w-5 h-5" />
                 <span className="font-medium">
@@ -227,7 +242,7 @@ export default function EventPage({ params }) {
           )}
 
           {data.registration_deadline && !registrationOpen && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <div className="mt-4 p-3  border border-red-200 rounded-md">
               <div className="flex items-center justify-center gap-2 text-red-700">
                 <Clock className="w-5 h-5" />
                 <span className="font-medium">Registration Closed</span>
@@ -250,7 +265,7 @@ export default function EventPage({ params }) {
           <Separator className="my-6" />
 
           <div className="prose max-w-none">
-            <div data-color-mode="light">
+            <div data-color-mode={currentTheme}>
               <MDEditor.Markdown
                 source={data.long_description}
                 style={{ whiteSpace: "pre-wrap" }}

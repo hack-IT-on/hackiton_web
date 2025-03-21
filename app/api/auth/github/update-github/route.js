@@ -9,8 +9,9 @@ export async function POST(req) {
     const { userId, githubUsername } = await req.json();
     // console.log(githubUsername);
 
-    await connection.execute(
-      "UPDATE `users` SET `github_username`=? WHERE id = ?",
+    // PostgreSQL query with $1, $2 parameters instead of ?
+    await connection.query(
+      "UPDATE users SET github_username = $1 WHERE id = $2",
       [githubUsername, userId]
     );
 

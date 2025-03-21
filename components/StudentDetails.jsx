@@ -171,7 +171,7 @@ const StudentDetails = () => {
                     <Badge variant="outline">ROLL NO</Badge>
                     <Badge variant="outline">STUDENTS NAME</Badge>
                     <Badge variant="outline">SEMESTER</Badge>
-                    <Badge variant="outline">MOBILE NO.</Badge>
+                    <Badge variant="outline">EMAIL</Badge>
                     <Badge variant="outline">COURSE NAME</Badge>
                   </div>
                 )}
@@ -187,7 +187,7 @@ const StudentDetails = () => {
           </div>
 
           {file && (
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3  rounded-lg">
               <div className="flex items-center gap-2">
                 <FileSpreadsheet className="w-5 h-5 text-primary" />
                 <span className="text-sm font-medium">{file.name}</span>

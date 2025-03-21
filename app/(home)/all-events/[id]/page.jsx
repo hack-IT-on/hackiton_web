@@ -13,11 +13,26 @@ import { Calendar, MapPin, Tag, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 export default function EventPage({ params }) {
   const { id } = use(params);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+  const { theme, systemTheme } = useTheme();
+
+  // Handle theme mounting to avoid hydration issues
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = mounted
+    ? theme === "system"
+      ? systemTheme
+      : theme
+    : "light";
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -57,7 +72,7 @@ export default function EventPage({ params }) {
       try {
         setLoading(true);
         const response = await fetch(`/api/events/${id}`);
-        const [eventData] = await response.json();
+        const eventData = await response.json();
         setData(eventData);
         // console.log(eventData);
       } catch (err) {
@@ -118,7 +133,7 @@ export default function EventPage({ params }) {
 
           <div className="prose max-w-none">
             {data.long_description && (
-              <div data-color-mode="light">
+              <div data-color-mode={currentTheme}>
                 <MDEditor.Markdown
                   source={data.long_description}
                   style={{

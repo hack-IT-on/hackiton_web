@@ -1,4 +1,3 @@
-// app/api/external-events/route.js
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 
@@ -18,14 +17,12 @@ export async function GET() {
         organizer,
         is_active
       FROM external_events
-      ORDER BY id desc
+      ORDER BY id DESC
     `;
 
-    // Execute the query
-    const [rows] = await connection.execute(query);
+    const result = await connection.query(query);
 
-    // Format dates for proper JSON serialization
-    const formattedEvents = rows.map((event) => ({
+    const formattedEvents = result.rows.map((event) => ({
       ...event,
       date: event.date instanceof Date ? event.date.toISOString() : event.date,
       registration_deadline:
@@ -34,7 +31,6 @@ export async function GET() {
           : event.registration_deadline,
     }));
 
-    // Return the events as JSON
     return NextResponse.json(formattedEvents);
   } catch (error) {
     console.error("Database error:", error);

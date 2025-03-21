@@ -1,4 +1,3 @@
-// app/api/projects/route.ts
 import { NextResponse } from "next/server";
 import { connection } from "@/util/db";
 import { getCurrentUser } from "@/lib/getCurrentUser";
@@ -14,25 +13,25 @@ export async function GET(request) {
   const values = [];
 
   if (category && category !== "all") {
-    query += " AND category = ?";
+    query += " AND category = $1";
     values.push(category);
   }
 
   if (search) {
-    query += " AND (title LIKE ? OR description LIKE ?)";
+    query += " AND (title LIKE $2 OR description LIKE ?)";
     values.push(`%${search}%`, `%${search}%`);
   }
 
   if (userId) {
-    query += " AND user_id = ?";
+    query += " AND user_id = $3";
     values.push(userId);
   }
 
   query +=
     sort === "newest" ? " ORDER BY createdAt DESC" : " ORDER BY upvotes DESC";
 
-  const [projects] = await connection.execute(query, values);
-  return NextResponse.json(projects);
+  const projects = await connection.query(query, values);
+  return NextResponse.json(projects.rows);
 }
 
 export async function POST(request) {
@@ -51,7 +50,7 @@ export async function POST(request) {
       id, title, description, 
       author, category, technologies, githubUrl, 
       demoUrl, user_id, createdAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
   `;
 
   const values = [
@@ -66,6 +65,6 @@ export async function POST(request) {
     user.id,
   ];
 
-  await connection.execute(query, values);
+  await connection.query(query, values);
   return new NextResponse("Project created", { status: 201 });
 }

@@ -1,46 +1,55 @@
-import { connection } from "@/util/db";
 import { NextResponse } from "next/server";
+import { connection } from "@/util/db";
 
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const { name, studentID } = await body;
+    const { name, studentID } = await request.json();
 
-    if (!studentID) {
+    // Validate input
+    if (!name || !studentID) {
       return NextResponse.json(
-        { message: "Student ID is required" },
+        { message: "Name and Roll Number are required" },
         { status: 400 }
       );
     }
 
-    // Added validation for name
-    if (!name) {
-      return NextResponse.json(
-        { message: "Name is required" },
-        { status: 400 }
-      );
-    }
-
-    // Improved variable naming for clarity (roll_no vs studentID)
-    const [rows] = await connection.execute(
-      `SELECT * 
-      FROM students 
-      WHERE name = ? AND roll_no = ?`,
-      [name, studentID]
+    const studentResult = await connection.query(
+      "SELECT * FROM students WHERE roll_no = $1 AND LOWER(name) = LOWER($2)",
+      [studentID, name]
     );
 
-    // Added proper connection release
-    // connection.release();
-
-    if (!rows || rows.length === 0) {
+    if (studentResult.rows.length === 0) {
       return NextResponse.json(
-        { message: "Student not found" },
+        { message: "No student found with the provided name and roll number" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(rows[0]);
+    const existingUserResult = await connection.query(
+      "SELECT * FROM users WHERE student_id = $1",
+      [studentID]
+    );
+
+    if (existingUserResult.rows.length > 0) {
+      return NextResponse.json(
+        { message: "An account with this roll number already exists" },
+        { status: 409 }
+      );
+    }
+
+    const studentEmail = studentResult.rows[0].email;
+
+    const maskedEmail = studentEmail;
+
+    return NextResponse.json(
+      {
+        message: "Student verified successfully",
+        maskedEmail: maskedEmail,
+      },
+      { status: 200 }
+    );
   } catch (error) {
+    console.error("Student verification error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

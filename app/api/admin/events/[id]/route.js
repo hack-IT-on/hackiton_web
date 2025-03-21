@@ -1,17 +1,18 @@
 import { connection } from "@/util/db";
 import { NextResponse } from "next/server";
+
 export async function GET(request, { params }) {
   try {
-    const [rows] = await connection.execute(
-      "SELECT title FROM events WHERE id = ?",
+    const result = await connection.query(
+      "SELECT title FROM events WHERE id = $1",
       [params.id]
     );
 
-    if (!rows || rows.length === 0) {
+    if (!result.rows || result.rows.length === 0) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ name: rows[0].title });
+    return NextResponse.json({ name: result.rows[0].title });
   } catch (error) {
     console.error("Error fetching event:", error);
     return NextResponse.json(
@@ -20,9 +21,10 @@ export async function GET(request, { params }) {
     );
   }
 }
+
 export async function PUT(request, { params }) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const body = await request.json();
     console.log(body);
     const {
@@ -36,13 +38,12 @@ export async function PUT(request, { params }) {
       interest,
       is_active,
     } = body;
-    // console.log(title);
 
-    await connection.execute(
+    await connection.query(
       `UPDATE events 
-          SET title = ?, description = ?, long_description = ?, image_url = ?,
-              date = ?, registration_deadline = ?, location = ?, interest = ?, is_active = ?
-          WHERE id = ?`,
+          SET title = $1, description = $2, long_description = $3, image_url = $4,
+              date = $5, registration_deadline = $6, location = $7, interest = $8, is_active = $9
+          WHERE id = $10`,
       [
         title,
         description,
@@ -66,9 +67,9 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const { id } = await params;
+    const { id } = params;
 
-    await connection.execute("DELETE FROM `events` WHERE id = ?", [id]);
+    await connection.query("DELETE FROM events WHERE id = $1", [id]);
 
     return NextResponse.json({ message: "Event deleted successfully" });
   } catch (error) {

@@ -8,14 +8,17 @@ export async function GET(request) {
   const offset = (page - 1) * limit;
 
   try {
-    // Use consistent filtering across both queries
-    const [events] = await connection.execute(
+    // Get events with pagination
+    const eventsResult = await connection.query(
       "SELECT * FROM events ORDER BY id DESC"
     );
+    const events = eventsResult.rows;
 
-    const [[{ count }]] = await connection.execute(
+    // Get total count
+    const countResult = await connection.query(
       "SELECT COUNT(*) as count FROM events WHERE is_active = 1"
     );
+    const count = parseInt(countResult.rows[0].count);
 
     return NextResponse.json({
       events,
@@ -37,15 +40,16 @@ export async function POST(request) {
     const body = await request.json();
     const { title, description, image_url, date, location, interest } = body;
 
-    const result = await connection.execute(
+    const result = await connection.query(
       `
         INSERT INTO events (title, description, image_url, date, location, interest)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id
       `,
       [title, description, image_url, date, location, interest]
     );
 
-    return NextResponse.json({ id: result.insertId }, { status: 201 });
+    return NextResponse.json({ id: result.rows[0].id }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

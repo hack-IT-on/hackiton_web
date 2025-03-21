@@ -3,27 +3,19 @@ import { connection } from "@/util/db";
 
 export async function GET() {
   try {
-    // Simpler query to get unique tags using string functions
-    const [rows] = await connection.execute(`
-      SELECT DISTINCT 
-        TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(tags, ',', numbers.n), ',', -1)) as tag
+    const result = await connection.query(`
+      SELECT DISTINCT
+        TRIM(tag) as tag
       FROM
-        gallery
-        CROSS JOIN (
-          SELECT 1 AS n UNION ALL
-          SELECT 2 UNION ALL
-          SELECT 3 UNION ALL
-          SELECT 4 UNION ALL
-          SELECT 5
-        ) numbers
+        gallery,
+        LATERAL unnest(string_to_array(tags, ',')) as tag
       WHERE
-        CHAR_LENGTH(tags) - CHAR_LENGTH(REPLACE(tags, ',', '')) >= numbers.n - 1
-        AND TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(tags, ',', numbers.n), ',', -1)) != ''
+        TRIM(tag) != ''
       ORDER BY tag
     `);
 
     // Extract just the tag names into an array
-    const tags = rows.map((row) => row.tag);
+    const tags = result.rows.map((row) => row.tag);
     return NextResponse.json(tags);
   } catch (error) {
     console.error("Database error:", error);

@@ -11,25 +11,32 @@ export async function PUT(request, { params }) {
     const data = await request.json();
 
     try {
-      const [row] = await connection.execute(
-        "select * from users where id = ?",
+      // In PostgreSQL, use single quotes for string literals
+      const { rows: userRows } = await connection.query(
+        "SELECT * FROM users WHERE id = $1",
         [id]
       );
 
-      const previous_status = row[0].is_approved;
+      if (userRows.length === 0) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
 
-      const [result] = await connection.query(
+      const previous_status = userRows[0].is_approved;
+
+      // PostgreSQL uses $n parameters instead of ?
+      const { rowCount } = await connection.query(
         `UPDATE users SET 
-         name = ?, 
-         email = ?, 
-         role = ?, 
-         is_approved = ?,
-         student_id = ?, 
-         github_username = ?, 
-         leetcode_username = ?,
-         total_points = ?,
-         code_coins = ?
-         WHERE id = ?`,
+         name = $1, 
+         email = $2, 
+         role = $3, 
+         is_approved = $4,
+         student_id = $5, 
+         github_username = $6, 
+         leetcode_username = $7,
+         total_points = $8,
+         code_coins = $9
+         WHERE id = $10
+         RETURNING *`,
         [
           data.name,
           data.email,
@@ -44,13 +51,13 @@ export async function PUT(request, { params }) {
         ]
       );
 
-      if (result.affectedRows === 0) {
+      if (rowCount === 0) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
       // Fetch the updated user
-      const [updatedUser] = await connection.query(
-        "SELECT * FROM users WHERE id = ?",
+      const { rows: updatedUser } = await connection.query(
+        "SELECT * FROM users WHERE id = $1",
         [id]
       );
 
@@ -63,7 +70,9 @@ export async function PUT(request, { params }) {
 
       return NextResponse.json(updatedUser[0]);
     } finally {
-      //   connection.release();
+      // Connection pooling is handled differently in pg
+      // No need to release the client when using a pool
+      // If you're using a single client, you might want to end it here
     }
   } catch (error) {
     console.error("Database error:", error);
@@ -82,12 +91,13 @@ export async function DELETE(request, { params }) {
     const name = searchParams.get("name");
 
     try {
-      const [result] = await connection.query(
-        "DELETE FROM users WHERE id = ?",
+      // PostgreSQL uses $n parameters instead of ?
+      const { rowCount } = await connection.query(
+        "DELETE FROM users WHERE id = $1",
         [id]
       );
 
-      if (result.affectedRows === 0) {
+      if (rowCount === 0) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
@@ -95,7 +105,8 @@ export async function DELETE(request, { params }) {
 
       return NextResponse.json({ message: "User deleted successfully" });
     } finally {
-      //   connection.release();
+      // Connection pooling is handled differently in pg
+      // No need to release the client when using a pool
     }
   } catch (error) {
     console.error("Database error:", error);

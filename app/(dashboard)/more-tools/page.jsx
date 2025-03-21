@@ -11,6 +11,7 @@ import {
   Loader2,
   Timer,
   Puzzle,
+  Link as LinkIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,13 @@ const toolSections = [
         href: "/code-blocks",
         color: "pink",
         description: "Build blocks, generate code!",
+      },
+      {
+        name: "API Playground",
+        icon: LinkIcon,
+        href: "/api-playground",
+        color: "yellow",
+        description: "Hack-IT-on's own Postman or Thunder Client",
       },
     ],
   },
