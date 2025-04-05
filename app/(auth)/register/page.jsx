@@ -66,7 +66,16 @@ export default function Register() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let processedValue = value;
+
+    // Convert name to uppercase and email to lowercase
+    if (name === "name") {
+      processedValue = value.toUpperCase();
+    } else if (name === "email") {
+      processedValue = value.toLowerCase();
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: processedValue }));
     setError("");
 
     // Reset email verification if name or studentID changes
