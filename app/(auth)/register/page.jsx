@@ -128,8 +128,8 @@ export default function Register() {
       const response = await fetch("/api/verify-student", {
         method: "POST",
         body: JSON.stringify({
-          name: formData.name,
-          studentID: formData.studentID,
+          name: formData.name.trim(),
+          studentID: formData.studentID.trim(),
         }),
         headers: { "Content-Type": "application/json" },
       });
