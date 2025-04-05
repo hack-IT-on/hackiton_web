@@ -192,7 +192,7 @@ export default function Register() {
       const data = await response.json();
       if (response.ok) {
         setSuccess(
-          "Registration successful! We've sent you a verification email. Please check your inbox to complete the process."
+          "Registration successful! We've sent you a verification email. Please check your inbox and spam folder to complete the process."
         );
       } else {
         setError(data.message || "Registration failed");
