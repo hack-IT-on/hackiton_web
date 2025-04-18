@@ -116,7 +116,11 @@ export default function Register() {
   };
 
   const verifyStudentInfo = async () => {
-    if (!formData.name.trim() || !formData.studentID.trim()) {
+    // Trim the name and studentID before validation
+    const trimmedName = formData.name.trim();
+    const trimmedStudentID = formData.studentID.trim();
+
+    if (!trimmedName || !trimmedStudentID) {
       setError("Name and Roll Number are required");
       return;
     }
@@ -125,11 +129,18 @@ export default function Register() {
       setVerifyingStudent(true);
       setError("");
 
+      // First update the formData with trimmed values
+      setFormData((prev) => ({
+        ...prev,
+        name: trimmedName,
+        studentID: trimmedStudentID,
+      }));
+
       const response = await fetch("/api/verify-student", {
         method: "POST",
         body: JSON.stringify({
-          name: formData.name.trim(),
-          studentID: formData.studentID.trim(),
+          name: trimmedName,
+          studentID: trimmedStudentID,
         }),
         headers: { "Content-Type": "application/json" },
       });
