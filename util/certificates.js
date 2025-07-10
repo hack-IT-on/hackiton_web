@@ -44,20 +44,20 @@ export const generatePDF = async (
     ] = await Promise.all([
       getImageAsBase64(templateUrl),
       getImageAsBase64(
-        "https://hack-it-on.s3.eu-north-1.amazonaws.com/logos/BIT-logo+(2).png"
+        "https://res.cloudinary.com/djcyavj9m/image/upload/v1752128512/BIT-logo_2_jghvx9.png"
       ),
       getImageAsBase64("https://hackiton.vercel.app/logo.png"),
       getImageAsBase64(
-        "https://hack-it-on.s3.eu-north-1.amazonaws.com/logos/Logo-1392644265.png"
+        "https://res.cloudinary.com/djcyavj9m/image/upload/v1752128584/techno_logo_lswc2b.png"
       ),
       getImageAsBase64(
-        "https://hack-it-on.s3.eu-north-1.amazonaws.com/signatures/IIC.png"
+        "https://res.cloudinary.com/djcyavj9m/image/upload/v1752128179/IIC_sxwrb1.png"
       ),
       getImageAsBase64(
-        "https://hack-it-on.s3.eu-north-1.amazonaws.com/signatures/Principal.png"
+        "https://res.cloudinary.com/djcyavj9m/image/upload/v1752128659/Principal_yjuuyf.png"
       ),
       getImageAsBase64(
-        "https://hack-it-on.s3.eu-north-1.amazonaws.com/signatures/sph_sign.png"
+        "https://res.cloudinary.com/djcyavj9m/image/upload/v1752128735/sph_sign_xmctrx.png"
       ),
     ]);
 
@@ -179,11 +179,11 @@ export const generatePDF = async (
     doc.text("Prof. Tapan Kumar Pal \n President of IIC 7.0", 72.5, 190, {
       align: "center",
     });
-    doc.text("Prof.(Dr) N.C. Ghosh \n Principal of the Institute", 151, 190, {
+    doc.text("Prof.(Dr) N.C. Ghosh \n Director of the BIT", 151, 190, {
       align: "center",
     });
     doc.text(
-      "Prof. Shanta Phani \n HOD & Associate Professor \n Department of CSE",
+      "Prof. Shanta Phani \n Principal in charge \n & HOD of CSE & IT DEPT.",
       229.5,
       190,
       { align: "center" }
