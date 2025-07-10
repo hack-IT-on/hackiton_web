@@ -30,6 +30,12 @@ export default async function RootLayout({ children }) {
   }
   return (
     <html lang="en">
+      <head>
+        <meta
+          name="google-site-verification"
+          content="_s0GyUxPTPMtAtVkTYKEKo41k1OpgFyW09JeR0BTV-k"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
